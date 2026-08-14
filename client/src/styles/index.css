@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 @layer utilities {
+  .container {
+    width: 90% !important;
+    max-width: 1400px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
   .gradient-hero {
     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
   }

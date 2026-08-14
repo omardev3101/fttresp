@@ -8,16 +8,18 @@ const initialData = {
   settings: {
     siteName: "FTTRESP - Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo",
     shortName: "FTTRESP",
+    logoUrl: "/logo_fttresp.png",
     primaryColor: "#0f172a",
     secondaryColor: "#1e3a8a",
     accentColor: "#d97706",
     highlightColor: "#f59e0b",
-    phone: "(11) 3228-5000",
-    whatsapp: "(11) 98765-4321",
+    phone: "(11) 3217-7272 / (11) 3437-7320",
+    whatsapp: "(11) 3217-7272",
     email: "contato@fttresp.org.br",
     juridicoEmail: "juridico@fttresp.org.br",
-    address: "Rua do Carmo, 56 - Centro Histórico, São Paulo - SP, 01019-020",
+    address: "Av. Duque de Caxias, 108 - Santa Efigênia - São Paulo/SP",
     workingHours: "Segunda a Sexta: 08:00 às 17:00",
+    copyright: "© 2016 Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo. Todos os direitos reservados",
     social: {
       facebook: "https://facebook.com/fttresp",
       instagram: "https://instagram.com/fttresp.oficial",
@@ -34,6 +36,38 @@ const initialData = {
       passwordHash: "$2a$10$w8T05kS.yO4dZ4qM2D1eCe.ZJgH7i7D8p0N5W6y7u8v9w0x1y2z3", // admin123
       name: "Operador FTTRESP",
       role: "admin"
+    }
+  ],
+  banners: [
+    {
+      id: "b-1",
+      title: "União, Força e Tecnologia em Defesa dos Rodoviários de SP",
+      subtitle: "Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo. Conectando 97 sindicatos, convenções coletivas digitais, Web TV e Rádio Web 24h.",
+      badge: "Plataforma Oficial FTTRESP 2026",
+      imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+      btnText: "Central dos 97 Sindicatos Filiados",
+      linkUrl: "unions",
+      active: true
+    },
+    {
+      id: "b-2",
+      title: "Convenções Coletivas Digitais & Pisos Salariais 2026",
+      subtitle: "Consulte o piso salarial normativo e direitos atualizados do seu setor (Cargas, Urbano, Fretamento e Entregadores).",
+      badge: "Pisos Salariais 2026",
+      imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80",
+      btnText: "Consultar Pisos Salariais",
+      linkUrl: "salary",
+      active: true
+    },
+    {
+      id: "b-3",
+      title: "Web TV Multi-Canais & Rádio Web 24h Ao Vivo",
+      subtitle: "Transmissão corporativa contínua, grade de programação semanal, anúncios e informativo de hora certa.",
+      badge: "Mídia & Streaming Rodoviário",
+      imageUrl: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80",
+      btnText: "Assistir Web TV Ao Vivo",
+      linkUrl: "webtv",
+      active: true
     }
   ],
   news: [

@@ -2,16 +2,18 @@
   "settings": {
     "siteName": "FTTRESP - Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo",
     "shortName": "FTTRESP",
+    "logoUrl": "/logo_fttresp.png",
     "primaryColor": "#0f172a",
     "secondaryColor": "#1e3a8a",
     "accentColor": "#d97706",
     "highlightColor": "#f59e0b",
-    "phone": "(11) 3228-5000",
-    "whatsapp": "(11) 98765-4321",
+    "phone": "(11) 3217-7272 / (11) 3437-7320",
+    "whatsapp": "(11) 3217-7272",
     "email": "contato@fttresp.org.br",
     "juridicoEmail": "juridico@fttresp.org.br",
-    "address": "Rua do Carmo, 56 - Centro Histórico, São Paulo - SP, 01019-020",
+    "address": "Av. Duque de Caxias, 108 - Santa Efigênia - São Paulo/SP",
     "workingHours": "Segunda a Sexta: 08:00 às 17:00",
+    "copyright": "© 2016 Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo. Todos os direitos reservados",
     "social": {
       "facebook": "https://facebook.com/fttresp",
       "instagram": "https://instagram.com/fttresp.oficial",
@@ -294,6 +296,18 @@
       "message": "Falta de sala de descanso e banheiros sem higienização no ponto final do terminal.",
       "date": "2026-08-14 09:30",
       "status": "Pendente"
+    }
+  ],
+  "banners": [
+    {
+      "id": "b-1786717743127",
+      "active": true,
+      "title": "Agosto lilaz",
+      "subtitle": "Agosto lilaz 2026 e a fttresp",
+      "badge": "Destaque FTTRESP 2026",
+      "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL8GcerCRGWnzvQBP2fZtEcNBhcjq10MjkDtI7GDinvw&s=10",
+      "btnText": "Saiba Mais",
+      "linkUrl": "unions"
     }
   ]
 }

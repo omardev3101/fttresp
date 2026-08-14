@@ -1,100 +1,122 @@
 import React, { useState } from 'react';
-import { Tv, Radio, Building2, FileText, Search, ArrowRight, ShieldCheck, Award, Users, Calculator, ShieldAlert, Play, Quote, Sun, CheckCircle2, DollarSign } from 'lucide-react';
+import { 
+  Tv, Radio, Building2, FileText, Search, ArrowRight, ShieldCheck, Award, 
+  Users, Calculator, ShieldAlert, Play, Quote, CheckCircle2, DollarSign,
+  TrendingUp, ThumbsUp, Heart, Share2, Stethoscope, Briefcase, Brain, Baby, Activity, Pill, Megaphone, Calendar
+} from 'lucide-react';
+import BannerCarousel from '../components/BannerCarousel';
 import StatCounter from '../components/StatCounter';
 
-export default function HomePage({ news, unions, tvChannels, setCurrentPage }) {
+export default function HomePage({ news = [], unions = [], tvChannels = [], banners = [], setCurrentPage }) {
   const [newsFilter, setNewsFilter] = useState('Todas');
+  const [selectedVideo, setSelectedVideo] = useState(tvChannels[0] || null);
+  const [likes, setLikes] = useState(142);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [loves, setLoves] = useState(89);
+  const [hasLoved, setHasLoved] = useState(false);
+
   const categories = ['Todas', 'Institucional', 'Campanha Salarial', 'Segurança e Saúde', 'Jurídico'];
 
   const filteredNews = newsFilter === 'Todas' 
     ? news 
-    : news.filter(n => n.category.toLowerCase() === newsFilter.toLowerCase());
+    : news.filter(n => n.category && n.category.toLowerCase() === newsFilter.toLowerCase());
+
+  const handleLike = () => {
+    if (!hasLiked) {
+      setLikes(prev => prev + 1);
+      setHasLiked(true);
+    }
+  };
+
+  const handleLove = () => {
+    if (!hasLoved) {
+      setLoves(prev => prev + 1);
+      setHasLoved(true);
+    }
+  };
 
   return (
-    <div className="space-y-16 pb-12 font-sans">
-      {/* 1. HERO BANNER SECTION */}
-      <section className="relative gradient-hero text-white py-20 px-4 overflow-hidden rounded-b-[2.5rem] shadow-2xl">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="container relative z-10 grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-              Plataforma Oficial FTTRESP 2026
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-tight text-white">
-              União, Força e <span className="text-amber-400">Tecnologia</span> em Defesa dos Rodoviários de SP
-            </h1>
-
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
-              Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo. Conectando 97 sindicatos, convenções coletivas digitais, transmissão de Web TV ao vivo e Rádio Web 24h.
-            </p>
-
-            {/* Quick Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button 
-                onClick={() => setCurrentPage('unions')}
-                className="gradient-gold hover:opacity-95 text-slate-950 font-black text-sm px-6 py-3.5 rounded-2xl shadow-xl hover:scale-105 transition flex items-center gap-2"
-              >
-                <Search size={18} /> Central dos 97 Sindicatos Filiados
-              </button>
-
-              <button 
-                onClick={() => setCurrentPage('webtv')}
-                className="bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-sm px-6 py-3.5 rounded-2xl border border-slate-700 hover:border-amber-400 transition flex items-center gap-2"
-              >
-                <Tv size={18} className="text-amber-400" /> Assistir Web TV Ao Vivo
-              </button>
+    <div className="space-y-10 pb-12 font-sans bg-slate-50">
+      
+      {/* 1. TICKER DE ÚLTIMAS NOTÍCIAS AO VIVO */}
+      <div className="bg-slate-950 text-white text-xs py-2 px-4 border-b border-slate-800 shadow-inner">
+        <div className="container flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            <span className="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Ao Vivo</span>
+            <span className="font-extrabold text-amber-400 uppercase hidden sm:inline">Últimas FTTRESP:</span>
+          </div>
+          <div className="overflow-hidden whitespace-nowrap w-full">
+            <div className="animate-marquee inline-block text-slate-300 font-medium text-[11px]">
+              {news.length > 0 ? (
+                news.map((n, i) => (
+                  <span key={i} className="mr-8">
+                    <strong className="text-amber-400">[{n.category}]</strong> {n.title} — <em>{n.date}</em>
+                  </span>
+                ))
+              ) : (
+                <span>FTTRESP lança novo portal digital com Web TV Multi-Canais, Rádio Web 24h e Central dos 97 Sindicatos Filiados em SP.</span>
+              )}
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Featured Web TV Player Card */}
-          <div className="lg:col-span-5">
-            <div className="bg-slate-950/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
-              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span>
-                  <span className="text-xs font-black text-white uppercase tracking-wider">Web TV FTTRESP</span>
-                </div>
-                <span className="text-xs bg-amber-500/20 text-amber-400 font-bold px-2 py-0.5 rounded">Multi-Canais</span>
-              </div>
+      {/* 2. HERO SLIDER & CARROSSEL ADMINISTRÁVEL */}
+      <BannerCarousel banners={banners} setCurrentPage={setCurrentPage} />
 
-              <div 
-                className="relative aspect-video rounded-2xl bg-slate-900 overflow-hidden border border-slate-800 flex items-center justify-center group cursor-pointer"
-                onClick={() => setCurrentPage('webtv')}
-              >
-                <img 
-                  src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80" 
-                  alt="Web TV Preview"
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-70" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                <div className="w-16 h-16 rounded-full gradient-gold text-slate-950 flex items-center justify-center shadow-2xl group-hover:scale-110 transition z-10">
-                  <Play size={28} fill="currentColor" className="ml-1" />
-                </div>
-                <div className="absolute bottom-3 left-3 right-3 text-left">
-                  <div className="text-xs text-amber-400 font-bold">Jornal Rodoviário de SP</div>
-                  <div className="text-sm font-extrabold text-white truncate">Edição Especial: Conquistas Trabalhistas 2026</div>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => setCurrentPage('webtv')}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-500/30 font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 transition"
-              >
-                Acessar todos os 4 Canais de TV <ArrowRight size={14} />
-              </button>
+      {/* 3. CARDS DE ACESSO RÁPIDO A SERVIÇOS FEDERATIVOS */}
+      <section className="container">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div 
+            onClick={() => setCurrentPage('unions')}
+            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+              <Building2 size={22} />
             </div>
+            <h3 className="font-black text-slate-900 text-sm">97 Sindicatos SP</h3>
+            <p className="text-slate-500 text-xs">Busca de sindicatos por cidade e região.</p>
+          </div>
+
+          <div 
+            onClick={() => setCurrentPage('salary')}
+            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+              <DollarSign size={22} />
+            </div>
+            <h3 className="font-black text-slate-900 text-sm">Pisos Salariais 2026</h3>
+            <p className="text-slate-500 text-xs">Tabela normativa por modalidade.</p>
+          </div>
+
+          <div 
+            onClick={() => setCurrentPage('agreements')}
+            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+              <FileText size={22} />
+            </div>
+            <h3 className="font-black text-slate-900 text-sm">Convenções Coletivas</h3>
+            <p className="text-slate-500 text-xs">Acordos de trabalho em PDF por setor.</p>
+          </div>
+
+          <div 
+            onClick={() => setCurrentPage('calculator')}
+            className="bg-white p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+              <Calculator size={22} />
+            </div>
+            <h3 className="font-black text-slate-900 text-sm">Simulador de Direitos</h3>
+            <p className="text-slate-500 text-xs">Cálculo de horas extras e adicionais.</p>
           </div>
         </div>
       </section>
 
-      {/* 2. STAT COUNTERS (MODELO SINDMOTORISTAS) */}
-      <StatCounter />
-
-      {/* 3. PALAVRA DO PRESIDENTE (MODELO SINDMOTORISTAS) */}
+      {/* 4. PALAVRA DO PRESIDENTE */}
       <section className="container">
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-xl grid lg:grid-cols-12 gap-8 items-center">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl grid lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-5 relative">
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-100">
               <img 
@@ -103,26 +125,26 @@ export default function HomePage({ news, unions, tvChannels, setCurrentPage }) {
                 className="w-full h-full object-cover object-top"
               />
             </div>
-            <span className="absolute -bottom-4 -right-4 gradient-gold text-slate-950 text-xs font-black px-4 py-2 rounded-xl shadow-lg uppercase">
-              Diretoria FTTRESP
+            <span className="absolute -bottom-3 -right-3 gradient-gold text-slate-950 text-xs font-black px-3.5 py-1.5 rounded-xl shadow-md uppercase">
+              Presidência FTTRESP
             </span>
           </div>
 
           <div className="lg:col-span-7 space-y-4">
-            <span className="text-xs text-amber-600 font-extrabold uppercase tracking-wider">Mensagem Oficial</span>
-            <h2 className="text-3xl font-black text-slate-900">Palavra do Presidente</h2>
+            <span className="text-xs text-amber-600 font-extrabold uppercase tracking-wider">Mensagem da Liderança</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">Palavra do Presidente</h2>
             
-            <div className="bg-slate-50 border-l-4 border-amber-500 p-4 rounded-r-xl italic text-slate-800 font-medium">
-              "A nossa missão à frente da FTTRESP é garantir que nenhum dos 1,5 milhão de trabalhadores rodoviários de São Paulo fique desamparado. A união dos 97 sindicatos filiados é a nossa maior força."
+            <div className="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-xl italic text-slate-900 font-bold text-sm sm:text-base">
+              "A nossa força nasce da união dos 97 sindicatos filiados. Nenhum motorista ou trabalhador em transporte de São Paulo caminhará sozinho diante das adversidades."
             </div>
 
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Trabalhamos diariamente pela unificação das cláusulas econômicas e sociais, novos acordos coletivos, salas de descanso dignas nos terminais e expansão do acesso à saúde e lazer para toda a família rodoviária.
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+              Trabalhamos diariamente pela unificação das cláusulas econômicas e sociais, novos acordos coletivos, salas de descanso dignas nos terminais e expansão do acesso aos direitos de toda a família rodoviária paulista.
             </p>
 
             <button 
               onClick={() => setCurrentPage('president')}
-              className="gradient-gold text-slate-950 font-bold text-xs px-5 py-2.5 rounded-xl hover:scale-105 transition inline-flex items-center gap-2"
+              className="gradient-gold text-slate-950 font-black text-xs px-5 py-3 rounded-xl shadow-md hover:scale-105 transition inline-flex items-center gap-2"
             >
               Ler Mensagem Completa do Presidente <ArrowRight size={14} />
             </button>
@@ -130,52 +152,144 @@ export default function HomePage({ news, unions, tvChannels, setCurrentPage }) {
         </div>
       </section>
 
-      {/* 4. CENTRAL DOS 97 SINDICATOS FILIADOS */}
+      {/* 5. MÓDULO SINDFLIX / WEB TV TRANSMISSÃO AO VIVO */}
       <section className="container">
-        <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-10 shadow-2xl border border-slate-800 space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
             <div>
-              <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wider">Rede Federativa de SP</span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">Central dos 97 Sindicatos Filiados</h2>
-              <p className="text-slate-400 text-sm">Localize o sindicato da sua cidade ou região (Capital, ABCDMR, Campinas, Baixada, Interior, Vale).</p>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                <span className="text-xs font-black text-amber-400 uppercase tracking-wider">Plataforma Audiovisual</span>
+              </div>
+              <h2 className="text-2xl font-black text-white">Sindflix FTTRESP — Web TV & Mídias</h2>
             </div>
             <button 
-              onClick={() => setCurrentPage('unions')}
-              className="gradient-gold text-slate-950 font-bold text-xs px-5 py-3 rounded-xl hover:scale-105 transition shrink-0"
+              onClick={() => setCurrentPage('webtv')}
+              className="gradient-gold text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl hover:scale-105 transition"
             >
-              Ver Diretório Completo dos 97 Sindicatos
+              Ver Grade Completa da TV
             </button>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid lg:grid-cols-12 gap-8 items-start">
+            {/* Player Principal */}
+            <div className="lg:col-span-8 space-y-4">
+              <div className="relative aspect-video rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 shadow-2xl">
+                <iframe 
+                  src={selectedVideo?.defaultVideoUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0"} 
+                  title={selectedVideo?.name || "Web TV FTTRESP"}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                <div>
+                  <div className="text-xs text-amber-400 font-extrabold uppercase">{selectedVideo?.badge || 'AO VIVO'}</div>
+                  <div className="font-extrabold text-sm text-white">{selectedVideo?.name || 'TV FTTRESP Principal'}</div>
+                  <div className="text-xs text-slate-400">{selectedVideo?.currentShow || 'Jornal Rodoviário de SP'}</div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={handleLike}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
+                      hasLiked ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    <ThumbsUp size={14} /> {likes}
+                  </button>
+                  <button 
+                    onClick={handleLove}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
+                      hasLoved ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    <Heart size={14} /> {loves}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Playlist de Canais de TV */}
+            <div className="lg:col-span-4 space-y-3">
+              <h3 className="font-extrabold text-white text-sm">Canais de TV Corporativa ({tvChannels.length})</h3>
+              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                {tvChannels.map((ch) => (
+                  <div 
+                    key={ch.id}
+                    onClick={() => setSelectedVideo(ch)}
+                    className={`p-3 rounded-xl border transition cursor-pointer flex items-center gap-3 ${
+                      selectedVideo?.id === ch.id 
+                        ? 'bg-slate-800 border-amber-500 text-amber-400' 
+                        : 'bg-slate-950 border-slate-800 hover:border-slate-700 text-white'
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-black shrink-0">
+                      <Tv size={16} />
+                    </div>
+                    <div className="overflow-hidden">
+                      <div className="font-extrabold text-xs truncate">{ch.name}</div>
+                      <div className="text-[10px] text-slate-400 truncate">{ch.currentShow}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. STAT COUNTERS */}
+      <StatCounter />
+
+      {/* 7. CENTRAL DOS 97 SINDICATOS FILIADOS */}
+      <section className="container">
+        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+            <div>
+              <span className="text-[11px] text-amber-400 font-extrabold uppercase tracking-wider">Rede Federativa de SP</span>
+              <h2 className="text-xl sm:text-2xl font-black text-white">Central dos 97 Sindicatos Filiados</h2>
+              <p className="text-slate-400 text-xs sm:text-sm">Localize o sindicato da sua cidade ou região (Capital, ABCDMR, Campinas, Baixada, Interior, Vale).</p>
+            </div>
+            <button 
+              onClick={() => setCurrentPage('unions')}
+              className="gradient-gold text-slate-950 font-bold text-xs px-4 py-2.5 rounded-xl hover:scale-105 transition shrink-0"
+            >
+              Ver Diretório dos 97 Sindicatos
+            </button>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-3">
             {unions.slice(0, 3).map((u) => (
-              <div key={u.id} className="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-2 hover:border-amber-500/50 transition">
-                <div className="text-xs font-extrabold text-amber-400 uppercase">{u.region} • {u.city}</div>
-                <div className="font-extrabold text-sm text-white line-clamp-2">{u.name}</div>
-                <div className="text-xs text-slate-400"><strong>Fone:</strong> {u.phone}</div>
+              <div key={u.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-1.5 hover:border-amber-500/50 transition">
+                <div className="text-[10px] font-extrabold text-amber-400 uppercase">{u.region} • {u.city}</div>
+                <div className="font-extrabold text-xs text-white line-clamp-2">{u.name}</div>
+                <div className="text-[11px] text-slate-400"><strong>Fone:</strong> {u.phone}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 5. JORNALISMO E NOTÍCIAS COM FILTRO POR CATEGORIA (MODELO SINDMOTORISTAS) */}
-      <section className="container space-y-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      {/* 8. IMPRENSA E NOTÍCIAS COM FILTROS DE CATEGORIA */}
+      <section className="container space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
           <div>
-            <span className="text-xs text-amber-600 font-extrabold uppercase tracking-wider">Imprensa FTTRESP</span>
-            <h2 className="text-3xl font-black text-slate-900">Últimas Notícias da Categoria</h2>
+            <span className="text-[11px] text-amber-600 font-extrabold uppercase tracking-wider">Imprensa FTTRESP</span>
+            <h2 className="text-2xl font-black text-slate-900">Últimas Notícias da Categoria</h2>
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setNewsFilter(cat)}
-                className={`text-xs font-bold px-3.5 py-2 rounded-xl transition ${
+                className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
                   newsFilter === cat 
-                    ? 'bg-slate-900 text-amber-400 font-black shadow-md' 
+                    ? 'bg-slate-900 text-amber-400 font-black shadow-sm' 
                     : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
                 }`}
               >
@@ -187,27 +301,27 @@ export default function HomePage({ news, unions, tvChannels, setCurrentPage }) {
 
         <div className="grid-3">
           {filteredNews.map((item) => (
-            <div key={item.id} className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
+            <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
               <div>
                 <div className="relative aspect-video overflow-hidden">
                   <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-                  <span className="absolute top-3 left-3 bg-slate-950/80 text-amber-400 text-[10px] font-black px-2.5 py-1 rounded-md uppercase backdrop-blur-md">
+                  <span className="absolute top-2.5 left-2.5 bg-slate-950/80 text-amber-400 text-[9px] font-black px-2 py-0.5 rounded uppercase backdrop-blur-md">
                     {item.category}
                   </span>
                 </div>
-                <div className="p-6 space-y-3">
-                  <div className="text-xs text-slate-400 font-medium">{item.date} • Por {item.author}</div>
-                  <h3 className="font-extrabold text-slate-900 text-lg leading-snug hover:text-amber-600 transition">
+                <div className="p-5 space-y-2">
+                  <div className="text-[11px] text-slate-400 font-medium">{item.date} • Por {item.author}</div>
+                  <h3 className="font-extrabold text-slate-900 text-base leading-snug hover:text-amber-600 transition">
                     {item.title}
                   </h3>
-                  <p className="text-slate-600 text-sm line-clamp-3 leading-relaxed">
+                  <p className="text-slate-600 text-xs line-clamp-2 leading-relaxed">
                     {item.summary}
                   </p>
                 </div>
               </div>
-              <div className="p-6 pt-0">
-                <button className="text-amber-600 font-bold text-xs flex items-center gap-1.5 hover:gap-2 transition">
-                  Ler Matéria Completa <ArrowRight size={14} />
+              <div className="p-5 pt-0">
+                <button className="text-amber-600 font-bold text-xs flex items-center gap-1 hover:gap-1.5 transition">
+                  Ler Matéria Completa <ArrowRight size={12} />
                 </button>
               </div>
             </div>
@@ -215,46 +329,6 @@ export default function HomePage({ news, unions, tvChannels, setCurrentPage }) {
         </div>
       </section>
 
-      {/* 6. PISOS SALARIAIS & SERVIÇOS RÁPIDOS */}
-      <section className="container">
-        <div className="grid-3">
-          <div 
-            onClick={() => setCurrentPage('salary')}
-            className="bg-slate-900 text-white p-8 rounded-3xl border border-slate-800 hover-lift cursor-pointer space-y-4"
-          >
-            <div className="w-12 h-12 rounded-2xl gradient-gold text-slate-950 flex items-center justify-center font-black">
-              <DollarSign size={24} />
-            </div>
-            <h3 className="text-xl font-extrabold">Tabela de Pisos Salariais 2026</h3>
-            <p className="text-slate-300 text-sm">Consulte o piso salarial normativo do seu setor (Cargas, Urbano, Fretamento e Entregadores).</p>
-            <span className="inline-flex items-center gap-1 text-amber-400 text-xs font-bold">Consultar Tabela <ArrowRight size={14} /></span>
-          </div>
-
-          <div 
-            onClick={() => setCurrentPage('agreements')}
-            className="bg-slate-900 text-white p-8 rounded-3xl border border-slate-800 hover-lift cursor-pointer space-y-4"
-          >
-            <div className="w-12 h-12 rounded-2xl gradient-gold text-slate-950 flex items-center justify-center font-black">
-              <FileText size={24} />
-            </div>
-            <h3 className="text-xl font-extrabold">Convenções Coletivas Digitais</h3>
-            <p className="text-slate-300 text-sm">Consulte acordos de trabalho organizados por ano e setor com leitor PDF embutido.</p>
-            <span className="inline-flex items-center gap-1 text-amber-400 text-xs font-bold">Acessar Documentos <ArrowRight size={14} /></span>
-          </div>
-
-          <div 
-            onClick={() => setCurrentPage('colonies')}
-            className="bg-slate-900 text-white p-8 rounded-3xl border border-slate-800 hover-lift cursor-pointer space-y-4"
-          >
-            <div className="w-12 h-12 rounded-2xl gradient-gold text-slate-950 flex items-center justify-center font-black">
-              <Sun size={24} />
-            </div>
-            <h3 className="text-xl font-extrabold">Colônias de Férias & Lazer</h3>
-            <p className="text-slate-300 text-sm">Reservas com valores especiais para a família rodoviária em Praia Grande e Litoral Norte.</p>
-            <span className="inline-flex items-center gap-1 text-amber-400 text-xs font-bold">Ver Opções de Lazer <ArrowRight size={14} /></span>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

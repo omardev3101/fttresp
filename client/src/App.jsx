@@ -15,7 +15,6 @@ import ContactPage from './pages/ContactPage';
 import PresidentWordPage from './pages/PresidentWordPage';
 import HistoryPage from './pages/HistoryPage';
 import SalaryPage from './pages/SalaryPage';
-import ColoniesPage from './pages/ColoniesPage';
 
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -25,6 +24,7 @@ export default function App() {
   const [adminUser, setAdminUser] = useState(null);
 
   const [settings, setSettings] = useState(null);
+  const [banners, setBanners] = useState([]);
   const [news, setNews] = useState([]);
   const [unions, setUnions] = useState([]);
   const [agreements, setAgreements] = useState([]);
@@ -34,8 +34,9 @@ export default function App() {
 
   const loadData = async () => {
     try {
-      const [resSet, resNews, resUnions, resAgr, resTv, resTvSch, resRadio] = await Promise.all([
+      const [resSet, resBanners, resNews, resUnions, resAgr, resTv, resTvSch, resRadio] = await Promise.all([
         api.get('/settings'),
+        api.get('/banners'),
         api.get('/news'),
         api.get('/unions'),
         api.get('/agreements'),
@@ -45,12 +46,13 @@ export default function App() {
       ]);
 
       setSettings(resSet.data);
-      setNews(resNews.data);
-      setUnions(resUnions.data);
-      setAgreements(resAgr.data);
-      setTvChannels(resTv.data);
-      setTvSchedules(resTvSch.data);
-      setRadioConfig(resRadio.data);
+      setBanners(resBanners.data || []);
+      setNews(resNews.data || []);
+      setUnions(resUnions.data || []);
+      setAgreements(resAgr.data || []);
+      setTvChannels(resTv.data || []);
+      setTvSchedules(resTvSch.data || []);
+      setRadioConfig(resRadio.data || null);
     } catch (err) {
       console.error('Erro ao carregar dados da REST API:', err);
     }
@@ -63,15 +65,13 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage news={news} unions={unions} tvChannels={tvChannels} setCurrentPage={setCurrentPage} />;
+        return <HomePage news={news} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
       case 'president':
         return <PresidentWordPage setCurrentPage={setCurrentPage} />;
       case 'history':
         return <HistoryPage />;
       case 'salary':
         return <SalaryPage />;
-      case 'colonies':
-        return <ColoniesPage />;
       case 'unions':
         return <UnionsPage unions={unions} />;
       case 'agreements':
@@ -93,6 +93,7 @@ export default function App() {
             user={adminUser} 
             onLogout={() => { localStorage.removeItem('fttresp_token'); setAdminUser(null); }}
             refreshData={loadData}
+            banners={banners}
             news={news}
             unions={unions}
             agreements={agreements}
@@ -102,7 +103,7 @@ export default function App() {
           />
         );
       default:
-        return <HomePage news={news} unions={unions} tvChannels={tvChannels} setCurrentPage={setCurrentPage} />;
+        return <HomePage news={news} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
     }
   };
 

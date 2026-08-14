@@ -48,6 +48,43 @@ app.put('/api/settings', authMiddleware, (req, res) => {
   res.json({ message: 'Configurações atualizadas com sucesso!', settings: updated });
 });
 
+// GET & CRUD Banners do Carrossel
+app.get('/api/banners', (req, res) => {
+  const db = store.get();
+  res.json(db.banners || []);
+});
+
+app.post('/api/banners', authMiddleware, (req, res) => {
+  const db = store.get();
+  const newBanner = {
+    id: 'b-' + Date.now(),
+    active: true,
+    ...req.body
+  };
+  if (!db.banners) db.banners = [];
+  db.banners.push(newBanner);
+  store.save(db);
+  res.status(201).json(newBanner);
+});
+
+app.put('/api/banners/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  const idx = (db.banners || []).findIndex(b => b.id === req.params.id);
+  if (idx !== -1) {
+    db.banners[idx] = { ...db.banners[idx], ...req.body };
+    store.save(db);
+    return res.json(db.banners[idx]);
+  }
+  res.status(404).json({ error: 'Banner não encontrado.' });
+});
+
+app.delete('/api/banners/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  db.banners = (db.banners || []).filter(b => b.id !== req.params.id);
+  store.save(db);
+  res.json({ message: 'Banner removido com sucesso!' });
+});
+
 // Autenticação Admin (Login)
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
