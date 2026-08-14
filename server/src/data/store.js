@@ -77,20 +77,31 @@ const initialData = {
       slug: "fttresp-lanca-nova-plataforma-digital",
       category: "Institucional",
       summary: "Modernização completa da comunicação beneficia mais de 1,5 milhão de trabalhadores rodoviários e 97 sindicatos filiados no estado de SP.",
-      content: "<p>A Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo (FTTRESP) anuncia o lançamento oficial do seu novo portal web integrado. A nova plataforma conta com Painel de TV Corporativa Multi-Canais, Rádio Web 24h com locução de hora certa, repositório digital de convenções coletivas e aplicativo de busca para os 97 sindicatos filiados.</p>",
+      content: "<p>A Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo (FTTRESP) anuncia o lançamento oficial do seu novo portal web integrado.</p>",
       imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
       date: "2026-08-14",
-      author: "Redação FTTRESP"
+      author: "Redação FTTRESP",
+      status: "PUBLICADO",
+      views: 3427,
+      waShares: 120,
+      fbShares: 45,
+      linkCopies: 28
     },
     {
+      id: "news-2",
       title: "Campanha Salarial 2026/2027: FTTRESP mobiliza categoria pelo reajuste com ganho real",
       slug: "campanha-salarial-2026-2027",
       category: "Campanha Salarial",
       summary: "Diretoria reuniu lideranças sindicais em plenária estadual para definir pauta unificada de reivindicações.",
-      content: "<p>Em plenária realizada no auditório da sede em São Paulo, presidentes e diretores dos 97 sindicatos rodoviários filiados aprovaram a pauta unificada de reivindicações da Campanha Salarial 2026/2027. Dentre as principais diretrizes estão a reposição da inflação pelo INPC, ganho real de salário, reajuste do vale-refeição e garantia de cláusulas sociais.</p>",
+      content: "<p>Em plenária realizada no auditório da sede em São Paulo, presidentes e diretores dos 97 sindicatos rodoviários filiados aprovaram a pauta unificada de reivindicações da Campanha Salarial 2026/2027.</p>",
       imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80",
       date: "2026-08-12",
-      author: "Imprensa FTTRESP"
+      author: "Imprensa FTTRESP",
+      status: "PUBLICADO",
+      views: 2633,
+      waShares: 95,
+      fbShares: 32,
+      linkCopies: 18
     },
     {
       id: "news-3",
@@ -98,11 +109,51 @@ const initialData = {
       slug: "fiscalizacao-terminais-garagens",
       category: "Segurança e Saúde",
       summary: "Equipes de fiscalização avaliam salas de descanso, pontos de apoio e instalações sanitárias para os motoristas.",
-      content: "<p>Com o objetivo de garantir a dignidade dos trabalhadores rodoviários no exercício da profissão, a FTTRESP intensificou as vistorias técnicas nos pontos finais, terminais urbanos e garagens de empresas de transporte de cargas e passageiros em todo o Estado de São Paulo.</p>",
+      content: "<p>Com o objetivo de garantir a dignidade dos trabalhadores rodoviários no exercício da profissão, a FTTRESP intensificou as vistorias técnicas nos pontos finais.</p>",
       imageUrl: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80",
       date: "2026-08-10",
-      author: "Departamento de Segurança"
+      author: "Departamento de Segurança",
+      status: "PUBLICADO",
+      views: 1873,
+      waShares: 64,
+      fbShares: 19,
+      linkCopies: 12
     }
+  ],
+  jornais: [
+    {
+      id: "j-1",
+      title: "Jornal do Rodoviário SP - Edição Especial Campanha Salarial 2026",
+      category: "Informativo Oficial",
+      date: "2026-08-01",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      imageUrl: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80",
+      status: "PUBLICADO",
+      views: 3420,
+      waShares: 142,
+      fbShares: 88,
+      linkCopies: 45
+    },
+    {
+      id: "j-2",
+      title: "Boletim FTTRESP - Orientação Jurídica e Direitos da Categoria",
+      category: "Boletim Jurídico",
+      date: "2026-07-15",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      imageUrl: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80",
+      status: "PUBLICADO",
+      views: 2150,
+      waShares: 98,
+      fbShares: 42,
+      linkCopies: 31
+    }
+  ],
+  categorias: [
+    { id: "cat-1", name: "Institucional", slug: "institucional", description: "Comunicados e notas oficiais da diretoria executiva", count: 12, status: "ATIVO" },
+    { id: "cat-2", name: "Campanha Salarial", slug: "campanha-salarial", description: "Pautas de reivindicação e rodadas de negociação", count: 8, status: "ATIVO" },
+    { id: "cat-3", name: "Segurança e Saúde", slug: "seguranca-saude", description: "Vistorias em garagens, terminais e medicina ocupacional", count: 15, status: "ATIVO" },
+    { id: "cat-4", name: "Jurídico", slug: "juridico", description: "Ações coletivas, acórdãos e orientações trabalhistas", count: 9, status: "ATIVO" },
+    { id: "cat-5", name: "Convenções Coletivas", slug: "convencoes", description: "Acordos e convenções de trabalho por setor em SP", count: 14, status: "ATIVO" }
   ],
   unions: [
     {

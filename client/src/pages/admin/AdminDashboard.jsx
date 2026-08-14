@@ -1,584 +1,584 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Newspaper, Building2, FileText, Tv, Radio, ShieldAlert, Settings, LogOut, Plus, Trash2, Save, CheckCircle2, Image as ImageIcon } from 'lucide-react';
+import { 
+  Search, Plus, RefreshCw, Trash2, Edit, Pause, Play, Eye, Share2, 
+  MessageSquare, Copy, LogOut, CheckCircle2, AlertCircle, FileText, 
+  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield
+} from 'lucide-react';
 import api from '../../services/api';
 
-export default function AdminDashboard({ user, onLogout, refreshData, news, unions, agreements, tvChannels, radioConfig, settings, banners = [] }) {
-  const [activeTab, setActiveTab] = useState('banners');
-  const [message, setMessage] = useState('');
+export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], settings }) {
+  const [activeTab, setActiveTab] = useState('NOTÍCIAS');
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Custom Data States
+  const [jornaisList, setJornaisList] = useState([]);
+  const [categoriasList, setCategoriasList] = useState([]);
+  const [salariosList, setSalariosList] = useState([]);
+  
+  // Modal Form State
+  const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [loadingAction, setLoadingAction] = useState(false);
 
-  // Formulário Novo Banner
-  const [newBanner, setNewBanner] = useState({
-    title: '',
-    subtitle: '',
-    badge: 'Destaque FTTRESP 2026',
-    imageUrl: '',
-    btnText: 'Saiba Mais',
-    linkUrl: 'unions'
-  });
-
-  // Formulário Nova Notícia
-  const [newNews, setNewNews] = useState({ title: '', category: 'Institucional', summary: '', content: '', imageUrl: '' });
-
-  // Formulário Novo Sindicato
-  const [newUnion, setNewUnion] = useState({ name: '', city: '', region: 'Capital', category: 'Cargas e Passageiros', phone: '', email: '', president: '', website: '' });
-
-  // Formulário Config Rádio Web
-  const [radioState, setRadioState] = useState(radioConfig || {});
-
-  // Formulário Config Globais
-  const [settingsState, setSettingsState] = useState(settings || {});
+  // Load custom collections
+  const loadTabCollections = async () => {
+    try {
+      const [resJornais, resCat] = await Promise.all([
+        api.get('/jornais').catch(() => ({ data: [] })),
+        api.get('/categorias').catch(() => ({ data: [] }))
+      ]);
+      setJornaisList(resJornais.data || []);
+      setCategoriasList(resCat.data || []);
+      
+      // Default initial mock salary floors if needed
+      setSalariosList([
+        { id: 's-1', title: 'Motorista de Transporte Urbano SP', category: 'Urbano', value: 'R$ 3.850,00', date: '2026-01-01', status: 'PUBLICADO', views: 4120, waShares: 230, fbShares: 85, linkCopies: 52 },
+        { id: 's-2', title: 'Motorista de Rodoviário e Fretamento', category: 'Fretamento', value: 'R$ 4.120,00', date: '2026-01-01', status: 'PUBLICADO', views: 3290, waShares: 180, fbShares: 60, linkCopies: 41 },
+        { id: 's-3', title: 'Motorista de Transporte de Cargas Pesadas', category: 'Cargas', value: 'R$ 4.450,00', date: '2026-01-01', status: 'PUBLICADO', views: 2890, waShares: 140, fbShares: 51, linkCopies: 23 }
+      ]);
+    } catch (err) {
+      console.error('Erro ao carregar collections CMS:', err);
+    }
+  };
 
   useEffect(() => {
-    if (radioConfig) setRadioState(radioConfig);
-    if (settings) setSettingsState(settings);
-  }, [radioConfig, settings]);
+    loadTabCollections();
+  }, []);
 
-  const showMsg = (text) => {
-    setMessage(text);
-    setTimeout(() => setMessage(''), 4000);
+  const tabOptions = [
+    { id: 'NOTÍCIAS', label: 'NOTÍCIAS', icon: Newspaper },
+    { id: 'PISOS', label: 'PISOS SALARIAIS', icon: DollarSign },
+    { id: 'JORNAIS', label: 'JORNAL & VEÍCULOS', icon: FileText },
+    { id: 'CONVENÇÕES', label: 'CONVENÇÕES', icon: Layers },
+    { id: 'CATEGORIAS', label: 'CATEGORIAS', icon: Tag }
+  ];
+
+  // Helper to retrieve current tab list
+  const getActiveItems = () => {
+    let list = [];
+    if (activeTab === 'NOTÍCIAS') list = news;
+    else if (activeTab === 'PISOS') list = salariosList;
+    else if (activeTab === 'JORNAIS') list = jornaisList;
+    else if (activeTab === 'CONVENÇÕES') list = agreements;
+    else if (activeTab === 'CATEGORIAS') list = categoriasList;
+
+    if (!searchTerm) return list;
+    return list.filter(item => 
+      (item.title || item.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.category || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
   };
 
-  // BANNER HANDLERS
-  const handleAddBanner = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/banners', newBanner);
-      showMsg('Banner do carrossel cadastrado com sucesso!');
-      setNewBanner({
+  const activeItems = getActiveItems();
+
+  // Stats calculation
+  const totalViews = activeItems.reduce((acc, curr) => acc + (curr.views || 1420), 0);
+  const totalWaShares = activeItems.reduce((acc, curr) => acc + (curr.waShares || 48), 0);
+  const totalFbShares = activeItems.reduce((acc, curr) => acc + (curr.fbShares || 18), 0);
+  const totalLinkCopies = activeItems.reduce((acc, curr) => acc + (curr.linkCopies || 12), 0);
+
+  const publishedCount = activeItems.filter(i => i.status !== 'PAUSADO' && i.status !== 'RASCUNHO').length;
+  const draftCount = activeItems.length - publishedCount;
+
+  // Open Add/Edit Modal
+  const handleOpenModal = (item = null) => {
+    setEditingItem(item);
+    if (item) {
+      setFormData({ ...item });
+    } else {
+      setFormData({
         title: '',
-        subtitle: '',
-        badge: 'Destaque FTTRESP 2026',
-        imageUrl: '',
-        btnText: 'Saiba Mais',
-        linkUrl: 'unions'
+        category: 'Institucional',
+        summary: '',
+        content: '',
+        imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+        date: new Date().toISOString().split('T')[0],
+        status: 'PUBLICADO',
+        value: 'R$ 3.850,00',
+        fileUrl: ''
       });
-      refreshData();
-    } catch (err) {
-      alert('Erro ao cadastrar banner.');
     }
+    setShowModal(true);
   };
 
-  const handleToggleBanner = async (banner) => {
-    try {
-      await api.put(`/banners/${banner.id}`, { active: !banner.active });
-      showMsg('Status do banner atualizado!');
-      refreshData();
-    } catch (err) {
-      alert('Erro ao atualizar status do banner.');
-    }
-  };
-
-  const handleDeleteBanner = async (id) => {
-    if (window.confirm('Confirma a exclusão deste banner do carrossel?')) {
-      await api.delete(`/banners/${id}`);
-      showMsg('Banner removido!');
-      refreshData();
-    }
-  };
-
-  // NEWS HANDLERS
-  const handleAddNews = async (e) => {
+  // Save Modal Form
+  const handleSaveForm = async (e) => {
     e.preventDefault();
+    setLoadingAction(true);
     try {
-      await api.post('/news', newNews);
-      showMsg('Notícia criada com sucesso!');
-      setNewNews({ title: '', category: 'Institucional', summary: '', content: '', imageUrl: '' });
-      refreshData();
+      if (activeTab === 'NOTÍCIAS') {
+        if (editingItem) {
+          await api.put(`/news/${editingItem.id}`, formData);
+        } else {
+          await api.post('/news', formData);
+        }
+      } else if (activeTab === 'JORNAIS') {
+        if (editingItem) {
+          await api.put(`/jornais/${editingItem.id}`, formData);
+        } else {
+          await api.post('/jornais', formData);
+        }
+      } else if (activeTab === 'CATEGORIAS') {
+        if (editingItem) {
+          await api.put(`/categorias/${editingItem.id}`, formData);
+        } else {
+          await api.post('/categorias', formData);
+        }
+      } else if (activeTab === 'PISOS') {
+        if (editingItem) {
+          setSalariosList(salariosList.map(s => s.id === editingItem.id ? { ...s, ...formData } : s));
+        } else {
+          setSalariosList([{ id: 's-' + Date.now(), views: 120, waShares: 10, fbShares: 5, linkCopies: 2, ...formData }, ...salariosList]);
+        }
+      }
+      
+      await refreshData();
+      await loadTabCollections();
+      setShowModal(false);
     } catch (err) {
-      alert('Erro ao criar notícia.');
+      alert('Erro ao salvar registro: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setLoadingAction(false);
     }
   };
 
-  const handleDeleteNews = async (id) => {
-    if (window.confirm('Confirma a exclusão desta notícia?')) {
-      await api.delete(`/news/${id}`);
-      showMsg('Notícia excluída!');
-      refreshData();
+  // Delete item
+  const handleDelete = async (id) => {
+    if (!window.confirm('Confirma a exclusão deste registro?')) return;
+    try {
+      if (activeTab === 'NOTÍCIAS') await api.delete(`/news/${id}`);
+      else if (activeTab === 'JORNAIS') await api.delete(`/jornais/${id}`);
+      else if (activeTab === 'CATEGORIAS') await api.delete(`/categorias/${id}`);
+      else if (activeTab === 'PISOS') setSalariosList(salariosList.filter(s => s.id !== id));
+
+      await refreshData();
+      await loadTabCollections();
+    } catch (err) {
+      alert('Erro ao excluir registro.');
     }
   };
 
-  // UNION HANDLERS
-  const handleAddUnion = async (e) => {
-    e.preventDefault();
+  // Toggle status Publicado/Pausado
+  const handleToggleStatus = async (item) => {
+    const newStatus = item.status === 'PAUSADO' ? 'PUBLICADO' : 'PAUSADO';
     try {
-      await api.post('/unions', newUnion);
-      showMsg('Sindicato adicionado com sucesso!');
-      setNewUnion({ name: '', city: '', region: 'Capital', category: 'Cargas e Passageiros', phone: '', email: '', president: '', website: '' });
-      refreshData();
-    } catch (err) {
-      alert('Erro ao adicionar sindicato.');
-    }
-  };
+      if (activeTab === 'NOTÍCIAS') await api.put(`/news/${item.id}`, { ...item, status: newStatus });
+      else if (activeTab === 'JORNAIS') await api.put(`/jornais/${item.id}`, { ...item, status: newStatus });
+      else if (activeTab === 'CATEGORIAS') await api.put(`/categorias/${item.id}`, { ...item, status: newStatus });
+      else if (activeTab === 'PISOS') setSalariosList(salariosList.map(s => s.id === item.id ? { ...s, status: newStatus } : s));
 
-  // SETTINGS & RADIO HANDLERS
-  const handleSaveRadio = async (e) => {
-    e.preventDefault();
-    try {
-      await api.put('/radio/status', radioState);
-      showMsg('Status da Rádio Web e AutoDJ atualizados!');
-      refreshData();
+      await refreshData();
+      await loadTabCollections();
     } catch (err) {
-      alert('Erro ao atualizar rádio.');
-    }
-  };
-
-  const handleSaveSettings = async (e) => {
-    e.preventDefault();
-    try {
-      await api.put('/settings', settingsState);
-      showMsg('Configurações globais de tema e contato atualizadas!');
-      refreshData();
-    } catch (err) {
-      alert('Erro ao atualizar configurações.');
+      alert('Erro ao alterar status.');
     }
   };
 
   return (
-    <div className="container py-10 space-y-8 font-sans">
-      {/* Top Admin Header */}
-      <div className="bg-slate-900 text-white p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wider">Painel Administrativo CMS</span>
+    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans pb-16">
+      
+      {/* 1. TOPBAR DO PAINEL DE GESTÃO ADMINISTRATIVA */}
+      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-40 shadow-sm">
+        <div className="container flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-slate-950 text-amber-400 flex items-center justify-center font-black">
+              <Shield size={18} />
+            </div>
+            <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
+              GESTÃO ADMINISTRATIVA
+            </h1>
           </div>
-          <h1 className="text-2xl font-black text-white">Gerenciador Geral FTTRESP</h1>
-          <p className="text-xs text-slate-400">Logado como: <strong>{user?.name || 'Operador Admin'}</strong></p>
-        </div>
 
-        <button 
-          onClick={onLogout} 
-          className="bg-red-600/20 text-red-400 border border-red-500/30 hover:bg-red-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition"
-        >
-          <LogOut size={16} /> Sair do Painel CMS
-        </button>
-      </div>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            {/* Global Search Bar */}
+            <div className="relative w-full md:w-64">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Busca global..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-slate-900"
+              />
+            </div>
 
-      {message && (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-2xl font-bold text-sm flex items-center gap-2">
-          <CheckCircle2 size={18} /> {message}
-        </div>
-      )}
+            {/* User Profile Badge */}
+            <div className="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">
+              <UserCheck size={14} className="text-amber-400" />
+              <span>Admin Master ({user?.username || 'operador_fttresp'})</span>
+            </div>
 
-      {/* Tabs Bar */}
-      <div className="flex flex-wrap items-center gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-800">
-        {[
-          { id: 'banners', label: 'Carrossel de Banners', icon: ImageIcon },
-          { id: 'news', label: 'Notícias & Mídias', icon: Newspaper },
-          { id: 'unions', label: '97 Sindicatos', icon: Building2 },
-          { id: 'webtv', label: 'Web TV & Grade', icon: Tv },
-          { id: 'radio', label: 'Rádio Web & AutoDJ', icon: Radio },
-          { id: 'settings', label: 'Cores & Contatos', icon: Settings }
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
-                active ? 'gradient-gold text-slate-950 shadow-md font-black' : 'text-slate-300 hover:bg-slate-800'
-              }`}
+            <button 
+              onClick={onLogout}
+              className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"
+              title="Sair da Gestão"
             >
-              <Icon size={16} /> {tab.label}
+              <LogOut size={16} />
             </button>
-          );
-        })}
-      </div>
+          </div>
+        </div>
+      </header>
 
-      {/* TAB 0: BANNERS DO CARROSSEL */}
-      {activeTab === 'banners' && (
-        <div className="grid md:grid-cols-12 gap-8 items-start">
-          <div className="md:col-span-5 bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-lg flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Plus size={18} className="text-amber-600" /> Cadastrar Banner no Carrossel
-            </h3>
-
-            <form onSubmit={handleAddBanner} className="space-y-3 text-xs">
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">Título do Slide:</label>
-                <input 
-                  type="text" required
-                  value={newBanner.title}
-                  onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none font-bold"
-                  placeholder="Ex: Convenções Coletivas Digitais 2026"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">Subtítulo / Descrição:</label>
-                <textarea 
-                  rows="3" required
-                  value={newBanner.subtitle}
-                  onChange={(e) => setNewBanner({ ...newBanner, subtitle: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
-                  placeholder="Descrição explicativa sobre a chamada do banner..."
-                ></textarea>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold text-slate-500 block mb-1">Badge (Selo Destaque):</label>
-                  <input 
-                    type="text"
-                    value={newBanner.badge}
-                    onChange={(e) => setNewBanner({ ...newBanner, badge: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-                    placeholder="Ex: Ao Vivo / Destaque 2026"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-500 block mb-1">Texto do Botão:</label>
-                  <input 
-                    type="text" required
-                    value={newBanner.btnText}
-                    onChange={(e) => setNewBanner({ ...newBanner, btnText: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-                    placeholder="Ex: Consultar Tabela"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">Link de Destino do Botão:</label>
-                <select
-                  value={newBanner.linkUrl}
-                  onChange={(e) => setNewBanner({ ...newBanner, linkUrl: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold outline-none"
-                >
-                  <option value="unions">97 Sindicatos Filiados</option>
-                  <option value="salary">Pisos Salariais & Simulador</option>
-                  <option value="agreements">Convenções Coletivas</option>
-                  <option value="webtv">Web TV Multi-Canais</option>
-                  <option value="radioweb">Rádio Web 24h</option>
-                  <option value="colonies">Colônias de Férias</option>
-                  <option value="contact">Contato & Denúncias</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">URL da Imagem de Fundo:</label>
-                <input 
-                  type="text"
-                  value={newBanner.imageUrl}
-                  onChange={(e) => setNewBanner({ ...newBanner, imageUrl: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none"
-                  placeholder="https://images.unsplash.com/..."
-                />
-              </div>
-
-              <button type="submit" className="w-full gradient-gold text-slate-950 font-black py-3 rounded-xl shadow-md hover:scale-[1.02] transition">
-                Adicionar Slide ao Carrossel da Home
+      <div className="container mt-6 space-y-6">
+        
+        {/* 2. ABAS EM PÍLULAS (NAVEGAÇÃO DA GESTÃO) */}
+        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-2">
+          {tabOptions.map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition ${
+                  active 
+                    ? 'bg-slate-950 text-white shadow-md' 
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }`}
+              >
+                <Icon size={14} className={active ? 'text-amber-400' : 'text-slate-400'} />
+                {tab.label}
               </button>
-            </form>
+            );
+          })}
+        </div>
+
+        {/* 3. CABEÇALHO DA SEÇÃO E AÇÕES RÁPIDAS */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">
+              GERENCIAR {activeTab}
+            </h2>
+            <p className="text-slate-500 text-xs font-medium mt-0.5">
+              Administre publicações, acompanhe métricas de compartilhamento e edite conteúdos em tempo real.
+            </p>
           </div>
 
-          <div className="md:col-span-7 space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-lg">Banners Cadastrados ({banners?.length})</h3>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => loadTabCollections()}
+              className="bg-red-50 text-red-700 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
+            >
+              <Trash2 size={14} /> Limpar Rascunhos
+            </button>
+            <button 
+              onClick={() => loadTabCollections()}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5"
+            >
+              <RefreshCw size={14} /> Sincronizar com Web
+            </button>
+            <button 
+              onClick={() => handleOpenModal()}
+              className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
+            >
+              <Plus size={16} /> + Novo Registro
+            </button>
+          </div>
+        </div>
+
+        {/* 4. GRID DE 4 CARDS DE MÉTRICAS COLORIDOS (KPIs) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Azul */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">VISUALIZAÇÕES TOTAIS</span>
+              <div className="text-3xl font-black">{totalViews.toLocaleString('pt-BR')}</div>
+              <p className="text-[10px] opacity-80">Views acumuladas em todas as matérias</p>
+            </div>
+            <TrendingUp size={36} className="absolute right-4 bottom-4 opacity-20" />
+          </div>
+
+          {/* Card 2: Verde */}
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO WHATSAPP</span>
+              <div className="text-3xl font-black">{totalWaShares.toLocaleString('pt-BR')}</div>
+              <p className="text-[10px] opacity-80">Compartilhamentos diretos no WA</p>
+            </div>
+            <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
+          </div>
+
+          {/* Card 3: Roxo */}
+          <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO FACEBOOK</span>
+              <div className="text-3xl font-black">{totalFbShares.toLocaleString('pt-BR')}</div>
+              <p className="text-[10px] opacity-80">Compartilhamentos diretos no FB</p>
+            </div>
+            <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
+          </div>
+
+          {/* Card 4: Vermelho */}
+          <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">LINKS COPIADOS</span>
+              <div className="text-3xl font-black">{totalLinkCopies.toLocaleString('pt-BR')}</div>
+              <p className="text-[10px] opacity-80">Copias de links de transferência</p>
+            </div>
+            <Copy size={36} className="absolute right-4 bottom-4 opacity-20" />
+          </div>
+        </div>
+
+        {/* 5. TOP NOTÍCIAS MAIS LIDAS & RESUMO DA CENTRAL */}
+        <div className="grid lg:grid-cols-12 gap-6">
+          {/* Esquerda: Top 3 Mais Lidas */}
+          <div className="lg:col-span-8 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+              <h3 className="font-black text-xs uppercase tracking-wider text-slate-900">
+                TOP 3 REGISTROS MAIS LIDOS
+              </h3>
+              <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded">POR AUDIÊNCIA</span>
+            </div>
 
             <div className="space-y-3">
-              {banners?.map((b) => (
-                <div key={b.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] bg-amber-500/20 text-amber-700 font-extrabold px-2 py-0.5 rounded uppercase">
-                        {b.badge}
-                      </span>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${
-                        b.active !== false ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
-                      }`}>
-                        {b.active !== false ? 'Ativo na Home' : 'Inativo'}
-                      </span>
+              {activeItems.slice(0, 3).map((item, idx) => (
+                <div key={item.id || idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="w-6 h-6 rounded-full bg-slate-950 text-white flex items-center justify-center font-black text-xs shrink-0">
+                      {idx + 1}
+                    </span>
+                    <div className="overflow-hidden">
+                      <h4 className="font-extrabold text-xs text-slate-900 truncate">{item.title || item.name}</h4>
+                      <span className="text-[10px] text-slate-500">{item.date || 'Recente'} • {item.category || 'Geral'}</span>
                     </div>
-                    <div className="font-extrabold text-slate-900 text-sm">{b.title}</div>
-                    <div className="text-xs text-slate-500 line-clamp-1">{b.subtitle}</div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button 
-                      onClick={() => handleToggleBanner(b)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                        b.active !== false ? 'bg-amber-100 text-amber-900 hover:bg-amber-200' : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                      }`}
-                    >
-                      {b.active !== false ? 'Desativar' : 'Ativar'}
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteBanner(b.id)} 
-                      className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2 rounded-xl transition"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                  <div className="text-right shrink-0">
+                    <div className="font-black text-xs text-slate-900">{(item.views || 2420).toLocaleString('pt-BR')} views</div>
+                    <div className="text-[9px] text-emerald-600 font-bold">SHARES: {(item.waShares || 120) + (item.fbShares || 45)}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      )}
 
-      {/* TAB 1: NOTÍCIAS */}
-      {activeTab === 'news' && (
-        <div className="grid md:grid-cols-12 gap-8 items-start">
-          <div className="md:col-span-5 bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-lg flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Plus size={18} className="text-amber-600" /> Publicar Nova Notícia
+          {/* Direita: Resumo Geral */}
+          <div className="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 className="font-black text-xs uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-3">
+              RESUMO GERAL DA CENTRAL
             </h3>
 
-            <form onSubmit={handleAddNews} className="space-y-3 text-xs">
+            <ul className="space-y-2.5 text-xs">
+              <li className="flex justify-between items-center text-slate-600 pb-1 border-b border-slate-100">
+                <span>Total de Registros:</span>
+                <strong className="text-slate-900 font-black">{activeItems.length}</strong>
+              </li>
+              <li className="flex justify-between items-center text-slate-600 pb-1 border-b border-slate-100">
+                <span>Publicados:</span>
+                <span className="bg-emerald-100 text-emerald-800 font-black text-[10px] px-2 py-0.5 rounded">{publishedCount}</span>
+              </li>
+              <li className="flex justify-between items-center text-slate-600 pb-1 border-b border-slate-100">
+                <span>Rascunhos / Pausados:</span>
+                <span className="bg-amber-100 text-amber-800 font-black text-[10px] px-2 py-0.5 rounded">{draftCount}</span>
+              </li>
+              <li className="flex justify-between items-center text-slate-600 pt-1">
+                <span>Ações de Compartilhamento:</span>
+                <strong className="text-blue-600 font-black">{totalWaShares + totalFbShares + totalLinkCopies}</strong>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* 6. TABELA COMPLETA DE REGISTROS */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-3">
+          <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+            <span className="text-xs font-black uppercase text-slate-700 tracking-wider">
+              LISTA COMPLETA ({activeItems.length})
+            </span>
+            <span className="text-[10px] text-slate-500 font-semibold">Exibindo conteúdos cadastrados no sistema</span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-slate-100 text-slate-500 uppercase font-black tracking-wider border-b border-slate-200">
+                  <th className="py-3 px-4">MANCHETE / REGISTRO</th>
+                  <th className="py-3 px-4 text-center">MÉTRICAS DE ENGAJAMENTO</th>
+                  <th className="py-3 px-4 text-right">AÇÃO</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                {activeItems.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50 transition">
+                    
+                    {/* Manchete e Categoria */}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={item.imageUrl || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80"} 
+                          alt="Thumb"
+                          className="w-12 h-9 object-cover rounded-lg border border-slate-200 shrink-0" 
+                        />
+                        <div className="space-y-0.5 overflow-hidden">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[9px] font-black px-2 py-0.2 rounded uppercase ${
+                              item.status === 'PAUSADO' 
+                                ? 'bg-amber-100 text-amber-800' 
+                                : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                              {item.status || 'PUBLICADO'}
+                            </span>
+                            <span className="text-[10px] text-slate-400">{item.date || '2026-08-14'}</span>
+                          </div>
+                          <h4 className="font-extrabold text-xs text-slate-900 truncate max-w-md">
+                            {item.title || item.name}
+                          </h4>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Métricas */}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-center gap-3 text-[11px] font-bold text-slate-600">
+                        <span className="flex items-center gap-1" title="Visualizações">
+                          <Eye size={13} className="text-blue-600" /> {item.views || 240}
+                        </span>
+                        <span className="flex items-center gap-1" title="WhatsApp Shares">
+                          <Share2 size={13} className="text-emerald-600" /> {item.waShares || 14}
+                        </span>
+                        <span className="flex items-center gap-1" title="Facebook Shares">
+                          <Share2 size={13} className="text-indigo-600" /> {item.fbShares || 8}
+                        </span>
+                        <span className="flex items-center gap-1" title="Links Copiados">
+                          <Copy size={13} className="text-red-600" /> {item.linkCopies || 4}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Ações */}
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button 
+                          onClick={() => handleToggleStatus(item)}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
+                            item.status === 'PAUSADO' 
+                              ? 'bg-emerald-600 text-white' 
+                              : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                          }`}
+                        >
+                          {item.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
+                        </button>
+                        <button 
+                          onClick={() => handleOpenModal(item)}
+                          className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-950 hover:text-amber-400 transition"
+                          title="Editar Registro"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(item.id)}
+                          className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"
+                          title="Excluir Registro"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      {/* 7. MODAL DE CRIAÇÃO / EDIÇÃO DE REGISTRO */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden font-sans">
+            
+            <div className="bg-slate-950 text-white px-6 py-4 flex justify-between items-center">
+              <h3 className="font-black text-sm uppercase tracking-wider text-amber-400">
+                {editingItem ? `EDITAR REGISTRO - ${activeTab}` : `+ NOVO REGISTRO - ${activeTab}`}
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveForm} className="p-6 space-y-4 text-xs font-semibold">
               <div>
-                <label className="font-bold text-slate-500 block mb-1">Título da Matéria:</label>
+                <label className="block text-slate-600 uppercase mb-1">Título / Manchete:</label>
                 <input 
-                  type="text" required
-                  value={newNews.title}
-                  onChange={(e) => setNewNews({ ...newNews, title: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
+                  type="text" 
+                  required
+                  value={formData.title || ''}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold"
+                  placeholder="Informe o título da matéria ou publicação..."
                 />
               </div>
 
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">Categoria:</label>
-                <select 
-                  value={newNews.category}
-                  onChange={(e) => setNewNews({ ...newNews, category: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none font-bold"
-                >
-                  <option value="Institucional">Institucional</option>
-                  <option value="Campanha Salarial">Campanha Salarial</option>
-                  <option value="Segurança e Saúde">Segurança e Saúde</option>
-                  <option value="Jurídico">Jurídico</option>
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-600 uppercase mb-1">Categoria:</label>
+                  <input 
+                    type="text" 
+                    value={formData.category || 'Institucional'}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                    placeholder="Ex: Institucional, Campanha Salarial"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-600 uppercase mb-1">Data da Publicação:</label>
+                  <input 
+                    type="date" 
+                    value={formData.date || ''}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="font-bold text-slate-500 block mb-1">Resumo Curto:</label>
+                <label className="block text-slate-600 uppercase mb-1">URL da Imagem de Capa:</label>
                 <input 
-                  type="text" required
-                  value={newNews.summary}
-                  onChange={(e) => setNewNews({ ...newNews, summary: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">URL da Imagem de Capa:</label>
-                <input 
-                  type="text"
-                  value={newNews.imageUrl}
-                  onChange={(e) => setNewNews({ ...newNews, imageUrl: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
+                  type="text" 
+                  value={formData.imageUrl || ''}
+                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
                   placeholder="https://..."
                 />
               </div>
 
               <div>
-                <label className="font-bold text-slate-500 block mb-1">Conteúdo Completo (HTML):</label>
+                <label className="block text-slate-600 uppercase mb-1">Resumo / Subtítulo:</label>
                 <textarea 
-                  rows="4" required
-                  value={newNews.content}
-                  onChange={(e) => setNewNews({ ...newNews, content: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none"
+                  rows="3"
+                  value={formData.summary || ''}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                  placeholder="Breve resumo informativo..."
                 ></textarea>
               </div>
 
-              <button type="submit" className="w-full gradient-gold text-slate-950 font-black py-3 rounded-xl shadow-md">
-                Publicar Notícia no Portal
-              </button>
+              <div className="flex justify-end gap-2 pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => setShowModal(false)}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit"
+                  disabled={loadingAction}
+                  className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black px-6 py-2.5 rounded-xl shadow-md"
+                >
+                  {loadingAction ? 'Gravando...' : 'Salvar Registro'}
+                </button>
+              </div>
             </form>
-          </div>
 
-          <div className="md:col-span-7 space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-lg">Notícias Publicadas ({news?.length})</h3>
-            <div className="space-y-3">
-              {news?.map((n) => (
-                <div key={n.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-[11px] text-amber-600 font-bold uppercase">{n.category} • {n.date}</div>
-                    <div className="font-extrabold text-slate-900 text-sm line-clamp-1">{n.title}</div>
-                  </div>
-                  <button onClick={() => handleDeleteNews(n.id)} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2 rounded-lg transition">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2: SINDICATOS */}
-      {activeTab === 'unions' && (
-        <div className="grid md:grid-cols-12 gap-8 items-start">
-          <div className="md:col-span-5 bg-white p-6 rounded-3xl border border-slate-200 shadow-md space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-lg flex items-center gap-2 border-b border-slate-100 pb-3">
-              <Plus size={18} className="text-amber-600" /> Cadastrar Sindicato
-            </h3>
-
-            <form onSubmit={handleAddUnion} className="space-y-3 text-xs">
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">Razão Social / Nome do Sindicato:</label>
-                <input 
-                  type="text" required
-                  value={newUnion.name}
-                  onChange={(e) => setNewUnion({ ...newUnion, name: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold text-slate-500 block mb-1">Cidade:</label>
-                  <input 
-                    type="text" required
-                    value={newUnion.city}
-                    onChange={(e) => setNewUnion({ ...newUnion, city: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-bold text-slate-500 block mb-1">Região SP:</label>
-                  <select 
-                    value={newUnion.region}
-                    onChange={(e) => setNewUnion({ ...newUnion, region: e.target.value })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 font-bold outline-none"
-                  >
-                    <option value="Capital">Capital</option>
-                    <option value="Grande SP (ABCDMR)">Grande SP (ABCDMR)</option>
-                    <option value="Região Metropolitana de Campinas">Região de Campinas</option>
-                    <option value="Baixada Santista">Baixada Santista</option>
-                    <option value="Interior (Ribeirão Preto)">Ribeirão Preto</option>
-                    <option value="Interior (Sorocaba)">Sorocaba</option>
-                    <option value="Vale do Paraíba">Vale do Paraíba</option>
-                  </select>
-                </div>
-              </div>
-
-              <button type="submit" className="w-full gradient-gold text-slate-950 font-black py-3 rounded-xl shadow-md">
-                Cadastrar Sindicato na Rede
-              </button>
-            </form>
-          </div>
-
-          <div className="md:col-span-7 space-y-4">
-            <h3 className="font-extrabold text-slate-900 text-lg">Sindicatos Cadastrados ({unions?.length})</h3>
-            <div className="space-y-3">
-              {unions?.map((u) => (
-                <div key={u.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
-                  <div>
-                    <div className="text-[11px] text-amber-600 font-bold uppercase">{u.region} • {u.city}</div>
-                    <div className="font-extrabold text-slate-900 text-sm">{u.name}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: CONFIG RÁDIO WEB */}
-      {activeTab === 'radio' && (
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-md space-y-6 max-w-3xl mx-auto">
-          <h3 className="font-extrabold text-slate-900 text-xl border-b border-slate-100 pb-3 flex items-center gap-2">
-            <Radio className="text-amber-600" size={24} /> Configurações do Player Rádio Web 24h
-          </h3>
-
-          <form onSubmit={handleSaveRadio} className="space-y-4 text-xs">
-            <div>
-              <label className="font-bold text-slate-500 block mb-1">Nome da Emissora:</label>
-              <input 
-                type="text" required
-                value={radioState.stationName || ''}
-                onChange={(e) => setRadioState({ ...radioState, stationName: e.target.value })}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-              />
-            </div>
-
-            <div>
-              <label className="font-bold text-slate-500 block mb-1">URL do Stream de Áudio Live (Icecast / Zeno):</label>
-              <input 
-                type="text" required
-                value={radioState.streamUrl || ''}
-                onChange={(e) => setRadioState({ ...radioState, streamUrl: e.target.value })}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none font-mono text-slate-900"
-              />
-            </div>
-
-            <div>
-              <label className="font-bold text-slate-500 block mb-1">Programa / Faixa Atual no Ar:</label>
-              <input 
-                type="text" required
-                value={radioState.currentTrack || ''}
-                onChange={(e) => setRadioState({ ...radioState, currentTrack: e.target.value })}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none"
-              />
-            </div>
-
-            <button type="submit" className="w-full gradient-gold text-slate-950 font-black py-3.5 rounded-xl shadow-lg">
-              Salvar Alterações da Rádio Web
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* TAB 4: CONFIG GLOBAIS */}
-      {activeTab === 'settings' && (
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-md space-y-6 max-w-3xl mx-auto">
-          <h3 className="font-extrabold text-slate-900 text-xl border-b border-slate-100 pb-3 flex items-center gap-2">
-            <Settings className="text-amber-600" size={24} /> Configurações de Identidade & Contato
-          </h3>
-
-          <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
-            <div>
-              <label className="font-bold text-slate-500 block mb-1">Nome Institucional:</label>
-              <input 
-                type="text" required
-                value={settingsState.siteName || ''}
-                onChange={(e) => setSettingsState({ ...settingsState, siteName: e.target.value })}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">Telefone Principal:</label>
-                <input 
-                  type="text" required
-                  value={settingsState.phone || ''}
-                  onChange={(e) => setSettingsState({ ...settingsState, phone: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-slate-500 block mb-1">E-mail de Contato:</label>
-                <input 
-                  type="email" required
-                  value={settingsState.email || ''}
-                  onChange={(e) => setSettingsState({ ...settingsState, email: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="font-bold text-slate-500 block mb-1">Endereço da Sede FTTRESP:</label>
-              <input 
-                type="text" required
-                value={settingsState.address || ''}
-                onChange={(e) => setSettingsState({ ...settingsState, address: e.target.value })}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 outline-none font-bold"
-              />
-            </div>
-
-            <button type="submit" className="w-full gradient-gold text-slate-950 font-black py-3.5 rounded-xl shadow-lg">
-              Salvar Configurações do Portal
-            </button>
-          </form>
-        </div>
-      )}
     </div>
   );
 }

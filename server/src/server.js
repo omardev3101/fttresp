@@ -227,7 +227,7 @@ app.get('/api/tv/ads', (req, res) => {
   res.json(db.ads || []);
 });
 
-// GET & PUT Rádio Web Config & AutoDJ Status
+// GET & CRUD Rádio Web Config & AutoDJ Status
 app.get('/api/radio/status', (req, res) => {
   const db = store.get();
   res.json(db.radioConfig || {});
@@ -238,6 +238,76 @@ app.put('/api/radio/status', authMiddleware, (req, res) => {
   db.radioConfig = { ...db.radioConfig, ...req.body };
   store.save(db);
   res.json(db.radioConfig);
+});
+
+// GET & CRUD Jornais & Informativos PDF
+app.get('/api/jornais', (req, res) => {
+  const db = store.get();
+  res.json(db.jornais || []);
+});
+
+app.post('/api/jornais', authMiddleware, (req, res) => {
+  const db = store.get();
+  const newItem = { id: 'j-' + Date.now(), views: 0, waShares: 0, fbShares: 0, linkCopies: 0, status: 'PUBLICADO', ...req.body };
+  if (!db.jornais) db.jornais = [];
+  db.jornais.unshift(newItem);
+  store.save(db);
+  res.status(201).json(newItem);
+});
+
+app.put('/api/jornais/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  if (!db.jornais) db.jornais = [];
+  const idx = db.jornais.findIndex(j => j.id === req.params.id);
+  if (idx !== -1) {
+    db.jornais[idx] = { ...db.jornais[idx], ...req.body };
+    store.save(db);
+    return res.json(db.jornais[idx]);
+  }
+  res.status(404).json({ error: 'Jornal não encontrado.' });
+});
+
+app.delete('/api/jornais/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  if (!db.jornais) db.jornais = [];
+  db.jornais = db.jornais.filter(j => j.id !== req.params.id);
+  store.save(db);
+  res.json({ message: 'Jornal removido com sucesso.' });
+});
+
+// GET & CRUD Categorias
+app.get('/api/categorias', (req, res) => {
+  const db = store.get();
+  res.json(db.categorias || []);
+});
+
+app.post('/api/categorias', authMiddleware, (req, res) => {
+  const db = store.get();
+  const newItem = { id: 'cat-' + Date.now(), count: 0, status: 'ATIVO', ...req.body };
+  if (!db.categorias) db.categorias = [];
+  db.categorias.unshift(newItem);
+  store.save(db);
+  res.status(201).json(newItem);
+});
+
+app.put('/api/categorias/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  if (!db.categorias) db.categorias = [];
+  const idx = db.categorias.findIndex(c => c.id === req.params.id);
+  if (idx !== -1) {
+    db.categorias[idx] = { ...db.categorias[idx], ...req.body };
+    store.save(db);
+    return res.json(db.categorias[idx]);
+  }
+  res.status(404).json({ error: 'Categoria não encontrada.' });
+});
+
+app.delete('/api/categorias/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  if (!db.categorias) db.categorias = [];
+  db.categorias = db.categorias.filter(c => c.id !== req.params.id);
+  store.save(db);
+  res.json({ message: 'Categoria removida com sucesso.' });
 });
 
 // POST & GET Denúncias Anônimas
