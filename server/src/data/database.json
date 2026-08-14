@@ -1,0 +1,299 @@
+{
+  "settings": {
+    "siteName": "FTTRESP - Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo",
+    "shortName": "FTTRESP",
+    "primaryColor": "#0f172a",
+    "secondaryColor": "#1e3a8a",
+    "accentColor": "#d97706",
+    "highlightColor": "#f59e0b",
+    "phone": "(11) 3228-5000",
+    "whatsapp": "(11) 98765-4321",
+    "email": "contato@fttresp.org.br",
+    "juridicoEmail": "juridico@fttresp.org.br",
+    "address": "Rua do Carmo, 56 - Centro Histórico, São Paulo - SP, 01019-020",
+    "workingHours": "Segunda a Sexta: 08:00 às 17:00",
+    "social": {
+      "facebook": "https://facebook.com/fttresp",
+      "instagram": "https://instagram.com/fttresp.oficial",
+      "youtube": "https://youtube.com/fttresp",
+      "whatsapp": "https://wa.me/5511987654321",
+      "spotify": "https://spotify.com/fttresp",
+      "twitter": "https://x.com/fttresp"
+    }
+  },
+  "users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "passwordHash": "$2a$10$w8T05kS.yO4dZ4qM2D1eCe.ZJgH7i7D8p0N5W6y7u8v9w0x1y2z3",
+      "name": "Operador FTTRESP",
+      "role": "admin"
+    }
+  ],
+  "news": [
+    {
+      "id": "news-1",
+      "title": "FTTRESP lança nova plataforma digital com Web TV, Rádio Web 24h e Central de Sindicatos",
+      "slug": "fttresp-lanca-nova-plataforma-digital",
+      "category": "Institucional",
+      "summary": "Modernização completa da comunicação beneficia mais de 1,5 milhão de trabalhadores rodoviários e 97 sindicatos filiados no estado de SP.",
+      "content": "<p>A Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo (FTTRESP) anuncia o lançamento oficial do seu novo portal web integrado. A nova plataforma conta com Painel de TV Corporativa Multi-Canais, Rádio Web 24h com locução de hora certa, repositório digital de convenções coletivas e aplicativo de busca para os 97 sindicatos filiados.</p>",
+      "imageUrl": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-08-14",
+      "author": "Redação FTTRESP"
+    },
+    {
+      "title": "Campanha Salarial 2026/2027: FTTRESP mobiliza categoria pelo reajuste com ganho real",
+      "slug": "campanha-salarial-2026-2027",
+      "category": "Campanha Salarial",
+      "summary": "Diretoria reuniu lideranças sindicais em plenária estadual para definir pauta unificada de reivindicações.",
+      "content": "<p>Em plenária realizada no auditório da sede em São Paulo, presidentes e diretores dos 97 sindicatos rodoviários filiados aprovaram a pauta unificada de reivindicações da Campanha Salarial 2026/2027. Dentre as principais diretrizes estão a reposição da inflação pelo INPC, ganho real de salário, reajuste do vale-refeição e garantia de cláusulas sociais.</p>",
+      "imageUrl": "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-08-12",
+      "author": "Imprensa FTTRESP"
+    },
+    {
+      "id": "news-3",
+      "title": "Segurança e Condições de Trabalho: FTTRESP fiscaliza terminais e garagens de ônibus",
+      "slug": "fiscalizacao-terminais-garagens",
+      "category": "Segurança e Saúde",
+      "summary": "Equipes de fiscalização avaliam salas de descanso, pontos de apoio e instalações sanitárias para os motoristas.",
+      "content": "<p>Com o objetivo de garantir a dignidade dos trabalhadores rodoviários no exercício da profissão, a FTTRESP intensificou as vistorias técnicas nos pontos finais, terminais urbanos e garagens de empresas de transporte de cargas e passageiros em todo o Estado de São Paulo.</p>",
+      "imageUrl": "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80",
+      "date": "2026-08-10",
+      "author": "Departamento de Segurança"
+    }
+  ],
+  "unions": [
+    {
+      "id": "u-1",
+      "name": "Sindicato dos Motoristas e Trabalhadores em Transporte Rodoviário de São Paulo (Sindmotoristas)",
+      "city": "São Paulo",
+      "region": "Capital",
+      "category": "Passageiros Urbano / Intermunicipal",
+      "phone": "(11) 3386-1188",
+      "email": "contato@sindmotoristas.org.br",
+      "address": "Rua Tabatinguera, 256 - Sé, São Paulo - SP",
+      "president": "Cristiano Porangaba (Valdevan Noventa)",
+      "website": "https://www.sindmotoristas.org.br"
+    },
+    {
+      "id": "u-2",
+      "name": "Sindicato dos Trabalhadores em Transportes Rodoviários do ABCDMR",
+      "city": "Santo André",
+      "region": "Grande SP (ABCDMR)",
+      "category": "Cargas e Passageiros",
+      "phone": "(11) 4992-1200",
+      "email": "sindicato@rodoviariosabcd.org.br",
+      "address": "Av. Industrial, 1200 - Bairro Campestre, Santo André - SP",
+      "president": "Maurício de Souza",
+      "website": "https://www.rodoviariosabcd.org.br"
+    },
+    {
+      "id": "u-3",
+      "name": "Sindicato dos Trabalhadores em Transportes Rodoviários de Campinas e Região",
+      "city": "Campinas",
+      "region": "Região Metropolitana de Campinas",
+      "category": "Cargas, Urbano e Fretamento",
+      "phone": "(19) 3737-4400",
+      "email": "contato@rodoviarioscampinas.org.br",
+      "address": "Rua Regente Feijó, 890 - Centro, Campinas - SP",
+      "president": "Paulo Pastorio",
+      "website": "https://www.rodoviarioscampinas.org.br"
+    },
+    {
+      "id": "u-4",
+      "name": "Sindicato dos Trabalhadores em Transportes Rodoviários da Baixada Santista e Litoral",
+      "city": "Santos",
+      "region": "Baixada Santista",
+      "category": "Cargas, Porto e Passageiros",
+      "phone": "(13) 3222-7700",
+      "email": "atendimento@rodoviariosbs.org.br",
+      "address": "Rua Marechal Deodoro, 45 - Gonzaga, Santos - SP",
+      "president": "Edvaldo de Oliveira",
+      "website": "https://www.rodoviariosbs.org.br"
+    },
+    {
+      "id": "u-5",
+      "name": "Sindicato dos Motoristas Rodoviários de Ribeirão Preto e Região",
+      "city": "Ribeirão Preto",
+      "region": "Interior (Ribeirão Preto)",
+      "category": "Cargas e Fretamento",
+      "phone": "(16) 3610-8899",
+      "email": "sindicato@rodoviariosrp.org.br",
+      "address": "Rua Amador Bueno, 340 - Centro, Ribeirão Preto - SP",
+      "president": "João Carlos de Oliveira",
+      "website": "https://www.rodoviariosrp.org.br"
+    },
+    {
+      "id": "u-6",
+      "name": "Sindicato dos Trabalhadores Rodoviários de Sorocaba e Região",
+      "city": "Sorocaba",
+      "region": "Interior (Sorocaba)",
+      "category": "Cargas, Urbano e Fretamento",
+      "phone": "(15) 3219-2211",
+      "email": "contato@rodoviariossorocaba.org.br",
+      "address": "Rua Sete de Setembro, 512 - Centro, Sorocaba - SP",
+      "president": "Paulo João Estausia (Paulinho do Transporte)",
+      "website": "https://www.rodoviariossorocaba.org.br"
+    },
+    {
+      "id": "u-7",
+      "name": "Sindicato dos Condutores de Veículos Rodoviários de São José dos Campos",
+      "city": "São José dos Campos",
+      "region": "Vale do Paraíba",
+      "category": "Cargas e Passageiros",
+      "phone": "(12) 3921-9900",
+      "email": "sindicato@sjc-rodoviarios.org.br",
+      "address": "Av. Francisco José Longo, 770 - São José dos Campos - SP",
+      "president": "Elias da Silva",
+      "website": "https://www.sjc-rodoviarios.org.br"
+    }
+  ],
+  "agreements": [
+    {
+      "id": "c-1",
+      "title": "Convenção Coletiva de Trabalho 2025/2026 - Transporte Rodoviário de Cargas em Geral",
+      "category": "Carga",
+      "year": 2025,
+      "effectiveDate": "2025-05-01 até 2026-04-30",
+      "fileUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "description": "Pacto de reajuste salarial, PPR, vale-refeição de R$ 38,50 por dia e adicional noturno diferenciado para o transporte rodoviário de cargas."
+    },
+    {
+      "id": "c-2",
+      "title": "Acordo Coletivo 2025/2026 - Sistema de Transporte Coletivo Urbano de Passageiros de SP",
+      "category": "Passageiros Urbano",
+      "year": 2025,
+      "effectiveDate": "2025-06-01 até 2026-05-31",
+      "fileUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "description": "Regulamentação de jornada 6h/dia, vale-refeição, plano de saúde familiar integral e PLR para os motoristas e cobradores de ônibus urbano."
+    },
+    {
+      "id": "c-3",
+      "title": "Convenção Coletiva 2024/2025 - Transporte Rodoviário de Passageiros Fretamento e Turismo",
+      "category": "Fretamento",
+      "year": 2024,
+      "effectiveDate": "2024-05-01 até 2025-04-30",
+      "fileUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "description": "Regras para diárias de viagem, folgas remuneradas em viagens de longa distância e pisos salariais por categoria de veículo."
+    },
+    {
+      "id": "c-4",
+      "title": "Termo Aditivo de Convenção 2025 - Entregadores de Aplicativos e Cargas Leves de SP",
+      "category": "Entregadores/App",
+      "year": 2025,
+      "effectiveDate": "2025-01-01 até 2026-12-31",
+      "fileUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "description": "Normas de proteção à saúde, taxa mínima por km rodado e seguro de vida compulsório para entregadores motorizados."
+    }
+  ],
+  "tvChannels": [
+    {
+      "id": "tv-1",
+      "name": "TV FTTRESP Principal",
+      "slug": "tv-principal",
+      "description": "Canal oficial da Federação com jornalismo rodoviário, pronunciamentos da diretoria e grandes coberturas ao vivo.",
+      "isLive": true,
+      "currentShow": "Jornal Rodoviário Primeira Edição",
+      "liveStreamUrl": "https://www.youtube.com/embed/live_stream?channel=UCfttresp",
+      "defaultVideoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "badge": "AO VIVO"
+    },
+    {
+      "id": "tv-2",
+      "name": "TV Sindicatos Filiados",
+      "slug": "tv-sindicatos",
+      "description": "Espaço dedicado às ações, assembleias e coberturas dos 97 sindicatos de motoristas do Estado de SP.",
+      "isLive": false,
+      "currentShow": "Voz do Sindicato: Baixada Santista e ABCD",
+      "defaultVideoUrl": "https://www.youtube.com/embed/5qap5aO4i9A",
+      "badge": "EXCLUSIVO"
+    },
+    {
+      "id": "tv-3",
+      "name": "TV Campanhas Salariais",
+      "slug": "tv-salarios",
+      "description": "Transmissões completas de negociações trabalhistas, rodadas com patronal e assembleias gerais.",
+      "isLive": false,
+      "currentShow": "Especial Campanha Salarial 2026",
+      "defaultVideoUrl": "https://www.youtube.com/embed/2g811Eo7K8U",
+      "badge": "GRAVADO"
+    },
+    {
+      "id": "tv-4",
+      "name": "TV Treinamento & Segurança",
+      "slug": "tv-treinamentos",
+      "description": "Cursos online, dicas de direção defensiva, legislação de trânsito, CONTRAN e saúde do motorista.",
+      "isLive": false,
+      "currentShow": "Curso Direção Defensiva em Rodovias",
+      "defaultVideoUrl": "https://www.youtube.com/embed/LXb3EKWsInQ",
+      "badge": "EDUCATIVO"
+    }
+  ],
+  "tvSchedules": [
+    {
+      "id": "sched-1",
+      "channelId": "tv-1",
+      "dayOfWeek": "Segunda a Sexta",
+      "time": "08:00 - 09:00",
+      "title": "Jornal Rodoviário da Manhã",
+      "description": "As principais notícias do setor de transportes em SP, trânsito nas rodovias e notícias sindicais.",
+      "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "preRollAdUrl": "https://assets.mixkit.co/videos/preview/mixkit-truck-driving-on-the-highway-41551-large.mp4"
+    },
+    {
+      "id": "sched-2",
+      "channelId": "tv-1",
+      "dayOfWeek": "Segunda a Sexta",
+      "time": "12:00 - 13:00",
+      "title": "Resenha Sindical & Direitos",
+      "description": "Debate com advogados trabalhistas sobre direitos do motorista, horas extras e aposentadoria especial.",
+      "videoUrl": "https://www.youtube.com/embed/5qap5aO4i9A"
+    },
+    {
+      "id": "sched-3",
+      "channelId": "tv-1",
+      "dayOfWeek": "Quarta-Feira",
+      "time": "17:00 - 18:30",
+      "title": "Plenária FTTRESP Ao Vivo",
+      "description": "Transmissão da reunião da diretoria executiva e deliberação dos trabalhadores.",
+      "videoUrl": "https://www.youtube.com/embed/2g811Eo7K8U"
+    }
+  ],
+  "ads": [
+    {
+      "id": "ad-1",
+      "title": "Patrocínio Oficial Auto Peças Rodoviário",
+      "advertiser": "Rede Peças SP",
+      "videoUrl": "https://assets.mixkit.co/videos/preview/mixkit-truck-driving-on-the-highway-41551-large.mp4",
+      "durationSeconds": 10,
+      "active": true
+    }
+  ],
+  "radioConfig": {
+    "stationName": "Rádio Web FTTRESP - A Voz do Rodoviário",
+    "frequency": "24h Online",
+    "streamUrl": "https://stream.zeno.fm/f3wvbbqmdg8uv",
+    "isLive": true,
+    "currentTrack": "Informativo FTTRESP 2026 - Conquistas da Categoria",
+    "currentDj": "AutoDJ FTTRESP (Estúdio Central)",
+    "hourlyTimeAnnouncement": true,
+    "vinhetas": [
+      "FTTRESP: Juntos em Defesa dos Trabalhadores Rodoviários do Estado de São Paulo!",
+      "Você está ouvindo a Rádio Web FTTRESP - A informação que roda com você!"
+    ]
+  },
+  "denuncias": [
+    {
+      "id": "d-1",
+      "protocol": "DEN-2026-0814-01",
+      "city": "São Paulo",
+      "sector": "Passageiros Urbano",
+      "company": "Viação Exemplo SP",
+      "message": "Falta de sala de descanso e banheiros sem higienização no ponto final do terminal.",
+      "date": "2026-08-14 09:30",
+      "status": "Pendente"
+    }
+  ]
+}
