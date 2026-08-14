@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { 
   Tv, Radio, Building2, FileText, Search, ArrowRight, ShieldCheck, Award, 
   Users, Calculator, ShieldAlert, Play, Quote, CheckCircle2, DollarSign,
-  TrendingUp, ThumbsUp, Heart, Share2, Stethoscope, Briefcase, Brain, Baby, Activity, Pill, Megaphone, Calendar
+  TrendingUp, ThumbsUp, Heart, Share2, Download, Eye, Newspaper, Calendar
 } from 'lucide-react';
 import BannerCarousel from '../components/BannerCarousel';
 import StatCounter from '../components/StatCounter';
 
-export default function HomePage({ news = [], unions = [], tvChannels = [], banners = [], setCurrentPage }) {
+export default function HomePage({ news = [], unions = [], tvChannels = [], banners = [], jornais = [], setCurrentPage }) {
   const [newsFilter, setNewsFilter] = useState('Todas');
+  const [jornalFilter, setJornalFilter] = useState('Todos');
+
   const [selectedVideo, setSelectedVideo] = useState(tvChannels[0] || null);
   const [likes, setLikes] = useState(142);
   const [hasLiked, setHasLiked] = useState(false);
@@ -16,10 +18,46 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
   const [hasLoved, setHasLoved] = useState(false);
 
   const categories = ['Todas', 'Institucional', 'Campanha Salarial', 'Segurança e Saúde', 'Jurídico'];
+  const jornalCategories = ['Todos', 'Informativo Oficial', 'Boletim Jurídico', 'Edição Especial'];
 
   const filteredNews = newsFilter === 'Todas' 
     ? news 
     : news.filter(n => n.category && n.category.toLowerCase() === newsFilter.toLowerCase());
+
+  // Mock jornais if empty
+  const displayJornais = jornais.length > 0 ? jornais : [
+    {
+      id: "j-1",
+      title: "Jornal do Rodoviário SP - Edição Especial Campanha Salarial 2026",
+      category: "Informativo Oficial",
+      date: "2026-08-01",
+      summary: "Confira a íntegra da pauta unificada de reivindicações e conquistas do setor no Estado de São Paulo.",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      imageUrl: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      id: "j-2",
+      title: "Boletim FTTRESP - Orientação Jurídica e Direitos da Categoria",
+      category: "Boletim Jurídico",
+      date: "2026-07-15",
+      summary: "Guia completo de direitos sobre horas extras, intervalo intrajornada e folgas dos motoristas.",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      imageUrl: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      id: "j-3",
+      title: "Revista FTTRESP 2026 - O Papel dos 97 Sindicatos Filiados",
+      category: "Edição Especial",
+      date: "2026-06-30",
+      summary: "Mapeamento completo da representatividade dos 1,5 milhão de trabalhadores rodoviários paulistas.",
+      fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80"
+    }
+  ];
+
+  const filteredJornais = jornalFilter === 'Todos'
+    ? displayJornais
+    : displayJornais.filter(j => j.category && j.category.toLowerCase() === jornalFilter.toLowerCase());
 
   const handleLike = () => {
     if (!hasLiked) {
@@ -172,7 +210,6 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
 
           <div className="grid lg:grid-cols-12 gap-8 items-start">
-            {/* Player Principal */}
             <div className="lg:col-span-8 space-y-4">
               <div className="relative aspect-video rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 shadow-2xl">
                 <iframe 
@@ -212,7 +249,6 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
               </div>
             </div>
 
-            {/* Playlist de Canais de TV */}
             <div className="lg:col-span-4 space-y-3">
               <h3 className="font-extrabold text-white text-sm">Canais de TV Corporativa ({tvChannels.length})</h3>
               <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
@@ -273,7 +309,80 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
       </section>
 
-      {/* 8. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS */}
+      {/* 8. NOVA SEÇÃO DE JORNAIS & INFORMATIVOS OFICIAIS (CARDS 3x3) */}
+      <section className="container space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+          <div>
+            <span className="text-[11px] text-red-600 font-extrabold uppercase tracking-wider">Publicações em PDF</span>
+            <h2 className="text-2xl font-black text-slate-900">Jornais & Informativos Oficiais</h2>
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap gap-1.5">
+            {jornalCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setJornalFilter(cat)}
+                className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
+                  jornalFilter === cat 
+                    ? 'bg-slate-950 text-amber-400 font-black shadow-sm' 
+                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Grid de Jornais 3 em 3 por linha */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {filteredJornais.map((jornal) => (
+            <div key={jornal.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
+              <div>
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
+                  <img src={jornal.imageUrl} alt={jornal.title} className="w-full h-full object-cover opacity-90 hover:scale-105 transition duration-500" />
+                  <span className="absolute top-2.5 left-2.5 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded uppercase shadow-md flex items-center gap-1">
+                    <FileText size={10} /> {jornal.category}
+                  </span>
+                  <span className="absolute bottom-2.5 right-2.5 bg-slate-950/80 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-md">
+                    Edição em PDF
+                  </span>
+                </div>
+                <div className="p-5 space-y-2">
+                  <div className="text-[11px] text-slate-400 font-medium">{jornal.date} • Publicação FTTRESP</div>
+                  <h3 className="font-extrabold text-slate-900 text-base leading-snug hover:text-red-600 transition line-clamp-2">
+                    {jornal.title}
+                  </h3>
+                  <p className="text-slate-600 text-xs line-clamp-3 leading-relaxed">
+                    {jornal.summary}
+                  </p>
+                </div>
+              </div>
+              <div className="p-5 pt-0 flex items-center gap-2">
+                <a 
+                  href={jornal.fileUrl || "#"} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex-1 bg-slate-950 hover:bg-slate-800 text-amber-400 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition"
+                >
+                  <Eye size={14} /> Ler Jornal em PDF
+                </a>
+                <a 
+                  href={jornal.fileUrl || "#"} 
+                  download
+                  className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition"
+                  title="Baixar Edição PDF"
+                >
+                  <Download size={16} />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 9. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS */}
       <section className="container space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
           <div>
@@ -281,7 +390,6 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             <h2 className="text-2xl font-black text-slate-900">Últimas Notícias da Categoria</h2>
           </div>
 
-          {/* Category Filter Pills */}
           <div className="flex flex-wrap gap-1.5">
             {categories.map((cat) => (
               <button
@@ -299,7 +407,6 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
         </div>
 
-        {/* Grid Rigorosamente 3 em 3 por linha */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredNews.map((item) => (
             <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">

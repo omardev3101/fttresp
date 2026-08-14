@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, RefreshCw, Trash2, Edit, Pause, Play, Eye, Share2, 
   MessageSquare, Copy, LogOut, CheckCircle2, AlertCircle, FileText, 
-  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield
+  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield, Upload, Link as LinkIcon
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -19,6 +19,9 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
+  const [uploadMode, setUploadMode] = useState('file'); // 'file' | 'link'
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState('');
   const [loadingAction, setLoadingAction] = useState(false);
 
   // Load custom collections
@@ -31,7 +34,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
       setJornaisList(resJornais.data || []);
       setCategoriasList(resCat.data || []);
       
-      // Default initial mock salary floors if needed
       setSalariosList([
         { id: 's-1', title: 'Motorista de Transporte Urbano SP', category: 'Urbano', value: 'R$ 3.850,00', date: '2026-01-01', status: 'PUBLICADO', views: 4120, waShares: 230, fbShares: 85, linkCopies: 52 },
         { id: 's-2', title: 'Motorista de Rodoviário e Fretamento', category: 'Fretamento', value: 'R$ 4.120,00', date: '2026-01-01', status: 'PUBLICADO', views: 3290, waShares: 180, fbShares: 60, linkCopies: 41 },
@@ -54,7 +56,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     { id: 'CATEGORIAS', label: 'CATEGORIAS', icon: Tag }
   ];
 
-  // Helper to retrieve current tab list
   const getActiveItems = () => {
     let list = [];
     if (activeTab === 'NOTÍCIAS') list = news;
@@ -72,7 +73,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
   const activeItems = getActiveItems();
 
-  // Stats calculation
   const totalViews = activeItems.reduce((acc, curr) => acc + (curr.views || 1420), 0);
   const totalWaShares = activeItems.reduce((acc, curr) => acc + (curr.waShares || 48), 0);
   const totalFbShares = activeItems.reduce((acc, curr) => acc + (curr.fbShares || 18), 0);
@@ -84,6 +84,8 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   // Open Add/Edit Modal
   const handleOpenModal = (item = null) => {
     setEditingItem(item);
+    setUploadedUrl(item?.imageUrl || item?.fileUrl || '');
+    setUploadMode('file');
     if (item) {
       setFormData({ ...item });
     } else {
@@ -93,13 +95,39 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
         summary: '',
         content: '',
         imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+        fileUrl: '',
         date: new Date().toISOString().split('T')[0],
         status: 'PUBLICADO',
-        value: 'R$ 3.850,00',
-        fileUrl: ''
+        value: 'R$ 3.850,00'
       });
     }
     setShowModal(true);
+  };
+
+  // Upload Local File to Express Server
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Data = reader.result;
+        const res = await api.post('/upload', {
+          fileName: file.name,
+          fileData: base64Data
+        });
+        const url = res.data.url;
+        setUploadedUrl(url);
+        setFormData(prev => ({ ...prev, imageUrl: url, fileUrl: url }));
+        setUploadingFile(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      alert('Erro ao enviar arquivo: ' + err.message);
+      setUploadingFile(false);
+    }
   };
 
   // Save Modal Form
@@ -108,23 +136,14 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     setLoadingAction(true);
     try {
       if (activeTab === 'NOTÍCIAS') {
-        if (editingItem) {
-          await api.put(`/news/${editingItem.id}`, formData);
-        } else {
-          await api.post('/news', formData);
-        }
+        if (editingItem) await api.put(`/news/${editingItem.id}`, formData);
+        else await api.post('/news', formData);
       } else if (activeTab === 'JORNAIS') {
-        if (editingItem) {
-          await api.put(`/jornais/${editingItem.id}`, formData);
-        } else {
-          await api.post('/jornais', formData);
-        }
+        if (editingItem) await api.put(`/jornais/${editingItem.id}`, formData);
+        else await api.post('/jornais', formData);
       } else if (activeTab === 'CATEGORIAS') {
-        if (editingItem) {
-          await api.put(`/categorias/${editingItem.id}`, formData);
-        } else {
-          await api.post('/categorias', formData);
-        }
+        if (editingItem) await api.put(`/categorias/${editingItem.id}`, formData);
+        else await api.post('/categorias', formData);
       } else if (activeTab === 'PISOS') {
         if (editingItem) {
           setSalariosList(salariosList.map(s => s.id === editingItem.id ? { ...s, ...formData } : s));
@@ -143,7 +162,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     }
   };
 
-  // Delete item
   const handleDelete = async (id) => {
     if (!window.confirm('Confirma a exclusão deste registro?')) return;
     try {
@@ -159,7 +177,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     }
   };
 
-  // Toggle status Publicado/Pausado
   const handleToggleStatus = async (item) => {
     const newStatus = item.status === 'PAUSADO' ? 'PUBLICADO' : 'PAUSADO';
     try {
@@ -191,7 +208,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
-            {/* Global Search Bar */}
             <div className="relative w-full md:w-64">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input 
@@ -203,7 +219,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
               />
             </div>
 
-            {/* User Profile Badge */}
             <div className="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">
               <UserCheck size={14} className="text-amber-400" />
               <span>Admin Master ({user?.username || 'operador_fttresp'})</span>
@@ -222,7 +237,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
       <div className="container mt-6 space-y-6">
         
-        {/* 2. ABAS EM PÍLULAS (NAVEGAÇÃO DA GESTÃO) */}
+        {/* 2. ABAS EM PÍLULAS */}
         <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-2">
           {tabOptions.map((tab) => {
             const Icon = tab.icon;
@@ -251,7 +266,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
               GERENCIAR {activeTab}
             </h2>
             <p className="text-slate-500 text-xs font-medium mt-0.5">
-              Administre publicações, acompanhe métricas de compartilhamento e edite conteúdos em tempo real.
+              Envie arquivos locais (PDF/Imagens) ou informe links externos em tempo real.
             </p>
           </div>
 
@@ -277,19 +292,17 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           </div>
         </div>
 
-        {/* 4. GRID DE 4 CARDS DE MÉTRICAS COLORIDOS (KPIs) */}
+        {/* 4. GRID DE 4 CARDS DE MÉTRICAS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Azul */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-wider opacity-80">VISUALIZAÇÕES TOTAIS</span>
               <div className="text-3xl font-black">{totalViews.toLocaleString('pt-BR')}</div>
-              <p className="text-[10px] opacity-80">Views acumuladas em todas as matérias</p>
+              <p className="text-[10px] opacity-80">Views acumuladas em matérias/documentos</p>
             </div>
             <TrendingUp size={36} className="absolute right-4 bottom-4 opacity-20" />
           </div>
 
-          {/* Card 2: Verde */}
           <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO WHATSAPP</span>
@@ -299,7 +312,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
             <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
           </div>
 
-          {/* Card 3: Roxo */}
           <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO FACEBOOK</span>
@@ -309,92 +321,31 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
             <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
           </div>
 
-          {/* Card 4: Vermelho */}
           <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-wider opacity-80">LINKS COPIADOS</span>
               <div className="text-3xl font-black">{totalLinkCopies.toLocaleString('pt-BR')}</div>
-              <p className="text-[10px] opacity-80">Copias de links de transferência</p>
+              <p className="text-[10px] opacity-80">Transferências e cópias diretas</p>
             </div>
             <Copy size={36} className="absolute right-4 bottom-4 opacity-20" />
           </div>
         </div>
 
-        {/* 5. TOP NOTÍCIAS MAIS LIDAS & RESUMO DA CENTRAL */}
-        <div className="grid lg:grid-cols-12 gap-6">
-          {/* Esquerda: Top 3 Mais Lidas */}
-          <div className="lg:col-span-8 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <h3 className="font-black text-xs uppercase tracking-wider text-slate-900">
-                TOP 3 REGISTROS MAIS LIDOS
-              </h3>
-              <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded">POR AUDIÊNCIA</span>
-            </div>
-
-            <div className="space-y-3">
-              {activeItems.slice(0, 3).map((item, idx) => (
-                <div key={item.id || idx} className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <span className="w-6 h-6 rounded-full bg-slate-950 text-white flex items-center justify-center font-black text-xs shrink-0">
-                      {idx + 1}
-                    </span>
-                    <div className="overflow-hidden">
-                      <h4 className="font-extrabold text-xs text-slate-900 truncate">{item.title || item.name}</h4>
-                      <span className="text-[10px] text-slate-500">{item.date || 'Recente'} • {item.category || 'Geral'}</span>
-                    </div>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    <div className="font-black text-xs text-slate-900">{(item.views || 2420).toLocaleString('pt-BR')} views</div>
-                    <div className="text-[9px] text-emerald-600 font-bold">SHARES: {(item.waShares || 120) + (item.fbShares || 45)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Direita: Resumo Geral */}
-          <div className="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-            <h3 className="font-black text-xs uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-3">
-              RESUMO GERAL DA CENTRAL
-            </h3>
-
-            <ul className="space-y-2.5 text-xs">
-              <li className="flex justify-between items-center text-slate-600 pb-1 border-b border-slate-100">
-                <span>Total de Registros:</span>
-                <strong className="text-slate-900 font-black">{activeItems.length}</strong>
-              </li>
-              <li className="flex justify-between items-center text-slate-600 pb-1 border-b border-slate-100">
-                <span>Publicados:</span>
-                <span className="bg-emerald-100 text-emerald-800 font-black text-[10px] px-2 py-0.5 rounded">{publishedCount}</span>
-              </li>
-              <li className="flex justify-between items-center text-slate-600 pb-1 border-b border-slate-100">
-                <span>Rascunhos / Pausados:</span>
-                <span className="bg-amber-100 text-amber-800 font-black text-[10px] px-2 py-0.5 rounded">{draftCount}</span>
-              </li>
-              <li className="flex justify-between items-center text-slate-600 pt-1">
-                <span>Ações de Compartilhamento:</span>
-                <strong className="text-blue-600 font-black">{totalWaShares + totalFbShares + totalLinkCopies}</strong>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* 6. TABELA COMPLETA DE REGISTROS */}
+        {/* 5. TABELA DE REGISTROS */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-3">
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
             <span className="text-xs font-black uppercase text-slate-700 tracking-wider">
               LISTA COMPLETA ({activeItems.length})
             </span>
-            <span className="text-[10px] text-slate-500 font-semibold">Exibindo conteúdos cadastrados no sistema</span>
+            <span className="text-[10px] text-slate-500 font-semibold">Suporte a Arquivos PDF e Imagens</span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="bg-slate-100 text-slate-500 uppercase font-black tracking-wider border-b border-slate-200">
-                  <th className="py-3 px-4">MANCHETE / REGISTRO</th>
-                  <th className="py-3 px-4 text-center">MÉTRICAS DE ENGAJAMENTO</th>
+                  <th className="py-3 px-4">MANCHETE / ARQUIVO</th>
+                  <th className="py-3 px-4 text-center">MÉTRICAS</th>
                   <th className="py-3 px-4 text-right">AÇÃO</th>
                 </tr>
               </thead>
@@ -402,7 +353,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 {activeItems.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50 transition">
                     
-                    {/* Manchete e Categoria */}
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <img 
@@ -428,25 +378,15 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                       </div>
                     </td>
 
-                    {/* Métricas */}
                     <td className="py-3 px-4">
                       <div className="flex items-center justify-center gap-3 text-[11px] font-bold text-slate-600">
-                        <span className="flex items-center gap-1" title="Visualizações">
-                          <Eye size={13} className="text-blue-600" /> {item.views || 240}
-                        </span>
-                        <span className="flex items-center gap-1" title="WhatsApp Shares">
-                          <Share2 size={13} className="text-emerald-600" /> {item.waShares || 14}
-                        </span>
-                        <span className="flex items-center gap-1" title="Facebook Shares">
-                          <Share2 size={13} className="text-indigo-600" /> {item.fbShares || 8}
-                        </span>
-                        <span className="flex items-center gap-1" title="Links Copiados">
-                          <Copy size={13} className="text-red-600" /> {item.linkCopies || 4}
-                        </span>
+                        <span className="flex items-center gap-1"><Eye size={13} className="text-blue-600" /> {item.views || 240}</span>
+                        <span className="flex items-center gap-1"><Share2 size={13} className="text-emerald-600" /> {item.waShares || 14}</span>
+                        <span className="flex items-center gap-1"><Share2 size={13} className="text-indigo-600" /> {item.fbShares || 8}</span>
+                        <span className="flex items-center gap-1"><Copy size={13} className="text-red-600" /> {item.linkCopies || 4}</span>
                       </div>
                     </td>
 
-                    {/* Ações */}
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button 
@@ -485,10 +425,10 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
       </div>
 
-      {/* 7. MODAL DE CRIAÇÃO / EDIÇÃO DE REGISTRO */}
+      {/* 6. MODAL DE CRIAÇÃO / EDIÇÃO COM UPLOAD DE ARQUIVO OU LINK */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden font-sans">
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             
             <div className="bg-slate-950 text-white px-6 py-4 flex justify-between items-center">
               <h3 className="font-black text-sm uppercase tracking-wider text-amber-400">
@@ -508,24 +448,87 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                   value={formData.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold"
-                  placeholder="Informe o título da matéria ou publicação..."
+                  placeholder="Informe o título do documento ou publicação..."
                 />
+              </div>
+
+              {/* SELETOR DUPLO: UPLOAD DE ARQUIVO OU LINK URL */}
+              <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <span className="font-black text-slate-900 uppercase">Mídia / Documento Anexo:</span>
+                  
+                  {/* Tabs de Modo de Envio */}
+                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('file')}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
+                        uploadMode === 'file' ? 'bg-slate-950 text-amber-400 shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Upload size={12} /> Subir Arquivo do PC
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('link')}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
+                        uploadMode === 'link' ? 'bg-slate-950 text-amber-400 shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <LinkIcon size={12} /> Link / URL Externa
+                    </button>
+                  </div>
+                </div>
+
+                {uploadMode === 'file' ? (
+                  <div className="space-y-2 pt-1">
+                    <label className="block text-[11px] text-slate-600">
+                      Selecione um arquivo de imagem (JPG, PNG, WEBP) ou documento PDF do seu computador:
+                    </label>
+                    <input 
+                      type="file" 
+                      accept="image/*,application/pdf"
+                      onChange={handleFileUpload}
+                      className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-950 file:text-amber-400 hover:file:bg-slate-800 cursor-pointer"
+                    />
+                    {uploadingFile && <div className="text-blue-600 font-bold text-[10px]">Enviando arquivo ao servidor...</div>}
+                    {uploadedUrl && (
+                      <div className="flex items-center gap-1 text-emerald-700 bg-emerald-50 p-2 rounded-xl border border-emerald-200 text-[11px]">
+                        <CheckCircle2 size={14} /> <strong>Arquivo Carregado:</strong> {uploadedUrl}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-1">
+                    <label className="block text-[11px] text-slate-600">Informe a URL / Link externo do arquivo ou imagem:</label>
+                    <input 
+                      type="text" 
+                      value={formData.imageUrl || formData.fileUrl || ''}
+                      onChange={(e) => {
+                        setFormData({ ...formData, imageUrl: e.target.value, fileUrl: e.target.value });
+                        setUploadedUrl(e.target.value);
+                      }}
+                      className="w-full p-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium"
+                      placeholder="https://servidor.com/arquivo.pdf"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-600 uppercase mb-1">Categoria:</label>
+                  <label className="block text-slate-600 uppercase mb-1">Categoria / Rótulo:</label>
                   <input 
                     type="text" 
                     value={formData.category || 'Institucional'}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
-                    placeholder="Ex: Institucional, Campanha Salarial"
+                    placeholder="Ex: Informativo Oficial, Acordo Coletivo"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-600 uppercase mb-1">Data da Publicação:</label>
+                  <label className="block text-slate-600 uppercase mb-1">Data:</label>
                   <input 
                     type="date" 
                     value={formData.date || ''}
@@ -536,24 +539,13 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
               </div>
 
               <div>
-                <label className="block text-slate-600 uppercase mb-1">URL da Imagem de Capa:</label>
-                <input 
-                  type="text" 
-                  value={formData.imageUrl || ''}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-600 uppercase mb-1">Resumo / Subtítulo:</label>
+                <label className="block text-slate-600 uppercase mb-1">Descrição / Resumo:</label>
                 <textarea 
                   rows="3"
                   value={formData.summary || ''}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                   className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
-                  placeholder="Breve resumo informativo..."
+                  placeholder="Resumo do conteúdo..."
                 ></textarea>
               </div>
 
@@ -567,7 +559,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 </button>
                 <button 
                   type="submit"
-                  disabled={loadingAction}
+                  disabled={loadingAction || uploadingFile}
                   className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black px-6 py-2.5 rounded-xl shadow-md"
                 >
                   {loadingAction ? 'Gravando...' : 'Salvar Registro'}

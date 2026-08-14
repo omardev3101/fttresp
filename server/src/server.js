@@ -330,6 +330,34 @@ app.get('/api/denuncias', authMiddleware, (req, res) => {
   res.json(db.denuncias || []);
 });
 
+// POST /api/upload - Recebe arquivo local em base64 ou multipart e salva na pasta public/uploads
+app.post('/api/upload', authMiddleware, (req, res) => {
+  try {
+    const { fileName, fileData } = req.body;
+    if (!fileName || !fileData) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+    }
+
+    const uploadsDir = path.join(__dirname, '../../client/public/uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const cleanFileName = Date.now() + '-' + fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const filePath = path.join(uploadsDir, cleanFileName);
+
+    // Extract base64 content
+    const base64Data = fileData.replace(/^data:([A-Za-z-+\/]+);base64,/, '');
+    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+
+    const fileUrl = `/uploads/${cleanFileName}`;
+    res.status(201).json({ message: 'Arquivo enviado com sucesso!', url: fileUrl });
+  } catch (err) {
+    console.error('Erro no upload:', err);
+    res.status(500).json({ error: 'Falha no processamento do arquivo.' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`==================================================`);
   console.log(`Servidor Backend FTTRESP rodando na porta ${PORT}`);

@@ -26,6 +26,7 @@ export default function App() {
   const [settings, setSettings] = useState(null);
   const [banners, setBanners] = useState([]);
   const [news, setNews] = useState([]);
+  const [jornais, setJornais] = useState([]);
   const [unions, setUnions] = useState([]);
   const [agreements, setAgreements] = useState([]);
   const [tvChannels, setTvChannels] = useState([]);
@@ -34,10 +35,11 @@ export default function App() {
 
   const loadData = async () => {
     try {
-      const [resSet, resBanners, resNews, resUnions, resAgr, resTv, resTvSch, resRadio] = await Promise.all([
+      const [resSet, resBanners, resNews, resJor, resUnions, resAgr, resTv, resTvSch, resRadio] = await Promise.all([
         api.get('/settings'),
         api.get('/banners'),
         api.get('/news'),
+        api.get('/jornais').catch(() => ({ data: [] })),
         api.get('/unions'),
         api.get('/agreements'),
         api.get('/tv/channels'),
@@ -48,6 +50,7 @@ export default function App() {
       setSettings(resSet.data);
       setBanners(resBanners.data || []);
       setNews(resNews.data || []);
+      setJornais(resJor.data || []);
       setUnions(resUnions.data || []);
       setAgreements(resAgr.data || []);
       setTvChannels(resTv.data || []);
@@ -65,7 +68,7 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage news={news} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
+        return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
       case 'president':
         return <PresidentWordPage setCurrentPage={setCurrentPage} />;
       case 'history':
@@ -103,7 +106,7 @@ export default function App() {
           />
         );
       default:
-        return <HomePage news={news} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
+        return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
     }
   };
 
