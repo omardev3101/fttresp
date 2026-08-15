@@ -550,8 +550,8 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-                    {activeItems.map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50 transition">
+                    {activeItems.map((item, idx) => (
+                      <tr key={item.id || `row-${idx}`} className="hover:bg-slate-50 transition">
                         
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">

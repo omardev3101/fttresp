@@ -24,7 +24,6 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
     ? news 
     : news.filter(n => n.category && n.category.toLowerCase() === newsFilter.toLowerCase());
 
-  // Mock jornais if empty
   const displayJornais = jornais.length > 0 ? jornais : [
     {
       id: "j-1",
@@ -88,7 +87,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             <div className="animate-marquee inline-block text-slate-300 font-medium text-[11px]">
               {news.length > 0 ? (
                 news.map((n, i) => (
-                  <span key={i} className="mr-8">
+                  <span key={n.id || `ticker-${i}`} className="mr-8">
                     <strong className="text-red-400">[{n.category}]</strong> {n.title} — <em>{n.date}</em>
                   </span>
                 ))
@@ -252,9 +251,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             <div className="lg:col-span-4 space-y-3">
               <h3 className="font-extrabold text-white text-sm">Canais de TV Corporativa ({tvChannels.length})</h3>
               <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                {tvChannels.map((ch) => (
+                {tvChannels.map((ch, idx) => (
                   <div 
-                    key={ch.id}
+                    key={ch.id || `ch-${idx}`}
                     onClick={() => setSelectedVideo(ch)}
                     className={`p-3 rounded-xl border transition cursor-pointer flex items-center gap-3 ${
                       selectedVideo?.id === ch.id 
@@ -298,8 +297,8 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
 
           <div className="grid md:grid-cols-3 gap-3">
-            {unions.slice(0, 3).map((u) => (
-              <div key={u.id} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-1.5 hover:border-red-500/50 transition">
+            {unions.slice(0, 3).map((u, idx) => (
+              <div key={u.id || `union-${idx}`} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-1.5 hover:border-red-500/50 transition">
                 <div className="text-[10px] font-extrabold text-amber-400 uppercase">{u.region} • {u.city}</div>
                 <div className="font-extrabold text-xs text-white line-clamp-2">{u.name}</div>
                 <div className="text-[11px] text-slate-400"><strong>Fone:</strong> {u.phone}</div>
@@ -317,11 +316,10 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             <h2 className="text-2xl font-black text-slate-900">Jornais & Informativos Oficiais</h2>
           </div>
 
-          {/* Category Filter Pills */}
           <div className="flex flex-wrap gap-1.5">
-            {jornalCategories.map((cat) => (
+            {jornalCategories.map((cat, idx) => (
               <button
-                key={cat}
+                key={`cat-pill-${idx}`}
                 onClick={() => setJornalFilter(cat)}
                 className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
                   jornalFilter === cat 
@@ -335,10 +333,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
         </div>
 
-        {/* Grid de Jornais 3 em 3 por linha */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredJornais.map((jornal) => (
-            <div key={jornal.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
+          {filteredJornais.map((jornal, idx) => (
+            <div key={jornal.id || `jornal-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
               <div>
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
                   <img src={jornal.imageUrl} alt={jornal.title} className="w-full h-full object-cover opacity-90 hover:scale-105 transition duration-500" />
@@ -391,9 +388,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {categories.map((cat) => (
+            {categories.map((cat, idx) => (
               <button
-                key={cat}
+                key={`news-cat-${idx}`}
                 onClick={() => setNewsFilter(cat)}
                 className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
                   newsFilter === cat 
@@ -408,8 +405,8 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredNews.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
+          {filteredNews.map((item, idx) => (
+            <div key={item.id || `news-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
               <div>
                 <div className="relative aspect-video overflow-hidden">
                   <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
