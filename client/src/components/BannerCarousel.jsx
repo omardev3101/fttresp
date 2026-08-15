@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Search, Tv, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Tv } from 'lucide-react';
 
 export default function BannerCarousel({ banners = [], setCurrentPage }) {
   const activeBanners = banners.filter(b => b.active !== false);
@@ -29,9 +29,9 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
   };
 
   return (
-    <div className="container mx-auto my-3 font-sans">
+    <div className="container mx-auto my-4 font-sans">
       <section 
-        className="relative gradient-hero text-white py-6 sm:py-7 px-6 overflow-hidden rounded-2xl shadow-xl border border-red-900/40"
+        className="relative gradient-hero text-white py-14 sm:py-20 px-8 sm:px-12 overflow-hidden rounded-3xl shadow-2xl border border-red-900/50 min-h-[400px] sm:min-h-[460px] flex flex-col justify-between"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -41,80 +41,80 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
             <img 
               src={currentBanner.imageUrl} 
               alt="Banner background" 
-              className="w-full h-full object-cover opacity-30 transition-opacity duration-1000"
+              className="w-full h-full object-cover opacity-35 transition-opacity duration-1000"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent"></div>
           </div>
         )}
 
-        {/* Full-width Slide Content (Web TV retirado do carrossel) */}
-        <div className="relative z-10 space-y-3 max-w-4xl py-1">
+        {/* Full-width Slide Content com o dobro da altura útil */}
+        <div className="relative z-10 space-y-5 max-w-4xl my-auto">
           {currentBanner.badge && (
-            <div className="inline-flex items-center gap-1.5 bg-red-600/90 border border-red-500 text-white text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+            <div className="inline-flex items-center gap-2 bg-red-600 border border-red-400 text-white text-xs px-3.5 py-1 rounded-full font-black uppercase tracking-wider shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
               {currentBanner.badge}
             </div>
           )}
 
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug text-white transition-all duration-500">
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white transition-all duration-500 drop-shadow-md">
             {currentBanner.title}
           </h1>
 
-          <p className="text-slate-200 text-xs sm:text-sm leading-relaxed max-w-2xl transition-all duration-500">
+          <p className="text-slate-200 text-sm sm:text-lg leading-relaxed max-w-3xl transition-all duration-500 font-medium">
             {currentBanner.subtitle}
           </p>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-4 pt-3">
             {currentBanner.btnText && (
               <button 
                 onClick={() => currentBanner.linkUrl && setCurrentPage(currentBanner.linkUrl)}
-                className="gradient-gold hover:opacity-95 text-slate-950 font-black text-xs px-4 py-2.5 rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-1.5"
+                className="gradient-gold hover:opacity-95 text-slate-950 font-black text-sm px-6 py-3.5 rounded-2xl shadow-xl hover:scale-105 transition flex items-center gap-2"
               >
-                <Search size={14} /> {currentBanner.btnText}
+                <Search size={18} /> {currentBanner.btnText}
               </button>
             )}
 
             <button 
               onClick={() => setCurrentPage('webtv')}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border border-red-500 transition flex items-center gap-1.5 shadow-md"
+              className="bg-red-600 hover:bg-red-700 text-white font-black text-sm px-6 py-3.5 rounded-2xl border border-red-500 transition flex items-center gap-2 shadow-xl hover:scale-105"
             >
-              <Tv size={14} /> Assistir Web TV Ao Vivo
+              <Tv size={18} /> Assistir Web TV Ao Vivo
             </button>
           </div>
         </div>
 
         {/* Carousel Navigation Arrows & Dots */}
         {activeBanners.length > 1 && (
-          <div className="relative z-10 flex items-center justify-between mt-4 pt-2 border-t border-white/10">
+          <div className="relative z-10 flex items-center justify-between mt-6 pt-3 border-t border-white/15">
             <div className="flex items-center gap-2">
               <button 
                 onClick={handlePrev}
-                className="p-1 rounded-lg bg-slate-900/80 hover:bg-red-600 text-white transition border border-slate-700"
+                className="p-2 rounded-xl bg-slate-900/90 hover:bg-red-600 text-white transition border border-slate-700 shadow-md"
                 title="Slide Anterior"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={20} />
               </button>
               <button 
                 onClick={handleNext}
-                className="p-1 rounded-lg bg-slate-900/80 hover:bg-red-600 text-white transition border border-slate-700"
+                className="p-2 rounded-xl bg-slate-900/90 hover:bg-red-600 text-white transition border border-slate-700 shadow-md"
                 title="Próximo Slide"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={20} />
               </button>
-              <span className="text-[10px] text-slate-300 font-bold ml-2">
+              <span className="text-xs text-slate-300 font-bold ml-2">
                 Slide {currentIndex + 1} de {activeBanners.length}
               </span>
             </div>
 
             {/* Dots Indicator */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               {activeBanners.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    currentIndex === idx ? 'w-5 bg-red-500' : 'w-1.5 bg-slate-700 hover:bg-slate-500'
+                  className={`h-2 rounded-full transition-all ${
+                    currentIndex === idx ? 'w-8 bg-red-500' : 'w-2 bg-slate-700 hover:bg-slate-500'
                   }`}
                 />
               ))}
