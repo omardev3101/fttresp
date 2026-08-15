@@ -74,11 +74,13 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
             onClick={() => handleNav('home')} 
             className="cursor-pointer flex items-center gap-2.5 group"
           >
-            <img 
-              src={settings?.logoUrl || "/logo_fttresp.png"} 
-              alt="Logo Oficial FTTRESP" 
-              className="w-10 h-10 object-contain group-hover:scale-105 transition"
-            />
+            <div className="w-10 h-10 rounded-xl bg-white p-1 border border-slate-200 shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+              <img 
+                src={settings?.logoUrl || "/logo_fttresp.png"} 
+                alt="Logo Oficial FTTRESP" 
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div>
               <div className="font-black text-lg tracking-tight text-slate-950 flex items-center gap-1.5 leading-none">
                 FTTRESP <span className="gradient-gold text-slate-950 text-[9px] px-1.5 py-0.2 rounded font-black">SP</span>

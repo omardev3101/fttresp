@@ -375,6 +375,111 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 </div>
               </div>
 
+              {/* PALETA DE CORES PERSONALIZADA */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
+                  🎨 Paleta de Cores do Portal (Tema)
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Cor Primária (Hero/Fundo):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                      <input 
+                        type="color" 
+                        value={siteSettings.primaryColor || '#0f172a'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, primaryColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-primary', e.target.value);
+                        }}
+                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                      />
+                      <input 
+                        type="text" 
+                        value={siteSettings.primaryColor || '#0f172a'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, primaryColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-primary', e.target.value);
+                        }}
+                        className="w-full text-xs font-mono font-bold outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Cor Secundária (Nav):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                      <input 
+                        type="color" 
+                        value={siteSettings.secondaryColor || '#1e3a8a'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, secondaryColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-secondary', e.target.value);
+                        }}
+                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                      />
+                      <input 
+                        type="text" 
+                        value={siteSettings.secondaryColor || '#1e3a8a'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, secondaryColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-secondary', e.target.value);
+                        }}
+                        className="w-full text-xs font-mono font-bold outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Vermelho FTTRESP (Faixa):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                      <input 
+                        type="color" 
+                        value={siteSettings.accentColor || '#dc2626'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, accentColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-accent', e.target.value);
+                        }}
+                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                      />
+                      <input 
+                        type="text" 
+                        value={siteSettings.accentColor || '#dc2626'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, accentColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-accent', e.target.value);
+                        }}
+                        className="w-full text-xs font-mono font-bold outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Dourado (Destaques):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                      <input 
+                        type="color" 
+                        value={siteSettings.highlightColor || '#f59e0b'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, highlightColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-highlight', e.target.value);
+                        }}
+                        className="w-8 h-8 rounded border-0 cursor-pointer"
+                      />
+                      <input 
+                        type="text" 
+                        value={siteSettings.highlightColor || '#f59e0b'}
+                        onChange={(e) => {
+                          setSiteSettings({ ...siteSettings, highlightColor: e.target.value });
+                          document.documentElement.style.setProperty('--color-highlight', e.target.value);
+                        }}
+                        className="w-full text-xs font-mono font-bold outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* ENDEREÇO DA SEDE & ATENDIMENTO */}
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
