@@ -31,24 +31,31 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
   return (
     <div className="container mx-auto my-4 font-sans">
       <section 
-        className="relative gradient-hero text-white py-14 sm:py-20 px-8 sm:px-12 overflow-hidden rounded-3xl shadow-2xl border border-red-900/50 min-h-[400px] sm:min-h-[460px] flex flex-col justify-between"
+        className="relative gradient-hero text-white py-12 sm:py-16 px-8 sm:px-12 overflow-hidden rounded-3xl shadow-2xl border border-red-900/50 min-h-[400px] sm:min-h-[460px] flex flex-col justify-between"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {/* Dynamic Background Image Overlay */}
+        {/* Camada de Fundo Suave Blur (Ambiência de proporção) */}
         {currentBanner.imageUrl && (
-          <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 z-0 overflow-hidden">
             <img 
               src={currentBanner.imageUrl} 
-              alt="Banner background" 
-              className="w-full h-full object-cover opacity-35 transition-opacity duration-1000"
+              alt="Banner background ambient" 
+              className="w-full h-full object-cover opacity-20 blur-xl scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent"></div>
+            {/* Camada da Imagem 100% INTEIRA e VISÍVEL dentro do Banner sem cortes (object-contain) */}
+            <img 
+              src={currentBanner.imageUrl} 
+              alt={currentBanner.title} 
+              className="absolute inset-y-0 right-0 w-full lg:w-3/4 h-full object-contain object-right p-4 opacity-75 transition-all duration-700 pointer-events-none"
+            />
+            {/* Sombreamento degradê para leitura perfeita da tipografia */}
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
           </div>
         )}
 
-        {/* Full-width Slide Content com o dobro da altura útil */}
-        <div className="relative z-10 space-y-5 max-w-4xl my-auto">
+        {/* Conteúdo do Banner com Legibilidade Alta */}
+        <div className="relative z-10 space-y-5 max-w-3xl my-auto">
           {currentBanner.badge && (
             <div className="inline-flex items-center gap-2 bg-red-600 border border-red-400 text-white text-xs px-3.5 py-1 rounded-full font-black uppercase tracking-wider shadow-lg">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
@@ -60,11 +67,11 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
             {currentBanner.title}
           </h1>
 
-          <p className="text-slate-200 text-sm sm:text-lg leading-relaxed max-w-3xl transition-all duration-500 font-medium">
+          <p className="text-slate-200 text-sm sm:text-lg leading-relaxed max-w-2xl transition-all duration-500 font-medium">
             {currentBanner.subtitle}
           </p>
 
-          {/* Action Buttons */}
+          {/* Botões de Ação */}
           <div className="flex flex-wrap items-center gap-4 pt-3">
             {currentBanner.btnText && (
               <button 
@@ -84,7 +91,7 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
           </div>
         </div>
 
-        {/* Carousel Navigation Arrows & Dots */}
+        {/* Setas e Indicadores de Navegação */}
         {activeBanners.length > 1 && (
           <div className="relative z-10 flex items-center justify-between mt-6 pt-3 border-t border-white/15">
             <div className="flex items-center gap-2">
@@ -107,7 +114,7 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
               </span>
             </div>
 
-            {/* Dots Indicator */}
+            {/* Marcadores em Pontos */}
             <div className="flex items-center gap-2">
               {activeBanners.map((_, idx) => (
                 <button
