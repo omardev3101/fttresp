@@ -76,19 +76,19 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
     <div className="space-y-10 pb-12 font-sans bg-slate-50">
       
       {/* 1. TICKER DE ÚLTIMAS NOTÍCIAS AO VIVO */}
-      <div className="bg-slate-950 text-white text-xs py-2 px-4 border-b border-red-900/40 shadow-inner">
+      <div className="bg-red-950 text-white text-xs py-2.5 px-4 border-b border-red-800/60 shadow-inner">
         <div className="container flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 shrink-0">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-            <span className="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Ao Vivo</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span className="bg-red-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded uppercase shadow">Ao Vivo</span>
             <span className="font-extrabold text-amber-400 uppercase hidden sm:inline">Últimas FTTRESP:</span>
           </div>
           <div className="overflow-hidden whitespace-nowrap w-full">
-            <div className="animate-marquee inline-block text-slate-300 font-medium text-[11px]">
+            <div className="animate-marquee inline-block text-slate-200 font-medium text-[11px]">
               {news.length > 0 ? (
                 news.map((n, i) => (
                   <span key={n.id || `ticker-${i}`} className="mr-8">
-                    <strong className="text-red-400">[{n.category}]</strong> {n.title} — <em>{n.date}</em>
+                    <strong className="text-amber-400">[{n.category}]</strong> {n.title} — <em>{n.date}</em>
                   </span>
                 ))
               ) : (
@@ -107,9 +107,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div 
             onClick={() => setCurrentPage('unions')}
-            className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+            className="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-md hover-lift cursor-pointer space-y-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center font-black group-hover:bg-red-600 group-hover:text-white transition">
+            <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-black group-hover:scale-110 transition shadow-md">
               <Building2 size={22} />
             </div>
             <h3 className="font-black text-slate-900 text-sm">97 Sindicatos SP</h3>
@@ -118,9 +118,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
           <div 
             onClick={() => setCurrentPage('salary')}
-            className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+            className="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-md hover-lift cursor-pointer space-y-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+            <div className="w-10 h-10 rounded-xl gradient-gold text-slate-950 flex items-center justify-center font-black group-hover:scale-110 transition shadow-md">
               <DollarSign size={22} />
             </div>
             <h3 className="font-black text-slate-900 text-sm">Pisos Salariais 2026</h3>
@@ -129,9 +129,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
           <div 
             onClick={() => setCurrentPage('agreements')}
-            className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+            className="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-md hover-lift cursor-pointer space-y-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 flex items-center justify-center font-black group-hover:bg-red-600 group-hover:text-white transition">
+            <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center font-black group-hover:scale-110 transition shadow-md">
               <FileText size={22} />
             </div>
             <h3 className="font-black text-slate-900 text-sm">Convenções Coletivas</h3>
@@ -140,9 +140,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
           <div 
             onClick={() => setCurrentPage('calculator')}
-            className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-md hover-lift cursor-pointer space-y-2 group"
+            className="bg-white p-4 sm:p-5 rounded-2xl border border-red-100 shadow-md hover-lift cursor-pointer space-y-2 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+            <div className="w-10 h-10 rounded-xl gradient-gold text-slate-950 flex items-center justify-center font-black group-hover:scale-110 transition shadow-md">
               <Calculator size={22} />
             </div>
             <h3 className="font-black text-slate-900 text-sm">Simulador de Direitos</h3>
@@ -153,7 +153,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
       {/* 4. PALAVRA DO PRESIDENTE */}
       <section className="container">
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl grid lg:grid-cols-12 gap-8 items-center">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-red-100 shadow-xl grid lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-5 relative">
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-slate-100">
               <img 
@@ -191,12 +191,12 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
       {/* 5. MÓDULO SINDFLIX / WEB TV TRANSMISSÃO AO VIVO */}
       <section className="container">
-        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+        <div className="bg-gradient-to-br from-red-950 via-slate-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-red-900/60 shadow-2xl space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-red-900/50 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-                <span className="text-xs font-black text-amber-400 uppercase tracking-wider">Plataforma Audiovisual</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span className="text-xs font-black text-amber-400 uppercase tracking-wider">Plataforma Audiovisual FTTRESP</span>
               </div>
               <h2 className="text-2xl font-black text-white">Sindflix FTTRESP — Web TV & Mídias</h2>
             </div>
@@ -210,7 +210,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
           <div className="grid lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-8 space-y-4">
-              <div className="relative aspect-video rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 shadow-2xl">
+              <div className="relative aspect-video rounded-2xl bg-black overflow-hidden border border-red-900/50 shadow-2xl">
                 <iframe 
                   src={selectedVideo?.defaultVideoUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0"} 
                   title={selectedVideo?.name || "Web TV FTTRESP"}
@@ -220,18 +220,18 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
                 ></iframe>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-red-950/80 p-4 rounded-2xl border border-red-900/60">
                 <div>
                   <div className="text-xs text-amber-400 font-extrabold uppercase">{selectedVideo?.badge || 'AO VIVO'}</div>
                   <div className="font-extrabold text-sm text-white">{selectedVideo?.name || 'TV FTTRESP Principal'}</div>
-                  <div className="text-xs text-slate-400">{selectedVideo?.currentShow || 'Jornal Rodoviário de SP'}</div>
+                  <div className="text-xs text-slate-300">{selectedVideo?.currentShow || 'Jornal Rodoviário de SP'}</div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={handleLike}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
-                      hasLiked ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      hasLiked ? 'gradient-gold text-slate-950' : 'bg-red-900/60 text-slate-200 hover:bg-red-900'
                     }`}
                   >
                     <ThumbsUp size={14} /> {likes}
@@ -239,7 +239,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
                   <button 
                     onClick={handleLove}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
-                      hasLoved ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      hasLoved ? 'bg-red-600 text-white' : 'bg-red-900/60 text-slate-200 hover:bg-red-900'
                     }`}
                   >
                     <Heart size={14} /> {loves}
@@ -257,16 +257,16 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
                     onClick={() => setSelectedVideo(ch)}
                     className={`p-3 rounded-xl border transition cursor-pointer flex items-center gap-3 ${
                       selectedVideo?.id === ch.id 
-                        ? 'bg-slate-800 border-red-500 text-amber-400' 
-                        : 'bg-slate-950 border-slate-800 hover:border-slate-700 text-white'
+                        ? 'bg-red-950 border-red-500 text-amber-400 shadow-md' 
+                        : 'bg-black/50 border-red-950 hover:border-red-700 text-white'
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-red-600/20 text-red-400 flex items-center justify-center font-black shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-black shrink-0">
                       <Tv size={16} />
                     </div>
                     <div className="overflow-hidden">
                       <div className="font-extrabold text-xs truncate">{ch.name}</div>
-                      <div className="text-[10px] text-slate-400 truncate">{ch.currentShow}</div>
+                      <div className="text-[10px] text-slate-300 truncate">{ch.currentShow}</div>
                     </div>
                   </div>
                 ))}
@@ -281,12 +281,12 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
       {/* 7. CENTRAL DOS 97 SINDICATOS FILIADOS */}
       <section className="container">
-        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 space-y-4">
+        <div className="bg-gradient-to-r from-red-950 via-slate-950 to-red-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-red-900/60 space-y-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
               <span className="text-[11px] text-amber-400 font-extrabold uppercase tracking-wider">Rede Federativa de SP</span>
               <h2 className="text-xl sm:text-2xl font-black text-white">Central dos 97 Sindicatos Filiados</h2>
-              <p className="text-slate-400 text-xs sm:text-sm">Localize o sindicato da sua cidade ou região (Capital, ABCDMR, Campinas, Baixada, Interior, Vale).</p>
+              <p className="text-slate-300 text-xs sm:text-sm">Localize o sindicato da sua cidade ou região (Capital, ABCDMR, Campinas, Baixada, Interior, Vale).</p>
             </div>
             <button 
               onClick={() => setCurrentPage('unions')}
@@ -298,10 +298,10 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
           <div className="grid md:grid-cols-3 gap-3">
             {unions.slice(0, 3).map((u, idx) => (
-              <div key={u.id || `union-${idx}`} className="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-1.5 hover:border-red-500/50 transition">
+              <div key={u.id || `union-${idx}`} className="bg-slate-950/80 border border-red-900/50 p-4 rounded-xl space-y-1.5 hover:border-amber-400 transition">
                 <div className="text-[10px] font-extrabold text-amber-400 uppercase">{u.region} • {u.city}</div>
                 <div className="font-extrabold text-xs text-white line-clamp-2">{u.name}</div>
-                <div className="text-[11px] text-slate-400"><strong>Fone:</strong> {u.phone}</div>
+                <div className="text-[11px] text-slate-300"><strong>Fone:</strong> {u.phone}</div>
               </div>
             ))}
           </div>
@@ -323,7 +323,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
                 onClick={() => setJornalFilter(cat)}
                 className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
                   jornalFilter === cat 
-                    ? 'bg-slate-950 text-amber-400 font-black shadow-sm' 
+                    ? 'bg-red-600 text-white font-black shadow-sm' 
                     : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
                 }`}
               >
@@ -335,14 +335,14 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredJornais.map((jornal, idx) => (
-            <div key={jornal.id || `jornal-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
+            <div key={jornal.id || `jornal-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-red-100 shadow-md hover-lift flex flex-col justify-between">
               <div>
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
                   <img src={jornal.imageUrl} alt={jornal.title} className="w-full h-full object-cover opacity-90 hover:scale-105 transition duration-500" />
                   <span className="absolute top-2.5 left-2.5 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded uppercase shadow-md flex items-center gap-1">
                     <FileText size={10} /> {jornal.category}
                   </span>
-                  <span className="absolute bottom-2.5 right-2.5 bg-slate-950/80 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-md">
+                  <span className="absolute bottom-2.5 right-2.5 bg-red-950/90 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-md">
                     Edição em PDF
                   </span>
                 </div>
@@ -361,14 +361,14 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
                   href={jornal.fileUrl || "#"} 
                   target="_blank" 
                   rel="noreferrer"
-                  className="flex-1 bg-slate-950 hover:bg-slate-800 text-amber-400 font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition"
+                  className="flex-1 gradient-red hover:opacity-95 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm"
                 >
                   <Eye size={14} /> Ler Jornal em PDF
                 </a>
                 <a 
                   href={jornal.fileUrl || "#"} 
                   download
-                  className="p-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition"
+                  className="p-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl border border-amber-200 transition"
                   title="Baixar Edição PDF"
                 >
                   <Download size={16} />
@@ -406,7 +406,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredNews.map((item, idx) => (
-            <div key={item.id || `news-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-md hover-lift flex flex-col justify-between">
+            <div key={item.id || `news-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-red-100 shadow-md hover-lift flex flex-col justify-between">
               <div>
                 <div className="relative aspect-video overflow-hidden">
                   <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />

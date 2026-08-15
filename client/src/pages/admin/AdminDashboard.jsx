@@ -599,7 +599,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
             {/* GRID DE 4 CARDS DE MÉTRICAS */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-gradient-to-r from-red-800 to-red-900 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
                 <div className="space-y-1">
                   <span className="text-[10px] font-black uppercase tracking-wider opacity-80">VISUALIZAÇÕES TOTAIS</span>
                   <div className="text-3xl font-black">{totalViews.toLocaleString('pt-BR')}</div>
@@ -617,7 +617,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
               </div>
 
-              <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
                 <div className="space-y-1">
                   <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO FACEBOOK</span>
                   <div className="text-3xl font-black">{totalFbShares.toLocaleString('pt-BR')}</div>
