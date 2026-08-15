@@ -14,8 +14,16 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Servir arquivos estáticos se houver uploads
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Servir arquivos estáticos das pastas client/public/uploads e server/uploads
+const clientUploadsDir = path.join(__dirname, '../../client/public/uploads');
+const serverUploadsDir = path.join(__dirname, '../uploads');
+
+if (!fs.existsSync(clientUploadsDir)) {
+  fs.mkdirSync(clientUploadsDir, { recursive: true });
+}
+
+app.use('/uploads', express.static(clientUploadsDir));
+app.use('/uploads', express.static(serverUploadsDir));
 
 // Middleware de Autenticação JWT para rotas privadas
 function authMiddleware(req, res, next) {
