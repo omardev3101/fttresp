@@ -85,7 +85,18 @@ app.delete('/api/banners/:id', authMiddleware, (req, res) => {
   res.json({ message: 'Banner removido com sucesso!' });
 });
 
-// Autenticação Admin (Login)
+// GET & PUT Configurações Globais do Site (Gestão do Site)
+app.get('/api/settings', (req, res) => {
+  const db = store.get();
+  res.json(db.settings || {});
+});
+
+app.put('/api/settings', authMiddleware, (req, res) => {
+  const db = store.get();
+  db.settings = { ...db.settings, ...req.body };
+  store.save(db);
+  res.json(db.settings);
+});
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
   if (username === 'admin' && (password === 'admin123' || password === 'admin')) {

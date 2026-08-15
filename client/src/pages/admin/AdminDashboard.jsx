@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, RefreshCw, Trash2, Edit, Pause, Play, Eye, Share2, 
   MessageSquare, Copy, LogOut, CheckCircle2, AlertCircle, FileText, 
-  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield, Upload, Link as LinkIcon
+  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield, Upload, Link as LinkIcon, Settings, Globe, Phone, Mail, MapPin, Save
 } from 'lucide-react';
 import api from '../../services/api';
 
-export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], settings }) {
+export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], settings: initialSettings }) {
   const [activeTab, setActiveTab] = useState('NOTÍCIAS');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -15,6 +15,13 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   const [categoriasList, setCategoriasList] = useState([]);
   const [salariosList, setSalariosList] = useState([]);
   
+  // Site Settings Form State
+  const [siteSettings, setSiteSettings] = useState(initialSettings || {});
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSavedSuccess, setSettingsSavedSuccess] = useState(false);
+  const [siteLogoMode, setSiteLogoMode] = useState('file');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
   // Modal Form State
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -24,15 +31,21 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   const [uploadedUrl, setUploadedUrl] = useState('');
   const [loadingAction, setLoadingAction] = useState(false);
 
+  useEffect(() => {
+    if (initialSettings) setSiteSettings(initialSettings);
+  }, [initialSettings]);
+
   // Load custom collections
   const loadTabCollections = async () => {
     try {
-      const [resJornais, resCat] = await Promise.all([
+      const [resJornais, resCat, resSet] = await Promise.all([
         api.get('/jornais').catch(() => ({ data: [] })),
-        api.get('/categorias').catch(() => ({ data: [] }))
+        api.get('/categorias').catch(() => ({ data: [] })),
+        api.get('/settings').catch(() => ({ data: {} }))
       ]);
       setJornaisList(resJornais.data || []);
       setCategoriasList(resCat.data || []);
+      if (resSet.data) setSiteSettings(resSet.data);
       
       setSalariosList([
         { id: 's-1', title: 'Motorista de Transporte Urbano SP', category: 'Urbano', value: 'R$ 3.850,00', date: '2026-01-01', status: 'PUBLICADO', views: 4120, waShares: 230, fbShares: 85, linkCopies: 52 },
@@ -53,7 +66,8 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     { id: 'PISOS', label: 'PISOS SALARIAIS', icon: DollarSign },
     { id: 'JORNAIS', label: 'JORNAL & VEÍCULOS', icon: FileText },
     { id: 'CONVENÇÕES', label: 'CONVENÇÕES', icon: Layers },
-    { id: 'CATEGORIAS', label: 'CATEGORIAS', icon: Tag }
+    { id: 'CATEGORIAS', label: 'CATEGORIAS', icon: Tag },
+    { id: 'SITE', label: 'GESTÃO DO SITE', icon: Globe }
   ];
 
   const getActiveItems = () => {
@@ -105,11 +119,13 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   };
 
   // Upload Local File to Express Server
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = async (e, targetField = 'imageUrl') => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setUploadingFile(true);
+    if (targetField === 'logoUrl') setUploadingLogo(true);
+    else setUploadingFile(true);
+
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
@@ -119,14 +135,37 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           fileData: base64Data
         });
         const url = res.data.url;
-        setUploadedUrl(url);
-        setFormData(prev => ({ ...prev, imageUrl: url, fileUrl: url }));
-        setUploadingFile(false);
+        
+        if (targetField === 'logoUrl') {
+          setSiteSettings(prev => ({ ...prev, logoUrl: url }));
+          setUploadingLogo(false);
+        } else {
+          setUploadedUrl(url);
+          setFormData(prev => ({ ...prev, imageUrl: url, fileUrl: url }));
+          setUploadingFile(false);
+        }
       };
       reader.readAsDataURL(file);
     } catch (err) {
       alert('Erro ao enviar arquivo: ' + err.message);
       setUploadingFile(false);
+      setUploadingLogo(false);
+    }
+  };
+
+  // Save Global Site Settings
+  const handleSaveSiteSettings = async (e) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      await api.put('/settings', siteSettings);
+      await refreshData();
+      setSettingsSavedSuccess(true);
+      setTimeout(() => setSettingsSavedSuccess(false), 4000);
+    } catch (err) {
+      alert('Erro ao salvar configurações do site.');
+    } finally {
+      setSavingSettings(false);
     }
   };
 
@@ -237,7 +276,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
       <div className="container mt-6 space-y-6">
         
-        {/* 2. ABAS EM PÍLULAS */}
+        {/* 2. ABAS EM PÍLULAS DE NAVEGAÇÃO */}
         <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-2">
           {tabOptions.map((tab) => {
             const Icon = tab.icon;
@@ -259,173 +298,336 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           })}
         </div>
 
-        {/* 3. CABEÇALHO DA SEÇÃO E AÇÕES RÁPIDAS */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">
-              GERENCIAR {activeTab}
-            </h2>
-            <p className="text-slate-500 text-xs font-medium mt-0.5">
-              Envie arquivos locais (PDF/Imagens) ou informe links externos em tempo real.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => loadTabCollections()}
-              className="bg-red-50 text-red-700 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
-            >
-              <Trash2 size={14} /> Limpar Rascunhos
-            </button>
-            <button 
-              onClick={() => loadTabCollections()}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5"
-            >
-              <RefreshCw size={14} /> Sincronizar com Web
-            </button>
-            <button 
-              onClick={() => handleOpenModal()}
-              className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
-            >
-              <Plus size={16} /> + Novo Registro
-            </button>
-          </div>
-        </div>
-
-        {/* 4. GRID DE 4 CARDS DE MÉTRICAS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">VISUALIZAÇÕES TOTAIS</span>
-              <div className="text-3xl font-black">{totalViews.toLocaleString('pt-BR')}</div>
-              <p className="text-[10px] opacity-80">Views acumuladas em matérias/documentos</p>
+        {/* 3. CONTEÚDO EXCLUSIVO DA ABA: GESTÃO DO SITE */}
+        {activeTab === 'SITE' ? (
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 uppercase">GESTÃO DO SITE & IDENTIDADE</h2>
+                <p className="text-slate-500 text-xs font-medium mt-0.5">Gerencie os dados institucionais, logotipo, contatos, horários, copyright e redes sociais.</p>
+              </div>
+              
+              {settingsSavedSuccess && (
+                <div className="bg-emerald-50 text-emerald-800 border border-emerald-300 font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
+                  <CheckCircle2 size={16} /> Configurações salvas com sucesso!
+                </div>
+              )}
             </div>
-            <TrendingUp size={36} className="absolute right-4 bottom-4 opacity-20" />
-          </div>
 
-          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO WHATSAPP</span>
-              <div className="text-3xl font-black">{totalWaShares.toLocaleString('pt-BR')}</div>
-              <p className="text-[10px] opacity-80">Compartilhamentos diretos no WA</p>
-            </div>
-            <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
-          </div>
+            <form onSubmit={handleSaveSiteSettings} className="space-y-6 text-xs font-semibold">
+              {/* LOGO E IDENTIDADE VISUAL */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <Globe size={16} className="text-amber-600" /> Logotipo Oficial & Identidade
+                </h3>
 
-          <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO FACEBOOK</span>
-              <div className="text-3xl font-black">{totalFbShares.toLocaleString('pt-BR')}</div>
-              <p className="text-[10px] opacity-80">Compartilhamentos diretos no FB</p>
-            </div>
-            <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
-          </div>
+                <div className="grid md:grid-cols-12 gap-6 items-center">
+                  <div className="md:col-span-4 flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-slate-200 space-y-2">
+                    <img 
+                      src={siteSettings.logoUrl || "/logo_fttresp.png"} 
+                      alt="Logo Oficial" 
+                      className="w-20 h-20 object-contain"
+                    />
+                    <span className="text-[10px] text-slate-500 font-bold uppercase">Brasão Oficial Atual</span>
+                  </div>
 
-          <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider opacity-80">LINKS COPIADOS</span>
-              <div className="text-3xl font-black">{totalLinkCopies.toLocaleString('pt-BR')}</div>
-              <p className="text-[10px] opacity-80">Transferências e cópias diretas</p>
-            </div>
-            <Copy size={36} className="absolute right-4 bottom-4 opacity-20" />
-          </div>
-        </div>
+                  <div className="md:col-span-8 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-slate-700 uppercase">Subir Novo Logo ou Link:</label>
+                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-[10px]">
+                        <button 
+                          type="button" 
+                          onClick={() => setSiteLogoMode('file')}
+                          className={`px-3 py-1 rounded-lg font-bold ${siteLogoMode === 'file' ? 'bg-slate-950 text-amber-400' : 'text-slate-600'}`}
+                        >
+                          Subir do PC
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => setSiteLogoMode('link')}
+                          className={`px-3 py-1 rounded-lg font-bold ${siteLogoMode === 'link' ? 'bg-slate-950 text-amber-400' : 'text-slate-600'}`}
+                        >
+                          Link URL
+                        </button>
+                      </div>
+                    </div>
 
-        {/* 5. TABELA DE REGISTROS */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-3">
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-            <span className="text-xs font-black uppercase text-slate-700 tracking-wider">
-              LISTA COMPLETA ({activeItems.length})
-            </span>
-            <span className="text-[10px] text-slate-500 font-semibold">Suporte a Arquivos PDF e Imagens</span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-slate-100 text-slate-500 uppercase font-black tracking-wider border-b border-slate-200">
-                  <th className="py-3 px-4">MANCHETE / ARQUIVO</th>
-                  <th className="py-3 px-4 text-center">MÉTRICAS</th>
-                  <th className="py-3 px-4 text-right">AÇÃO</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-                {activeItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition">
-                    
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={item.imageUrl || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80"} 
-                          alt="Thumb"
-                          className="w-12 h-9 object-cover rounded-lg border border-slate-200 shrink-0" 
+                    {siteLogoMode === 'file' ? (
+                      <div>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload(e, 'logoUrl')}
+                          className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-950 file:text-amber-400 cursor-pointer"
                         />
-                        <div className="space-y-0.5 overflow-hidden">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-[9px] font-black px-2 py-0.2 rounded uppercase ${
-                              item.status === 'PAUSADO' 
-                                ? 'bg-amber-100 text-amber-800' 
-                                : 'bg-emerald-100 text-emerald-800'
-                            }`}>
-                              {item.status || 'PUBLICADO'}
-                            </span>
-                            <span className="text-[10px] text-slate-400">{item.date || '2026-08-14'}</span>
-                          </div>
-                          <h4 className="font-extrabold text-xs text-slate-900 truncate max-w-md">
-                            {item.title || item.name}
-                          </h4>
-                        </div>
+                        {uploadingLogo && <span className="text-blue-600 font-bold">Enviando logo...</span>}
                       </div>
-                    </td>
+                    ) : (
+                      <input 
+                        type="text" 
+                        value={siteSettings.logoUrl || ''}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, logoUrl: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                        placeholder="https://..."
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-center gap-3 text-[11px] font-bold text-slate-600">
-                        <span className="flex items-center gap-1"><Eye size={13} className="text-blue-600" /> {item.views || 240}</span>
-                        <span className="flex items-center gap-1"><Share2 size={13} className="text-emerald-600" /> {item.waShares || 14}</span>
-                        <span className="flex items-center gap-1"><Share2 size={13} className="text-indigo-600" /> {item.fbShares || 8}</span>
-                        <span className="flex items-center gap-1"><Copy size={13} className="text-red-600" /> {item.linkCopies || 4}</span>
-                      </div>
-                    </td>
+              {/* ENDEREÇO DA SEDE & ATENDIMENTO */}
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
+                  <MapPin size={16} className="text-amber-600" /> Endereço da Sede & Telefones
+                </h3>
 
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button 
-                          onClick={() => handleToggleStatus(item)}
-                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
-                            item.status === 'PAUSADO' 
-                              ? 'bg-emerald-600 text-white' 
-                              : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
-                          }`}
-                        >
-                          {item.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
-                        </button>
-                        <button 
-                          onClick={() => handleOpenModal(item)}
-                          className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-950 hover:text-amber-400 transition"
-                          title="Editar Registro"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(item.id)}
-                          className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"
-                          title="Excluir Registro"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Endereço Oficial da Sede:</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.address || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, address: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                    />
+                  </div>
 
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Telefones Oficiais:</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.phone || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, phone: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">WhatsApp de Atendimento:</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.whatsapp || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, whatsapp: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">E-mail Principal:</label>
+                    <input 
+                      type="email" 
+                      value={siteSettings.email || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, email: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Horário de Atendimento:</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.workingHours || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, workingHours: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-600 uppercase mb-1">Texto de Copyright (Rodapé):</label>
+                    <input 
+                      type="text" 
+                      value={siteSettings.copyright || ''}
+                      onChange={(e) => setSiteSettings({ ...siteSettings, copyright: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* BOTÃO SALVAR GESTÃO DO SITE */}
+              <div className="flex justify-end pt-2">
+                <button 
+                  type="submit" 
+                  disabled={savingSettings}
+                  className="gradient-gold text-slate-950 font-black text-sm px-8 py-3.5 rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-2"
+                >
+                  <Save size={18} /> {savingSettings ? 'Gravando Alterações...' : 'Salvar Gestão do Site'}
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
+        ) : (
+          /* CONTEÚDO PADRÃO DE GESTÃO DE CONTEÚDO (NOTÍCIAS, PISOS, JORNAIS, CONVENÇÕES, CATEGORIAS) */
+          <>
+            {/* CABEÇALHO DA SEÇÃO E AÇÕES RÁPIDAS */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">
+                  GERENCIAR {activeTab}
+                </h2>
+                <p className="text-slate-500 text-xs font-medium mt-0.5">
+                  Envie arquivos locais (PDF/Imagens) ou informe links externos em tempo real.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => loadTabCollections()}
+                  className="bg-red-50 text-red-700 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
+                >
+                  <Trash2 size={14} /> Limpar Rascunhos
+                </button>
+                <button 
+                  onClick={() => loadTabCollections()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                >
+                  <RefreshCw size={14} /> Sincronizar com Web
+                </button>
+                <button 
+                  onClick={() => handleOpenModal()}
+                  className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
+                >
+                  <Plus size={16} /> + Novo Registro
+                </button>
+              </div>
+            </div>
+
+            {/* GRID DE 4 CARDS DE MÉTRICAS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">VISUALIZAÇÕES TOTAIS</span>
+                  <div className="text-3xl font-black">{totalViews.toLocaleString('pt-BR')}</div>
+                  <p className="text-[10px] opacity-80">Views acumuladas em matérias/documentos</p>
+                </div>
+                <TrendingUp size={36} className="absolute right-4 bottom-4 opacity-20" />
+              </div>
+
+              <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO WHATSAPP</span>
+                  <div className="text-3xl font-black">{totalWaShares.toLocaleString('pt-BR')}</div>
+                  <p className="text-[10px] opacity-80">Compartilhamentos diretos no WA</p>
+                </div>
+                <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
+              </div>
+
+              <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO FACEBOOK</span>
+                  <div className="text-3xl font-black">{totalFbShares.toLocaleString('pt-BR')}</div>
+                  <p className="text-[10px] opacity-80">Compartilhamentos diretos no FB</p>
+                </div>
+                <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
+              </div>
+
+              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">LINKS COPIADOS</span>
+                  <div className="text-3xl font-black">{totalLinkCopies.toLocaleString('pt-BR')}</div>
+                  <p className="text-[10px] opacity-80">Transferências e cópias diretas</p>
+                </div>
+                <Copy size={36} className="absolute right-4 bottom-4 opacity-20" />
+              </div>
+            </div>
+
+            {/* TABELA DE REGISTROS */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-3">
+              <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <span className="text-xs font-black uppercase text-slate-700 tracking-wider">
+                  LISTA COMPLETA ({activeItems.length})
+                </span>
+                <span className="text-[10px] text-slate-500 font-semibold">Suporte a Arquivos PDF e Imagens</span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-500 uppercase font-black tracking-wider border-b border-slate-200">
+                      <th className="py-3 px-4">MANCHETE / ARQUIVO</th>
+                      <th className="py-3 px-4 text-center">MÉTRICAS</th>
+                      <th className="py-3 px-4 text-right">AÇÃO</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                    {activeItems.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50 transition">
+                        
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={item.imageUrl || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80"} 
+                              alt="Thumb"
+                              className="w-12 h-9 object-cover rounded-lg border border-slate-200 shrink-0" 
+                            />
+                            <div className="space-y-0.5 overflow-hidden">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[9px] font-black px-2 py-0.2 rounded uppercase ${
+                                  item.status === 'PAUSADO' 
+                                    ? 'bg-amber-100 text-amber-800' 
+                                    : 'bg-emerald-100 text-emerald-800'
+                                }`}>
+                                  {item.status || 'PUBLICADO'}
+                                </span>
+                                <span className="text-[10px] text-slate-400">{item.date || '2026-08-14'}</span>
+                              </div>
+                              <h4 className="font-extrabold text-xs text-slate-900 truncate max-w-md">
+                                {item.title || item.name}
+                              </h4>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-4">
+                          <div className="flex items-center justify-center gap-3 text-[11px] font-bold text-slate-600">
+                            <span className="flex items-center gap-1"><Eye size={13} className="text-blue-600" /> {item.views || 240}</span>
+                            <span className="flex items-center gap-1"><Share2 size={13} className="text-emerald-600" /> {item.waShares || 14}</span>
+                            <span className="flex items-center gap-1"><Share2 size={13} className="text-indigo-600" /> {item.fbShares || 8}</span>
+                            <span className="flex items-center gap-1"><Copy size={13} className="text-red-600" /> {item.linkCopies || 4}</span>
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button 
+                              onClick={() => handleToggleStatus(item)}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
+                                item.status === 'PAUSADO' 
+                                  ? 'bg-emerald-600 text-white' 
+                                  : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                              }`}
+                            >
+                              {item.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
+                            </button>
+                            <button 
+                              onClick={() => handleOpenModal(item)}
+                              className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-950 hover:text-amber-400 transition"
+                              title="Editar Registro"
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(item.id)}
+                              className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"
+                              title="Excluir Registro"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
 
       </div>
 
-      {/* 6. MODAL DE CRIAÇÃO / EDIÇÃO COM UPLOAD DE ARQUIVO OU LINK */}
+      {/* MODAL DE CRIAÇÃO / EDIÇÃO */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
           <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
@@ -457,7 +659,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                   <span className="font-black text-slate-900 uppercase">Mídia / Documento Anexo:</span>
                   
-                  {/* Tabs de Modo de Envio */}
                   <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
                     <button
                       type="button"
@@ -488,8 +689,8 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                     <input 
                       type="file" 
                       accept="image/*,application/pdf"
-                      onChange={handleFileUpload}
-                      className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-950 file:text-amber-400 hover:file:bg-slate-800 cursor-pointer"
+                      onChange={(e) => handleFileUpload(e, 'imageUrl')}
+                      className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-950 file:text-amber-400 cursor-pointer"
                     />
                     {uploadingFile && <div className="text-blue-600 font-bold text-[10px]">Enviando arquivo ao servidor...</div>}
                     {uploadedUrl && (
