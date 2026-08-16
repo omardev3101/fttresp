@@ -31,7 +31,7 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
   return (
     <div className="container mx-auto my-4 font-sans">
       <section 
-        className="relative gradient-hero text-white py-12 sm:py-16 px-8 sm:px-12 overflow-hidden rounded-3xl shadow-2xl border border-red-900/50 min-h-[400px] sm:min-h-[460px] flex flex-col justify-between"
+        className="relative bg-black text-white py-12 sm:py-16 px-8 sm:px-12 overflow-hidden rounded-3xl shadow-2xl border border-red-600/60 min-h-[400px] sm:min-h-[460px] flex flex-col justify-between"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -49,16 +49,16 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
               alt={currentBanner.title} 
               className="absolute inset-y-0 right-0 w-full lg:w-3/4 h-full object-contain object-right p-4 opacity-75 transition-all duration-700 pointer-events-none"
             />
-            {/* Sombreamento degradê para leitura perfeita da tipografia */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"></div>
+            {/* Sombreamento degradê em preto puro */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-transparent"></div>
           </div>
         )}
 
         {/* Conteúdo do Banner com Legibilidade Alta */}
         <div className="relative z-10 space-y-5 max-w-3xl my-auto">
           {currentBanner.badge && (
-            <div className="inline-flex items-center gap-2 bg-red-600 border border-red-400 text-white text-xs px-3.5 py-1 rounded-full font-black uppercase tracking-wider shadow-lg">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <div className="inline-flex items-center gap-2 bg-red-600 border border-red-500 text-white text-xs px-3.5 py-1 rounded-full font-black uppercase tracking-wider shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
               {currentBanner.badge}
             </div>
           )}
@@ -76,7 +76,7 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
             {currentBanner.btnText && (
               <button 
                 onClick={() => currentBanner.linkUrl && setCurrentPage(currentBanner.linkUrl)}
-                className="gradient-gold hover:opacity-95 text-slate-950 font-black text-sm px-6 py-3.5 rounded-2xl shadow-xl hover:scale-105 transition flex items-center gap-2"
+                className="bg-red-600 hover:bg-red-700 text-white font-black text-sm px-6 py-3.5 rounded-2xl shadow-xl hover:scale-105 transition flex items-center gap-2"
               >
                 <Search size={18} /> {currentBanner.btnText}
               </button>
@@ -84,7 +84,7 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
 
             <button 
               onClick={() => setCurrentPage('webtv')}
-              className="bg-red-600 hover:bg-red-700 text-white font-black text-sm px-6 py-3.5 rounded-2xl border border-red-500 transition flex items-center gap-2 shadow-xl hover:scale-105"
+              className="bg-zinc-900 hover:bg-black text-white font-black text-sm px-6 py-3.5 rounded-2xl border border-red-600 transition flex items-center gap-2 shadow-xl hover:scale-105"
             >
               <Tv size={18} /> Assistir Web TV Ao Vivo
             </button>
@@ -97,14 +97,14 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
             <div className="flex items-center gap-2">
               <button 
                 onClick={handlePrev}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-red-600 text-white transition border border-slate-700 shadow-md"
+                className="p-2 rounded-xl bg-black hover:bg-red-600 text-white transition border border-zinc-700 shadow-md"
                 title="Slide Anterior"
               >
                 <ChevronLeft size={20} />
               </button>
               <button 
                 onClick={handleNext}
-                className="p-2 rounded-xl bg-slate-900/90 hover:bg-red-600 text-white transition border border-slate-700 shadow-md"
+                className="p-2 rounded-xl bg-black hover:bg-red-600 text-white transition border border-zinc-700 shadow-md"
                 title="Próximo Slide"
               >
                 <ChevronRight size={20} />
@@ -121,7 +121,7 @@ export default function BannerCarousel({ banners = [], setCurrentPage }) {
                   key={idx}
                   onClick={() => setCurrentIndex(idx)}
                   className={`h-2 rounded-full transition-all ${
-                    currentIndex === idx ? 'w-8 bg-red-500' : 'w-2 bg-slate-700 hover:bg-slate-500'
+                    currentIndex === idx ? 'w-8 bg-red-600' : 'w-2 bg-zinc-700 hover:bg-zinc-500'
                   }`}
                 />
               ))}

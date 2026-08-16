@@ -70,7 +70,7 @@ export default function App() {
       case 'home':
         return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
       case 'president':
-        return <PresidentWordPage setCurrentPage={setCurrentPage} />;
+        return <PresidentWordPage settings={settings} setCurrentPage={setCurrentPage} />;
       case 'history':
         return <HistoryPage />;
       case 'salary':

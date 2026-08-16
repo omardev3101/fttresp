@@ -13,9 +13,9 @@ $plinkPath = "C:\Program Files\PuTTY\plink.exe"
 
 # Leitura de Credenciais do arquivo .env
 $envFile = ".env"
-$vpsIP = "187.45.255.59"
-$vpsUser = "root"
-$vpsPass = "Omar3101@"
+$vpsIP = IPVPS
+$vpsUser = USERVPS
+$vpsPass = PASSWDVPS
 
 if (Test-Path $envFile) {
     Get-Content $envFile | ForEach-Object {

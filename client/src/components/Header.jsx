@@ -44,21 +44,21 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
   return (
     <header className="sticky top-0 z-50 shadow-md font-sans">
       {/* Topbar Superior */}
-      <div className="bg-slate-950 text-slate-300 text-[11px] py-1 px-4 border-b border-slate-800">
+      <div className="bg-black text-white text-[11px] py-1.5 px-4 border-b border-red-600">
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span><strong>Sede:</strong> {settings?.address || 'São Paulo - SP'}</span>
-            <span className="hidden md:inline"><strong>Fone:</strong> {settings?.phone || '(11) 3228-5000'}</span>
+            <span className="hidden md:inline"><strong>Fone:</strong> {settings?.phone || '(11) 3217-7272'}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-amber-400 font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="flex items-center gap-1.5 text-white font-bold">
+              <span className="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
               Rádio Web 24h Ao Vivo
             </span>
             <button 
               onClick={() => handleNav('admin')}
-              className="bg-slate-800 hover:bg-slate-700 text-amber-400 px-2 py-0.5 rounded font-bold flex items-center gap-1 transition text-[10px]"
+              className="bg-red-600 hover:bg-red-700 text-white px-2.5 py-0.5 rounded font-black flex items-center gap-1 transition text-[10px]"
             >
               <Lock size={10} /> Operador CMS
             </button>
@@ -67,14 +67,14 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
       </div>
 
       {/* Main Navbar */}
-      <div className="bg-white/95 backdrop-blur-md text-slate-900 border-b border-slate-200 py-1.5">
+      <div className="bg-white/95 backdrop-blur-md text-black border-b border-zinc-200 py-2">
         <div className="container flex justify-between items-center">
           {/* Logo */}
           <div 
             onClick={() => handleNav('home')} 
             className="cursor-pointer flex items-center gap-2.5 group"
           >
-            <div className="w-10 h-10 rounded-xl bg-white p-1 border border-slate-200 shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition">
+            <div className="w-10 h-10 rounded-xl bg-white p-1 border border-zinc-300 shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition">
               <img 
                 src={settings?.logoUrl || "/logo_fttresp.png"} 
                 alt="Logo Oficial FTTRESP" 
@@ -82,17 +82,17 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
               />
             </div>
             <div>
-              <div className="font-black text-lg tracking-tight text-slate-950 flex items-center gap-1.5 leading-none">
-                FTTRESP <span className="gradient-gold text-slate-950 text-[9px] px-1.5 py-0.2 rounded font-black">SP</span>
+              <div className="font-black text-lg tracking-tight text-black flex items-center gap-1.5 leading-none">
+                FTTRESP <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.2 rounded font-black uppercase">SP</span>
               </div>
-              <div className="text-slate-500 text-[9px] tracking-wider uppercase font-bold mt-0.5">
+              <div className="text-zinc-600 text-[9px] tracking-wider uppercase font-bold mt-0.5">
                 Federação dos Trabalhadores Rodoviários de SP
               </div>
             </div>
           </div>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden xl:flex items-center gap-0.5">
+          <nav className="hidden xl:flex items-center gap-1">
             {navItems.map((item, index) => {
               const active = currentPage === item.path;
               return (
@@ -103,48 +103,44 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
                   onMouseLeave={() => item.isMega && setOpenMega(null)}
                 >
                   <button
-                    onClick={() => {
-                      if (item.isMega) {
-                        setOpenMega(openMega === item.title ? null : item.title);
-                      } else if (item.path) {
-                        handleNav(item.path);
-                      }
-                    }}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase tracking-tight flex items-center gap-1 transition ${
+                    onClick={() => !item.isMega && handleNav(item.path)}
+                    className={`px-3 py-2 rounded-xl text-xs font-black tracking-tight flex items-center gap-1 transition uppercase ${
                       active 
-                        ? 'bg-amber-500 text-slate-950 font-black shadow-sm' 
-                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+                        ? 'bg-red-600 text-white shadow-sm' 
+                        : 'text-black hover:bg-zinc-100 hover:text-red-600'
                     }`}
                   >
-                    <span>{item.title}</span>
+                    {item.title}
                     {item.badge && (
-                      <span className="text-[8px] bg-slate-900 text-amber-400 px-1 py-0.1 rounded font-black">
+                      <span className="bg-red-600 text-white text-[9px] px-1.5 py-0.2 rounded font-black">
                         {item.badge}
                       </span>
                     )}
-                    {item.isMega && <ChevronDown size={12} className="transition-transform group-hover:rotate-180" />}
+                    {item.isMega && <ChevronDown size={14} className="text-zinc-400 group-hover:text-red-600" />}
                   </button>
 
                   {/* Mega Menu Dropdown */}
-                  {item.isMega && (
-                    <div className={`absolute top-full left-0 pt-1 transition-all duration-200 z-50 ${
-                      openMega === item.title ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
-                    }`}>
-                      <div className="bg-slate-900 text-white rounded-xl shadow-2xl border border-slate-800 p-3 w-64 space-y-1">
+                  {item.isMega && openMega === item.title && (
+                    <div className="absolute top-full left-0 w-64 bg-white border border-zinc-200 shadow-2xl rounded-2xl p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="space-y-1">
                         {item.subItems.map((sub, idx) => {
-                          const SubIcon = sub.icon;
+                          const Icon = sub.icon;
                           return (
                             <button
                               key={idx}
                               onClick={() => handleNav(sub.path)}
-                              className="w-full text-left p-2 rounded-lg hover:bg-slate-800 flex items-center justify-between text-xs font-bold text-slate-200 hover:text-amber-400 transition"
+                              className="w-full p-2.5 rounded-xl hover:bg-zinc-100 flex items-center justify-between text-left transition group/sub"
                             >
-                              <div className="flex items-center gap-2">
-                                {SubIcon && <SubIcon size={14} className="text-amber-400" />}
-                                <span>{sub.label}</span>
+                              <div className="flex items-center gap-2.5">
+                                <div className="p-1.5 rounded-lg bg-zinc-100 text-red-600 group-hover/sub:bg-red-600 group-hover/sub:text-white transition">
+                                  <Icon size={16} />
+                                </div>
+                                <span className="font-bold text-xs text-black group-hover/sub:text-red-600 transition">
+                                  {sub.label}
+                                </span>
                               </div>
                               {sub.badge && (
-                                <span className="bg-red-600 text-white text-[8px] px-1 py-0.1 rounded font-black uppercase">
+                                <span className="text-[9px] bg-red-600 text-white font-black px-1.5 py-0.5 rounded uppercase">
                                   {sub.badge}
                                 </span>
                               )}
@@ -159,30 +155,67 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
             })}
           </nav>
 
-          {/* Mobile Button */}
+          {/* Action Buttons */}
+          <div className="hidden lg:flex items-center gap-2">
+            <button 
+              onClick={() => handleNav('webtv')}
+              className="bg-black hover:bg-zinc-800 text-white text-xs font-black px-4 py-2 rounded-xl transition flex items-center gap-1.5 border border-red-600"
+            >
+              <Tv size={14} className="text-red-600" /> Web TV Ao Vivo
+            </button>
+            <button 
+              onClick={() => handleNav('contact')}
+              className="bg-red-600 hover:bg-red-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow-md hover:scale-105 transition flex items-center gap-1.5"
+            >
+              <PhoneCall size={14} /> Atendimento
+            </button>
+          </div>
+
+          {/* Mobile Hamburger Toggle */}
           <button 
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="xl:hidden p-1.5 rounded-lg bg-slate-900 text-amber-400"
+            className="xl:hidden p-2 rounded-xl bg-zinc-100 text-black hover:bg-zinc-200 transition"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Menu */}
       {mobileOpen && (
-        <div className="xl:hidden bg-slate-900 text-white border-t border-slate-800 py-3 px-3 space-y-1">
-          {navItems.map((item, idx) => (
-            <div key={idx}>
-              <button
-                onClick={() => item.path && handleNav(item.path)}
-                className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between hover:bg-slate-800"
-              >
-                <span>{item.title}</span>
-                {item.badge && <span className="bg-amber-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded font-black">{item.badge}</span>}
-              </button>
-            </div>
-          ))}
+        <div className="xl:hidden bg-white border-b border-zinc-200 p-4 space-y-3 font-sans shadow-2xl">
+          <div className="space-y-1">
+            {navItems.map((item, index) => (
+              <div key={index}>
+                <button
+                  onClick={() => handleNav(item.path)}
+                  className="w-full text-left p-3 rounded-xl font-black text-xs text-black hover:bg-red-600 hover:text-white uppercase flex justify-between items-center transition"
+                >
+                  <span>{item.title}</span>
+                  {item.badge && (
+                    <span className="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-black">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-3 border-t border-zinc-200 space-y-2">
+            <button 
+              onClick={() => handleNav('webtv')}
+              className="w-full bg-black text-white font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 border border-red-600"
+            >
+              <Tv size={16} className="text-red-600" /> Web TV FTTRESP Ao Vivo
+            </button>
+            <button 
+              onClick={() => handleNav('admin')}
+              className="w-full bg-red-600 text-white font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2"
+            >
+              <Lock size={16} /> Acesso Operador CMS
+            </button>
+          </div>
         </div>
       )}
     </header>

@@ -92,9 +92,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   const totalFbShares = activeItems.reduce((acc, curr) => acc + (curr.fbShares || 18), 0);
   const totalLinkCopies = activeItems.reduce((acc, curr) => acc + (curr.linkCopies || 12), 0);
 
-  const publishedCount = activeItems.filter(i => i.status !== 'PAUSADO' && i.status !== 'RASCUNHO').length;
-  const draftCount = activeItems.length - publishedCount;
-
   // Open Add/Edit Modal
   const handleOpenModal = (item = null) => {
     setEditingItem(item);
@@ -232,40 +229,40 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans pb-16">
+    <div className="min-h-screen bg-zinc-100 text-black font-sans pb-16">
       
       {/* 1. TOPBAR DO PAINEL DE GESTÃO ADMINISTRATIVA */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-40 shadow-sm">
+      <header className="bg-black text-white border-b border-red-600 px-6 py-4 sticky top-0 z-40 shadow-md">
         <div className="container flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-slate-950 text-amber-400 flex items-center justify-center font-black">
+            <div className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center font-black">
               <Shield size={18} />
             </div>
-            <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
-              GESTÃO ADMINISTRATIVA
+            <h1 className="text-xl font-black tracking-tight text-white uppercase">
+              GESTÃO ADMINISTRATIVA FTTRESP
             </h1>
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-64">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input 
                 type="text" 
                 placeholder="Busca global..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-slate-900"
+                className="w-full pl-9 pr-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-white text-xs font-semibold focus:outline-none focus:border-red-600"
               />
             </div>
 
-            <div className="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">
-              <UserCheck size={14} className="text-amber-400" />
+            <div className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold shrink-0">
+              <UserCheck size={14} className="text-white" />
               <span>Admin Master ({user?.username || 'operador_fttresp'})</span>
             </div>
 
             <button 
               onClick={onLogout}
-              className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"
+              className="p-2 rounded-xl bg-zinc-900 text-white hover:bg-red-600 transition"
               title="Sair da Gestão"
             >
               <LogOut size={16} />
@@ -277,7 +274,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
       <div className="container mt-6 space-y-6">
         
         {/* 2. ABAS EM PÍLULAS DE NAVEGAÇÃO */}
-        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-2">
+        <div className="bg-white p-2 rounded-2xl border border-zinc-200 shadow-sm flex flex-wrap gap-2">
           {tabOptions.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -287,11 +284,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition ${
                   active 
-                    ? 'bg-slate-950 text-white shadow-md' 
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'bg-red-600 text-white shadow-md' 
+                    : 'text-black hover:bg-zinc-100 hover:text-red-600'
                 }`}
               >
-                <Icon size={14} className={active ? 'text-amber-400' : 'text-slate-400'} />
+                <Icon size={14} className={active ? 'text-white' : 'text-zinc-500'} />
                 {tab.label}
               </button>
             );
@@ -300,52 +297,52 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
         {/* 3. CONTEÚDO EXCLUSIVO DA ABA: GESTÃO DO SITE */}
         {activeTab === 'SITE' ? (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200 shadow-sm space-y-6">
+            <div className="flex justify-between items-center border-b border-zinc-100 pb-4">
               <div>
-                <h2 className="text-2xl font-black text-slate-900 uppercase">GESTÃO DO SITE & IDENTIDADE</h2>
-                <p className="text-slate-500 text-xs font-medium mt-0.5">Gerencie os dados institucionais, logotipo, contatos, horários, copyright e redes sociais.</p>
+                <h2 className="text-2xl font-black text-black uppercase">GESTÃO DO SITE & IDENTIDADE</h2>
+                <p className="text-zinc-500 text-xs font-medium mt-0.5">Gerencie os dados institucionais, logotipo, contatos, horários, copyright e redes sociais.</p>
               </div>
               
               {settingsSavedSuccess && (
-                <div className="bg-emerald-50 text-emerald-800 border border-emerald-300 font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
-                  <CheckCircle2 size={16} /> Configurações salvas com sucesso!
+                <div className="bg-black text-white border border-red-600 font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
+                  <CheckCircle2 size={16} className="text-red-500" /> Configurações salvas com sucesso!
                 </div>
               )}
             </div>
 
             <form onSubmit={handleSaveSiteSettings} className="space-y-6 text-xs font-semibold">
               {/* LOGO E IDENTIDADE VISUAL */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-                <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
-                  <Globe size={16} className="text-amber-600" /> Logotipo Oficial & Identidade
+              <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-200 space-y-3">
+                <h3 className="text-sm font-black text-black uppercase flex items-center gap-2 border-b border-zinc-200 pb-2">
+                  <Globe size={16} className="text-red-600" /> Logotipo Oficial & Identidade
                 </h3>
 
                 <div className="grid md:grid-cols-12 gap-6 items-center">
-                  <div className="md:col-span-4 flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-slate-200 space-y-2">
+                  <div className="md:col-span-4 flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-zinc-200 space-y-2">
                     <img 
                       src={siteSettings.logoUrl || "/logo_fttresp.png"} 
                       alt="Logo Oficial" 
                       className="w-20 h-20 object-contain"
                     />
-                    <span className="text-[10px] text-slate-500 font-bold uppercase">Brasão Oficial Atual</span>
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Brasão Oficial Atual</span>
                   </div>
 
                   <div className="md:col-span-8 space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-slate-700 uppercase">Subir Novo Logo ou Link:</label>
-                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-[10px]">
+                      <label className="text-black uppercase">Subir Novo Logo ou Link:</label>
+                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-200 text-[10px]">
                         <button 
                           type="button" 
                           onClick={() => setSiteLogoMode('file')}
-                          className={`px-3 py-1 rounded-lg font-bold ${siteLogoMode === 'file' ? 'bg-slate-950 text-amber-400' : 'text-slate-600'}`}
+                          className={`px-3 py-1 rounded-lg font-bold ${siteLogoMode === 'file' ? 'bg-red-600 text-white' : 'text-black'}`}
                         >
                           Subir do PC
                         </button>
                         <button 
                           type="button" 
                           onClick={() => setSiteLogoMode('link')}
-                          className={`px-3 py-1 rounded-lg font-bold ${siteLogoMode === 'link' ? 'bg-slate-950 text-amber-400' : 'text-slate-600'}`}
+                          className={`px-3 py-1 rounded-lg font-bold ${siteLogoMode === 'link' ? 'bg-red-600 text-white' : 'text-black'}`}
                         >
                           Link URL
                         </button>
@@ -358,16 +355,16 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                           type="file" 
                           accept="image/*"
                           onChange={(e) => handleFileUpload(e, 'logoUrl')}
-                          className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-950 file:text-amber-400 cursor-pointer"
+                          className="block w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-red-600 file:text-white cursor-pointer"
                         />
-                        {uploadingLogo && <span className="text-blue-600 font-bold">Enviando logo...</span>}
+                        {uploadingLogo && <span className="text-red-600 font-bold">Enviando logo...</span>}
                       </div>
                     ) : (
                       <input 
                         type="text" 
                         value={siteSettings.logoUrl || ''}
                         onChange={(e) => setSiteSettings({ ...siteSettings, logoUrl: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                        className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                         placeholder="https://..."
                       />
                     )}
@@ -376,18 +373,18 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
               </div>
 
               {/* PALETA DE CORES PERSONALIZADA */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-                <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
-                  🎨 Paleta de Cores do Portal (Tema)
+              <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-200 space-y-3">
+                <h3 className="text-sm font-black text-black uppercase flex items-center gap-2 border-b border-zinc-200 pb-2">
+                  🎨 Paleta de Cores do Portal (Tema Tricolor)
                 </h3>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Cor Primária (Hero/Fundo):</label>
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                    <label className="block text-zinc-600 uppercase mb-1">Cor Primária (Preto):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-zinc-200">
                       <input 
                         type="color" 
-                        value={siteSettings.primaryColor || '#0f172a'}
+                        value={siteSettings.primaryColor || '#000000'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, primaryColor: e.target.value });
                           document.documentElement.style.setProperty('--color-primary', e.target.value);
@@ -396,7 +393,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                       />
                       <input 
                         type="text" 
-                        value={siteSettings.primaryColor || '#0f172a'}
+                        value={siteSettings.primaryColor || '#000000'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, primaryColor: e.target.value });
                           document.documentElement.style.setProperty('--color-primary', e.target.value);
@@ -407,11 +404,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Cor Secundária (Nav):</label>
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                    <label className="block text-zinc-600 uppercase mb-1">Cor Secundária (Vermelho):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-zinc-200">
                       <input 
                         type="color" 
-                        value={siteSettings.secondaryColor || '#1e3a8a'}
+                        value={siteSettings.secondaryColor || '#dc2626'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, secondaryColor: e.target.value });
                           document.documentElement.style.setProperty('--color-secondary', e.target.value);
@@ -420,7 +417,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                       />
                       <input 
                         type="text" 
-                        value={siteSettings.secondaryColor || '#1e3a8a'}
+                        value={siteSettings.secondaryColor || '#dc2626'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, secondaryColor: e.target.value });
                           document.documentElement.style.setProperty('--color-secondary', e.target.value);
@@ -431,11 +428,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Vermelho FTTRESP (Faixa):</label>
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                    <label className="block text-zinc-600 uppercase mb-1">Vermelho Intenso:</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-zinc-200">
                       <input 
                         type="color" 
-                        value={siteSettings.accentColor || '#dc2626'}
+                        value={siteSettings.accentColor || '#b91c1c'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, accentColor: e.target.value });
                           document.documentElement.style.setProperty('--color-accent', e.target.value);
@@ -444,7 +441,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                       />
                       <input 
                         type="text" 
-                        value={siteSettings.accentColor || '#dc2626'}
+                        value={siteSettings.accentColor || '#b91c1c'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, accentColor: e.target.value });
                           document.documentElement.style.setProperty('--color-accent', e.target.value);
@@ -455,11 +452,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Dourado (Destaques):</label>
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200">
+                    <label className="block text-zinc-600 uppercase mb-1">Destaques (Vermelho FTTRESP):</label>
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-zinc-200">
                       <input 
                         type="color" 
-                        value={siteSettings.highlightColor || '#f59e0b'}
+                        value={siteSettings.highlightColor || '#dc2626'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, highlightColor: e.target.value });
                           document.documentElement.style.setProperty('--color-highlight', e.target.value);
@@ -468,7 +465,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                       />
                       <input 
                         type="text" 
-                        value={siteSettings.highlightColor || '#f59e0b'}
+                        value={siteSettings.highlightColor || '#dc2626'}
                         onChange={(e) => {
                           setSiteSettings({ ...siteSettings, highlightColor: e.target.value });
                           document.documentElement.style.setProperty('--color-highlight', e.target.value);
@@ -480,70 +477,160 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 </div>
               </div>
 
+              {/* PALAVRA DO PRESIDENTE & FOTO OFICIAL */}
+              <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-200 space-y-4">
+                <h3 className="text-sm font-black text-black uppercase flex items-center gap-2 border-b border-zinc-200 pb-2">
+                  <UserCheck size={16} className="text-red-600" /> Palavra do Presidente & Foto Oficial
+                </h3>
+
+                <div className="grid md:grid-cols-12 gap-6 items-start">
+                  {/* Foto Preview & Upload */}
+                  <div className="md:col-span-4 flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-zinc-200 space-y-3">
+                    <div className="w-32 h-32 rounded-2xl overflow-hidden border-2 border-red-600 shadow-md">
+                      <img 
+                        src={siteSettings.presidentPhotoUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"} 
+                        alt="Foto Presidente" 
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Foto Oficial do Presidente</span>
+                    
+                    <div className="w-full space-y-2">
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, 'presidentPhotoUrl')}
+                        className="block w-full text-[10px] text-zinc-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-red-600 file:text-white cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Formulário do Presidente */}
+                  <div className="md:col-span-8 space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-zinc-600 uppercase mb-1">Nome do Presidente:</label>
+                        <input 
+                          type="text" 
+                          value={siteSettings.presidentName || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, presidentName: e.target.value })}
+                          className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
+                          placeholder="Ex: Valdevan Noventa"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-600 uppercase mb-1">Cargo / Título:</label>
+                        <input 
+                          type="text" 
+                          value={siteSettings.presidentTitle || ''}
+                          onChange={(e) => setSiteSettings({ ...siteSettings, presidentTitle: e.target.value })}
+                          className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
+                          placeholder="Ex: Presidência FTTRESP"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-600 uppercase mb-1">Foto URL Externa (Opcional):</label>
+                      <input 
+                        type="text" 
+                        value={siteSettings.presidentPhotoUrl || ''}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, presidentPhotoUrl: e.target.value })}
+                        className="w-full p-2.5 rounded-xl bg-white border border-zinc-200 text-black font-mono text-[11px]"
+                        placeholder="https://..."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-600 uppercase mb-1">Frase / Citação em Destaque (Aspas):</label>
+                      <textarea 
+                        rows="2"
+                        value={siteSettings.presidentQuote || ''}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, presidentQuote: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black italic font-bold"
+                        placeholder="Frase em destaque da mensagem..."
+                      ></textarea>
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-600 uppercase mb-1">Mensagem Institucional Completa:</label>
+                      <textarea 
+                        rows="4"
+                        value={siteSettings.presidentMessage || ''}
+                        onChange={(e) => setSiteSettings({ ...siteSettings, presidentMessage: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-medium"
+                        placeholder="Texto pronunciamento do presidente..."
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* ENDEREÇO DA SEDE & ATENDIMENTO */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-                <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2 border-b border-slate-200 pb-2">
-                  <MapPin size={16} className="text-amber-600" /> Endereço da Sede & Telefones
+              <div className="bg-zinc-50 p-5 rounded-2xl border border-zinc-200 space-y-3">
+                <h3 className="text-sm font-black text-black uppercase flex items-center gap-2 border-b border-zinc-200 pb-2">
+                  <MapPin size={16} className="text-red-600" /> Endereço da Sede & Telefones
                 </h3>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Endereço Oficial da Sede:</label>
+                    <label className="block text-zinc-600 uppercase mb-1">Endereço Oficial da Sede:</label>
                     <input 
                       type="text" 
                       value={siteSettings.address || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, address: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                      className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Telefones Oficiais:</label>
+                    <label className="block text-zinc-600 uppercase mb-1">Telefones Oficiais:</label>
                     <input 
                       type="text" 
                       value={siteSettings.phone || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, phone: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                      className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">WhatsApp de Atendimento:</label>
+                    <label className="block text-zinc-600 uppercase mb-1">WhatsApp de Atendimento:</label>
                     <input 
                       type="text" 
                       value={siteSettings.whatsapp || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, whatsapp: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                      className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">E-mail Principal:</label>
+                    <label className="block text-zinc-600 uppercase mb-1">E-mail Principal:</label>
                     <input 
                       type="email" 
                       value={siteSettings.email || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, email: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                      className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Horário de Atendimento:</label>
+                    <label className="block text-zinc-600 uppercase mb-1">Horário de Atendimento:</label>
                     <input 
                       type="text" 
                       value={siteSettings.workingHours || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, workingHours: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                      className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-600 uppercase mb-1">Texto de Copyright (Rodapé):</label>
+                    <label className="block text-zinc-600 uppercase mb-1">Texto de Copyright (Rodapé):</label>
                     <input 
                       type="text" 
                       value={siteSettings.copyright || ''}
                       onChange={(e) => setSiteSettings({ ...siteSettings, copyright: e.target.value })}
-                      className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 font-bold"
+                      className="w-full p-3 rounded-xl bg-white border border-zinc-200 text-black font-bold"
                     />
                   </div>
                 </div>
@@ -554,7 +641,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 <button 
                   type="submit" 
                   disabled={savingSettings}
-                  className="gradient-gold text-slate-950 font-black text-sm px-8 py-3.5 rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-2"
+                  className="bg-red-600 hover:bg-red-700 text-white font-black text-sm px-8 py-3.5 rounded-xl shadow-lg hover:scale-105 transition flex items-center gap-2"
                 >
                   <Save size={18} /> {savingSettings ? 'Gravando Alterações...' : 'Salvar Gestão do Site'}
                 </button>
@@ -567,10 +654,10 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
             {/* CABEÇALHO DA SEÇÃO E AÇÕES RÁPIDAS */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">
+                <h2 className="text-2xl font-black uppercase text-black tracking-tight">
                   GERENCIAR {activeTab}
                 </h2>
-                <p className="text-slate-500 text-xs font-medium mt-0.5">
+                <p className="text-zinc-500 text-xs font-medium mt-0.5">
                   Envie arquivos locais (PDF/Imagens) ou informe links externos em tempo real.
                 </p>
               </div>
@@ -578,105 +665,105 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => loadTabCollections()}
-                  className="bg-red-50 text-red-700 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
+                  className="bg-red-50 text-red-600 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
                 >
                   <Trash2 size={14} /> Limpar Rascunhos
                 </button>
                 <button 
                   onClick={() => loadTabCollections()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                  className="bg-black hover:bg-zinc-800 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5"
                 >
                   <RefreshCw size={14} /> Sincronizar com Web
                 </button>
                 <button 
                   onClick={() => handleOpenModal()}
-                  className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
+                  className="bg-red-600 hover:bg-red-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
                 >
                   <Plus size={16} /> + Novo Registro
                 </button>
               </div>
             </div>
 
-            {/* GRID DE 4 CARDS DE MÉTRICAS */}
+            {/* GRID DE 4 CARDS DE MÉTRICAS TRICOLOR */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-r from-red-800 to-red-900 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-red-600 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">VISUALIZAÇÕES TOTAIS</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-90">VISUALIZAÇÕES TOTAIS</span>
                   <div className="text-3xl font-black">{totalViews.toLocaleString('pt-BR')}</div>
-                  <p className="text-[10px] opacity-80">Views acumuladas em matérias/documentos</p>
+                  <p className="text-[10px] opacity-90">Views acumuladas em matérias/documentos</p>
                 </div>
                 <TrendingUp size={36} className="absolute right-4 bottom-4 opacity-20" />
               </div>
 
-              <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-black text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between border border-zinc-800">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO WHATSAPP</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-90">CLIQUES NO WHATSAPP</span>
                   <div className="text-3xl font-black">{totalWaShares.toLocaleString('pt-BR')}</div>
-                  <p className="text-[10px] opacity-80">Compartilhamentos diretos no WA</p>
+                  <p className="text-[10px] opacity-90">Compartilhamentos diretos no WA</p>
                 </div>
                 <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
               </div>
 
-              <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-red-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">CLIQUES NO FACEBOOK</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-90">CLIQUES NO FACEBOOK</span>
                   <div className="text-3xl font-black">{totalFbShares.toLocaleString('pt-BR')}</div>
-                  <p className="text-[10px] opacity-80">Compartilhamentos diretos no FB</p>
+                  <p className="text-[10px] opacity-90">Compartilhamentos diretos no FB</p>
                 </div>
                 <Share2 size={36} className="absolute right-4 bottom-4 opacity-20" />
               </div>
 
-              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between">
+              <div className="bg-black text-white p-5 rounded-2xl shadow-lg relative overflow-hidden flex flex-col justify-between border border-zinc-800">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider opacity-80">LINKS COPIADOS</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-90">LINKS COPIADOS</span>
                   <div className="text-3xl font-black">{totalLinkCopies.toLocaleString('pt-BR')}</div>
-                  <p className="text-[10px] opacity-80">Transferências e cópias diretas</p>
+                  <p className="text-[10px] opacity-90">Transferências e cópias diretas</p>
                 </div>
                 <Copy size={36} className="absolute right-4 bottom-4 opacity-20" />
               </div>
             </div>
 
             {/* TABELA DE REGISTROS */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-3">
-              <div className="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <span className="text-xs font-black uppercase text-slate-700 tracking-wider">
+            <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden space-y-3">
+              <div className="p-4 bg-zinc-50 border-b border-zinc-200 flex justify-between items-center">
+                <span className="text-xs font-black uppercase text-black tracking-wider">
                   LISTA COMPLETA ({activeItems.length})
                 </span>
-                <span className="text-[10px] text-slate-500 font-semibold">Suporte a Arquivos PDF e Imagens</span>
+                <span className="text-[10px] text-zinc-500 font-semibold">Suporte a Arquivos PDF e Imagens</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className="bg-slate-100 text-slate-500 uppercase font-black tracking-wider border-b border-slate-200">
+                    <tr className="bg-zinc-100 text-zinc-600 uppercase font-black tracking-wider border-b border-zinc-200">
                       <th className="py-3 px-4">MANCHETE / ARQUIVO</th>
                       <th className="py-3 px-4 text-center">MÉTRICAS</th>
                       <th className="py-3 px-4 text-right">AÇÃO</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                  <tbody className="divide-y divide-zinc-100 font-medium text-black">
                     {activeItems.map((item, idx) => (
-                      <tr key={item.id || `row-${idx}`} className="hover:bg-slate-50 transition">
+                      <tr key={item.id || `row-${idx}`} className="hover:bg-zinc-50 transition">
                         
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             <img 
                               src={item.imageUrl || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80"} 
                               alt="Thumb"
-                              className="w-12 h-9 object-cover rounded-lg border border-slate-200 shrink-0" 
+                              className="w-12 h-9 object-cover rounded-lg border border-zinc-200 shrink-0" 
                             />
                             <div className="space-y-0.5 overflow-hidden">
                               <div className="flex items-center gap-2">
                                 <span className={`text-[9px] font-black px-2 py-0.2 rounded uppercase ${
                                   item.status === 'PAUSADO' 
-                                    ? 'bg-amber-100 text-amber-800' 
-                                    : 'bg-emerald-100 text-emerald-800'
+                                    ? 'bg-zinc-200 text-black' 
+                                    : 'bg-red-600 text-white'
                                 }`}>
                                   {item.status || 'PUBLICADO'}
                                 </span>
-                                <span className="text-[10px] text-slate-400">{item.date || '2026-08-14'}</span>
+                                <span className="text-[10px] text-zinc-400">{item.date || '2026-08-14'}</span>
                               </div>
-                              <h4 className="font-extrabold text-xs text-slate-900 truncate max-w-md">
+                              <h4 className="font-extrabold text-xs text-black truncate max-w-md">
                                 {item.title || item.name}
                               </h4>
                             </div>
@@ -684,10 +771,10 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                         </td>
 
                         <td className="py-3 px-4">
-                          <div className="flex items-center justify-center gap-3 text-[11px] font-bold text-slate-600">
-                            <span className="flex items-center gap-1"><Eye size={13} className="text-blue-600" /> {item.views || 240}</span>
-                            <span className="flex items-center gap-1"><Share2 size={13} className="text-emerald-600" /> {item.waShares || 14}</span>
-                            <span className="flex items-center gap-1"><Share2 size={13} className="text-indigo-600" /> {item.fbShares || 8}</span>
+                          <div className="flex items-center justify-center gap-3 text-[11px] font-bold text-black">
+                            <span className="flex items-center gap-1"><Eye size={13} className="text-red-600" /> {item.views || 240}</span>
+                            <span className="flex items-center gap-1"><Share2 size={13} className="text-red-600" /> {item.waShares || 14}</span>
+                            <span className="flex items-center gap-1"><Share2 size={13} className="text-red-600" /> {item.fbShares || 8}</span>
                             <span className="flex items-center gap-1"><Copy size={13} className="text-red-600" /> {item.linkCopies || 4}</span>
                           </div>
                         </td>
@@ -698,15 +785,15 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                               onClick={() => handleToggleStatus(item)}
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
                                 item.status === 'PAUSADO' 
-                                  ? 'bg-emerald-600 text-white' 
-                                  : 'bg-amber-100 text-amber-900 hover:bg-amber-200'
+                                  ? 'bg-red-600 text-white' 
+                                  : 'bg-zinc-200 text-black hover:bg-zinc-300'
                               }`}
                             >
                               {item.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
                             </button>
                             <button 
                               onClick={() => handleOpenModal(item)}
-                              className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-950 hover:text-amber-400 transition"
+                              className="p-1.5 rounded-lg bg-black text-white hover:bg-red-600 transition"
                               title="Editar Registro"
                             >
                               <Edit size={14} />
@@ -734,42 +821,42 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
       {/* MODAL DE CRIAÇÃO / EDIÇÃO */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
-          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 font-sans">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-zinc-200 overflow-hidden">
             
-            <div className="bg-slate-950 text-white px-6 py-4 flex justify-between items-center">
-              <h3 className="font-black text-sm uppercase tracking-wider text-amber-400">
+            <div className="bg-black text-white px-6 py-4 flex justify-between items-center border-b border-red-600">
+              <h3 className="font-black text-sm uppercase tracking-wider text-red-500">
                 {editingItem ? `EDITAR REGISTRO - ${activeTab}` : `+ NOVO REGISTRO - ${activeTab}`}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
+              <button onClick={() => setShowModal(false)} className="text-zinc-400 hover:text-white">
                 <X size={20} />
               </button>
             </div>
 
             <form onSubmit={handleSaveForm} className="p-6 space-y-4 text-xs font-semibold">
               <div>
-                <label className="block text-slate-600 uppercase mb-1">Título / Manchete:</label>
+                <label className="block text-black uppercase mb-1">Título / Manchete:</label>
                 <input 
                   type="text" 
                   required
                   value={formData.title || ''}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold"
+                  className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
                   placeholder="Informe o título do documento ou publicação..."
                 />
               </div>
 
               {/* SELETOR DUPLO: UPLOAD DE ARQUIVO OU LINK URL */}
-              <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                  <span className="font-black text-slate-900 uppercase">Mídia / Documento Anexo:</span>
+              <div className="space-y-2 bg-zinc-50 p-4 rounded-2xl border border-zinc-200">
+                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                  <span className="font-black text-black uppercase">Mídia / Documento Anexo:</span>
                   
-                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-200">
                     <button
                       type="button"
                       onClick={() => setUploadMode('file')}
                       className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
-                        uploadMode === 'file' ? 'bg-slate-950 text-amber-400 shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                        uploadMode === 'file' ? 'bg-red-600 text-white shadow-sm' : 'text-black hover:bg-zinc-100'
                       }`}
                     >
                       <Upload size={12} /> Subir Arquivo do PC
@@ -778,7 +865,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                       type="button"
                       onClick={() => setUploadMode('link')}
                       className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
-                        uploadMode === 'link' ? 'bg-slate-950 text-amber-400 shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                        uploadMode === 'link' ? 'bg-red-600 text-white shadow-sm' : 'text-black hover:bg-zinc-100'
                       }`}
                     >
                       <LinkIcon size={12} /> Link / URL Externa
@@ -788,25 +875,25 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
                 {uploadMode === 'file' ? (
                   <div className="space-y-2 pt-1">
-                    <label className="block text-[11px] text-slate-600">
+                    <label className="block text-[11px] text-zinc-600">
                       Selecione um arquivo de imagem (JPG, PNG, WEBP) ou documento PDF do seu computador:
                     </label>
                     <input 
                       type="file" 
                       accept="image/*,application/pdf"
                       onChange={(e) => handleFileUpload(e, 'imageUrl')}
-                      className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-950 file:text-amber-400 cursor-pointer"
+                      className="block w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-red-600 file:text-white cursor-pointer"
                     />
-                    {uploadingFile && <div className="text-blue-600 font-bold text-[10px]">Enviando arquivo ao servidor...</div>}
+                    {uploadingFile && <div className="text-red-600 font-bold text-[10px]">Enviando arquivo ao servidor...</div>}
                     {uploadedUrl && (
-                      <div className="flex items-center gap-1 text-emerald-700 bg-emerald-50 p-2 rounded-xl border border-emerald-200 text-[11px]">
-                        <CheckCircle2 size={14} /> <strong>Arquivo Carregado:</strong> {uploadedUrl}
+                      <div className="flex items-center gap-1 text-black bg-zinc-100 p-2 rounded-xl border border-zinc-300 text-[11px]">
+                        <CheckCircle2 size={14} className="text-red-600" /> <strong>Arquivo Carregado:</strong> {uploadedUrl}
                       </div>
                     )}
                   </div>
                 ) : (
                   <div className="space-y-2 pt-1">
-                    <label className="block text-[11px] text-slate-600">Informe a URL / Link externo do arquivo ou imagem:</label>
+                    <label className="block text-[11px] text-zinc-600">Informe a URL / Link externo do arquivo ou imagem:</label>
                     <input 
                       type="text" 
                       value={formData.imageUrl || formData.fileUrl || ''}
@@ -814,7 +901,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                         setFormData({ ...formData, imageUrl: e.target.value, fileUrl: e.target.value });
                         setUploadedUrl(e.target.value);
                       }}
-                      className="w-full p-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 font-medium"
+                      className="w-full p-2.5 rounded-xl bg-white border border-zinc-200 text-black font-medium"
                       placeholder="https://servidor.com/arquivo.pdf"
                     />
                   </div>
@@ -823,34 +910,34 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-600 uppercase mb-1">Categoria / Rótulo:</label>
+                  <label className="block text-black uppercase mb-1">Categoria / Rótulo:</label>
                   <input 
                     type="text" 
                     value={formData.category || 'Institucional'}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                    className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
                     placeholder="Ex: Informativo Oficial, Acordo Coletivo"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-600 uppercase mb-1">Data:</label>
+                  <label className="block text-black uppercase mb-1">Data:</label>
                   <input 
                     type="date" 
                     value={formData.date || ''}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                    className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-600 uppercase mb-1">Descrição / Resumo:</label>
+                <label className="block text-black uppercase mb-1">Descrição / Resumo:</label>
                 <textarea 
                   rows="3"
                   value={formData.summary || ''}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                  className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
                   placeholder="Resumo do conteúdo..."
                 ></textarea>
               </div>
@@ -859,14 +946,14 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 <button 
                   type="button" 
                   onClick={() => setShowModal(false)}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-5 py-2.5 rounded-xl"
+                  className="bg-zinc-100 hover:bg-zinc-200 text-black font-bold px-5 py-2.5 rounded-xl"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit"
                   disabled={loadingAction || uploadingFile}
-                  className="bg-slate-950 hover:bg-slate-800 text-amber-400 font-black px-6 py-2.5 rounded-xl shadow-md"
+                  className="bg-red-600 hover:bg-red-700 text-white font-black px-6 py-2.5 rounded-xl shadow-md"
                 >
                   {loadingAction ? 'Gravando...' : 'Salvar Registro'}
                 </button>
