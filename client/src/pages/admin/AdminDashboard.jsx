@@ -134,10 +134,16 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
         const url = res.data.url;
         
         if (targetField === 'logoUrl') {
-          setSiteSettings(prev => ({ ...prev, logoUrl: url }));
+          const updated = { ...siteSettings, logoUrl: url };
+          setSiteSettings(updated);
+          await api.put('/settings', updated).catch(() => {});
+          await refreshData();
           setUploadingLogo(false);
         } else if (targetField === 'presidentPhotoUrl') {
-          setSiteSettings(prev => ({ ...prev, presidentPhotoUrl: url }));
+          const updated = { ...siteSettings, presidentPhotoUrl: url };
+          setSiteSettings(updated);
+          await api.put('/settings', updated).catch(() => {});
+          await refreshData();
           setUploadingLogo(false);
         } else {
           setUploadedUrl(url);

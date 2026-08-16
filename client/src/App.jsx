@@ -68,7 +68,7 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
+        return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} settings={settings} setCurrentPage={setCurrentPage} />;
       case 'president':
         return <PresidentWordPage settings={settings} setCurrentPage={setCurrentPage} />;
       case 'history':
@@ -106,7 +106,7 @@ export default function App() {
           />
         );
       default:
-        return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} setCurrentPage={setCurrentPage} />;
+        return <HomePage news={news} jornais={jornais} unions={unions} tvChannels={tvChannels} banners={banners} settings={settings} setCurrentPage={setCurrentPage} />;
     }
   };
 
