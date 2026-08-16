@@ -120,7 +120,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     const file = e.target.files[0];
     if (!file) return;
 
-    if (targetField === 'logoUrl') setUploadingLogo(true);
+    if (targetField === 'logoUrl' || targetField === 'presidentPhotoUrl') setUploadingLogo(true);
     else setUploadingFile(true);
 
     try {
@@ -135,6 +135,9 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
         
         if (targetField === 'logoUrl') {
           setSiteSettings(prev => ({ ...prev, logoUrl: url }));
+          setUploadingLogo(false);
+        } else if (targetField === 'presidentPhotoUrl') {
+          setSiteSettings(prev => ({ ...prev, presidentPhotoUrl: url }));
           setUploadingLogo(false);
         } else {
           setUploadedUrl(url);
