@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, RefreshCw, Trash2, Edit, Pause, Play, Eye, Share2, 
   MessageSquare, Copy, LogOut, CheckCircle2, AlertCircle, FileText, 
-  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield, Upload, Link as LinkIcon, Settings, Globe, Phone, Mail, MapPin, Save
+  Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield, Upload, Link as LinkIcon, Settings, Globe, Phone, Mail, MapPin, Save,
+  Tv, Clock, Type, Megaphone, Monitor, Radio, Activity
 } from 'lucide-react';
 import api from '../../services/api';
 
-export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], settings: initialSettings }) {
+export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], tvChannels = [], tvSchedules = [], settings: initialSettings }) {
   const [activeTab, setActiveTab] = useState('NOTÍCIAS');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -14,6 +15,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   const [jornaisList, setJornaisList] = useState([]);
   const [categoriasList, setCategoriasList] = useState([]);
   const [salariosList, setSalariosList] = useState([]);
+  const [channelsList, setChannelsList] = useState(tvChannels || []);
+  const [schedulesList, setSchedulesList] = useState(tvSchedules || []);
+
+  // TV Management Sub-Tab
+  const [tvSubTab, setTvSubTab] = useState('CONTEUDO'); // 'METRICAS' | 'CONTEUDO' | 'GRADE' | 'LETREIROS' | 'PATROCINIOS' | 'TERMINAIS'
   
   // Site Settings Form State
   const [siteSettings, setSiteSettings] = useState(initialSettings || {});
@@ -35,17 +41,23 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     if (initialSettings) setSiteSettings(initialSettings);
   }, [initialSettings]);
 
+  useEffect(() => {
+    if (tvChannels) setChannelsList(tvChannels);
+  }, [tvChannels]);
+
   // Load custom collections
   const loadTabCollections = async () => {
     try {
-      const [resJornais, resCat, resSet] = await Promise.all([
+      const [resJornais, resCat, resSet, resTv] = await Promise.all([
         api.get('/jornais').catch(() => ({ data: [] })),
         api.get('/categorias').catch(() => ({ data: [] })),
-        api.get('/settings').catch(() => ({ data: {} }))
+        api.get('/settings').catch(() => ({ data: {} })),
+        api.get('/tv/channels').catch(() => ({ data: [] }))
       ]);
       setJornaisList(resJornais.data || []);
       setCategoriasList(resCat.data || []);
       if (resSet.data) setSiteSettings(resSet.data);
+      if (resTv.data) setChannelsList(resTv.data);
       
       setSalariosList([
         { id: 's-1', title: 'Motorista de Transporte Urbano SP', category: 'Urbano', value: 'R$ 3.850,00', date: '2026-01-01', status: 'PUBLICADO', views: 4120, waShares: 230, fbShares: 85, linkCopies: 52 },
@@ -65,6 +77,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     { id: 'NOTÍCIAS', label: 'NOTÍCIAS', icon: Newspaper },
     { id: 'PISOS', label: 'PISOS SALARIAIS', icon: DollarSign },
     { id: 'JORNAIS', label: 'JORNAL & VEÍCULOS', icon: FileText },
+    { id: 'TVS', label: 'GESTÃO DE TV', icon: Tv },
     { id: 'CONVENÇÕES', label: 'CONVENÇÕES', icon: Layers },
     { id: 'CATEGORIAS', label: 'CATEGORIAS', icon: Tag },
     { id: 'SITE', label: 'GESTÃO DO SITE', icon: Globe }
@@ -75,6 +88,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     if (activeTab === 'NOTÍCIAS') list = news;
     else if (activeTab === 'PISOS') list = salariosList;
     else if (activeTab === 'JORNAIS') list = jornaisList;
+    else if (activeTab === 'TVS') list = channelsList;
     else if (activeTab === 'CONVENÇÕES') list = agreements;
     else if (activeTab === 'CATEGORIAS') list = categoriasList;
 
@@ -95,22 +109,34 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   // Open Add/Edit Modal
   const handleOpenModal = (item = null) => {
     setEditingItem(item);
-    setUploadedUrl(item?.imageUrl || item?.fileUrl || '');
+    setUploadedUrl(item?.imageUrl || item?.fileUrl || item?.defaultVideoUrl || '');
     setUploadMode('file');
     if (item) {
       setFormData({ ...item });
     } else {
-      setFormData({
-        title: '',
-        category: 'Institucional',
-        summary: '',
-        content: '',
-        imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
-        fileUrl: '',
-        date: new Date().toISOString().split('T')[0],
-        status: 'PUBLICADO',
-        value: 'R$ 3.850,00'
-      });
+      if (activeTab === 'TVS') {
+        setFormData({
+          name: '',
+          category: 'Jornalismo',
+          defaultVideoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+          currentShow: 'Jornal Rodoviário de SP',
+          badge: 'AO VIVO',
+          showOnHome: true,
+          status: 'PUBLICADO'
+        });
+      } else {
+        setFormData({
+          title: '',
+          category: 'Institucional',
+          summary: '',
+          content: '',
+          imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80',
+          fileUrl: '',
+          date: new Date().toISOString().split('T')[0],
+          status: 'PUBLICADO',
+          value: 'R$ 3.850,00'
+        });
+      }
     }
     setShowModal(true);
   };
@@ -147,7 +173,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           setUploadingLogo(false);
         } else {
           setUploadedUrl(url);
-          setFormData(prev => ({ ...prev, imageUrl: url, fileUrl: url }));
+          setFormData(prev => ({ ...prev, imageUrl: url, fileUrl: url, defaultVideoUrl: url }));
           setUploadingFile(false);
         }
       };
@@ -175,6 +201,18 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     }
   };
 
+  // Toggle Transmit on Home for TV Channel
+  const handleToggleHomeTransmit = async (channel) => {
+    const newShowOnHome = channel.showOnHome === false ? true : false;
+    try {
+      await api.put(`/tv/channels/${channel.id}`, { ...channel, showOnHome: newShowOnHome });
+      await refreshData();
+      await loadTabCollections();
+    } catch (err) {
+      alert('Erro ao alterar transmissão na Home.');
+    }
+  };
+
   // Save Modal Form
   const handleSaveForm = async (e) => {
     e.preventDefault();
@@ -186,6 +224,9 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
       } else if (activeTab === 'JORNAIS') {
         if (editingItem) await api.put(`/jornais/${editingItem.id}`, formData);
         else await api.post('/jornais', formData);
+      } else if (activeTab === 'TVS') {
+        if (editingItem) await api.put(`/tv/channels/${editingItem.id}`, formData);
+        else await api.post('/tv/channels', formData);
       } else if (activeTab === 'CATEGORIAS') {
         if (editingItem) await api.put(`/categorias/${editingItem.id}`, formData);
         else await api.post('/categorias', formData);
@@ -212,6 +253,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     try {
       if (activeTab === 'NOTÍCIAS') await api.delete(`/news/${id}`);
       else if (activeTab === 'JORNAIS') await api.delete(`/jornais/${id}`);
+      else if (activeTab === 'TVS') await api.delete(`/tv/channels/${id}`);
       else if (activeTab === 'CATEGORIAS') await api.delete(`/categorias/${id}`);
       else if (activeTab === 'PISOS') setSalariosList(salariosList.filter(s => s.id !== id));
 
@@ -227,6 +269,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     try {
       if (activeTab === 'NOTÍCIAS') await api.put(`/news/${item.id}`, { ...item, status: newStatus });
       else if (activeTab === 'JORNAIS') await api.put(`/jornais/${item.id}`, { ...item, status: newStatus });
+      else if (activeTab === 'TVS') await api.put(`/tv/channels/${item.id}`, { ...item, status: newStatus });
       else if (activeTab === 'CATEGORIAS') await api.put(`/categorias/${item.id}`, { ...item, status: newStatus });
       else if (activeTab === 'PISOS') setSalariosList(salariosList.map(s => s.id === item.id ? { ...s, status: newStatus } : s));
 
@@ -304,8 +347,230 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           })}
         </div>
 
-        {/* 3. CONTEÚDO EXCLUSIVO DA ABA: GESTÃO DO SITE */}
-        {activeTab === 'SITE' ? (
+        {/* 3. CONTEÚDO EXCLUSIVO DA ABA: GESTÃO DE TV */}
+        {activeTab === 'TVS' ? (
+          <div className="space-y-6">
+            {/* CABEÇALHO DO PAINEL GESTÃO DE TV */}
+            <div className="bg-white p-6 rounded-3xl border border-zinc-200 shadow-sm">
+              <h2 className="text-3xl font-black text-black tracking-tight uppercase">GESTÃO DE TV</h2>
+              <p className="text-zinc-600 text-sm font-medium mt-1">
+                Administre o conteúdo visual, terminais de exibição e programação da TV FTTRESP.
+              </p>
+            </div>
+
+            {/* 6 CARTOES MODELO DE ATALHOS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* CARD 1: MÉTRICAS DA TV */}
+              <div 
+                onClick={() => setTvSubTab('METRICAS')}
+                className={`bg-white p-6 rounded-3xl border shadow-md hover-lift cursor-pointer space-y-3 flex flex-col items-center text-center transition ${
+                  tvSubTab === 'METRICAS' ? 'border-2 border-red-600 shadow-xl' : 'border-zinc-200 hover:border-red-600'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
+                  <Activity size={24} />
+                </div>
+                <div>
+                  <h3 className="font-black text-black text-sm uppercase tracking-wider">MÉTRICAS DA TV</h3>
+                  <p className="text-zinc-500 text-[11px] font-semibold mt-0.5">AUDIÊNCIA E ENGAJAMENTO</p>
+                </div>
+              </div>
+
+              {/* CARD 2: CONTEÚDO TV */}
+              <div 
+                onClick={() => setTvSubTab('CONTEUDO')}
+                className={`bg-white p-6 rounded-3xl border shadow-md hover-lift cursor-pointer space-y-3 flex flex-col items-center text-center transition ${
+                  tvSubTab === 'CONTEUDO' ? 'border-2 border-red-600 shadow-xl' : 'border-zinc-200 hover:border-red-600'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center font-black">
+                  <Tv size={24} />
+                </div>
+                <div>
+                  <h3 className="font-black text-black text-sm uppercase tracking-wider">CONTEÚDO TV</h3>
+                  <p className="text-zinc-500 text-[11px] font-semibold mt-0.5">VÍDEOS, LIVES E CANAIS</p>
+                </div>
+              </div>
+
+              {/* CARD 3: GRADE DE HORÁRIOS */}
+              <div 
+                onClick={() => setTvSubTab('GRADE')}
+                className={`bg-white p-6 rounded-3xl border shadow-md hover-lift cursor-pointer space-y-3 flex flex-col items-center text-center transition ${
+                  tvSubTab === 'GRADE' ? 'border-2 border-red-600 shadow-xl' : 'border-zinc-200 hover:border-red-600'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black">
+                  <Clock size={24} />
+                </div>
+                <div>
+                  <h3 className="font-black text-black text-sm uppercase tracking-wider">GRADE DE HORÁRIOS</h3>
+                  <p className="text-zinc-500 text-[11px] font-semibold mt-0.5">PROGRAMAR TRANSMISSÕES</p>
+                </div>
+              </div>
+
+              {/* CARD 4: LETREIROS */}
+              <div 
+                onClick={() => setTvSubTab('LETREIROS')}
+                className={`bg-white p-6 rounded-3xl border shadow-md hover-lift cursor-pointer space-y-3 flex flex-col items-center text-center transition ${
+                  tvSubTab === 'LETREIROS' ? 'border-2 border-red-600 shadow-xl' : 'border-zinc-200 hover:border-red-600'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-black">
+                  <Type size={24} />
+                </div>
+                <div>
+                  <h3 className="font-black text-black text-sm uppercase tracking-wider">LETREIROS</h3>
+                  <p className="text-zinc-500 text-[11px] font-semibold mt-0.5">MENSAGENS EM TEMPO REAL</p>
+                </div>
+              </div>
+
+              {/* CARD 5: PATROCÍNIOS */}
+              <div 
+                onClick={() => setTvSubTab('PATROCINIOS')}
+                className={`bg-white p-6 rounded-3xl border shadow-md hover-lift cursor-pointer space-y-3 flex flex-col items-center text-center transition ${
+                  tvSubTab === 'PATROCINIOS' ? 'border-2 border-red-600 shadow-xl' : 'border-zinc-200 hover:border-red-600'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black">
+                  <Megaphone size={24} />
+                </div>
+                <div>
+                  <h3 className="font-black text-black text-sm uppercase tracking-wider">PATROCÍNIOS</h3>
+                  <p className="text-zinc-500 text-[11px] font-semibold mt-0.5">ANÚNCIOS E BANNERS</p>
+                </div>
+              </div>
+
+              {/* CARD 6: TERMINAIS TV */}
+              <div 
+                onClick={() => setTvSubTab('TERMINAIS')}
+                className={`bg-white p-6 rounded-3xl border shadow-md hover-lift cursor-pointer space-y-3 flex flex-col items-center text-center transition ${
+                  tvSubTab === 'TERMINAIS' ? 'border-2 border-red-600 shadow-xl' : 'border-zinc-200 hover:border-red-600'
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-black flex items-center justify-center font-black">
+                  <Monitor size={24} />
+                </div>
+                <div>
+                  <h3 className="font-black text-black text-sm uppercase tracking-wider">TERMINAIS TV</h3>
+                  <p className="text-zinc-500 text-[11px] font-semibold mt-0.5">GERENCIAR TELAS E LOBBIES</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SEÇÃO DINÂMICA DO SUB-MÓDULO SELECIONADO */}
+            {tvSubTab === 'CONTEUDO' && (
+              <div className="bg-white rounded-3xl p-6 border border-zinc-200 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-100 pb-4">
+                  <div>
+                    <h3 className="text-xl font-black text-black uppercase">CANAIIS E TRANSMISSÕES AO VIVO</h3>
+                    <p className="text-zinc-500 text-xs font-semibold">Ative ou desative a transmissão na HomePage com um clique.</p>
+                  </div>
+                  <button 
+                    onClick={() => handleOpenModal()}
+                    className="bg-red-600 hover:bg-red-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-1.5"
+                  >
+                    <Plus size={16} /> + Novo Canal de TV
+                  </button>
+                </div>
+
+                {/* TABELA DE CANAIS DE TV COM TROCA 'TRANSMITIR NA HOME' */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-zinc-100 text-zinc-600 uppercase font-black tracking-wider border-b border-zinc-200">
+                        <th className="py-3 px-4">NOME DO CANAL / TRANSMISSÃO</th>
+                        <th className="py-3 px-4 text-center">TRANSMITIR NA HOME?</th>
+                        <th className="py-3 px-4 text-center">BADGE</th>
+                        <th className="py-3 px-4 text-right">AÇÕES</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100 font-medium text-black">
+                      {channelsList.map((ch, idx) => (
+                        <tr key={ch.id || `tv-row-${idx}`} className="hover:bg-zinc-50 transition">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-black text-white border border-zinc-800 flex items-center justify-center font-black shrink-0">
+                                <Tv size={18} />
+                              </div>
+                              <div>
+                                <div className="font-extrabold text-sm text-black">{ch.name}</div>
+                                <div className="text-xs text-zinc-500">{ch.currentShow} • {ch.defaultVideoUrl}</div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* BOTAO DE ALTERNANCIA: TRANSMITIR NA HOME (SIM/NAO) */}
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              onClick={() => handleToggleHomeTransmit(ch)}
+                              className={`px-4 py-1.5 rounded-xl text-xs font-black uppercase transition flex items-center justify-center gap-1.5 mx-auto ${
+                                ch.showOnHome !== false
+                                  ? 'bg-red-600 text-white shadow-sm'
+                                  : 'bg-zinc-200 text-zinc-600 hover:bg-zinc-300'
+                              }`}
+                            >
+                              {ch.showOnHome !== false ? '✓ SIM (Exibindo na Home)' : '✗ NÃO (Oculto na Home)'}
+                            </button>
+                          </td>
+
+                          <td className="py-3 px-4 text-center">
+                            <span className="bg-black text-white text-[10px] font-black px-2.5 py-1 rounded uppercase">
+                              {ch.badge || 'AO VIVO'}
+                            </span>
+                          </td>
+
+                          <td className="py-3 px-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button 
+                                onClick={() => handleToggleStatus(ch)}
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
+                                  ch.status === 'PAUSADO' 
+                                    ? 'bg-red-600 text-white' 
+                                    : 'bg-zinc-200 text-black hover:bg-zinc-300'
+                                }`}
+                              >
+                                {ch.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
+                              </button>
+                              <button 
+                                onClick={() => handleOpenModal(ch)}
+                                className="p-1.5 rounded-lg bg-black text-white hover:bg-red-600 transition"
+                                title="Editar Canal"
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(ch.id)}
+                                className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition"
+                                title="Excluir Canal"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {tvSubTab === 'METRICAS' && (
+              <div className="bg-white p-6 rounded-3xl border border-zinc-200 space-y-3">
+                <h3 className="font-black text-black uppercase text-lg">MÉTRICAS DA TV</h3>
+                <p className="text-xs text-zinc-600">Audiência acumulada: 14.890 espectadores • Tempo médio de permanência: 18 min.</p>
+              </div>
+            )}
+
+            {tvSubTab === 'GRADE' && (
+              <div className="bg-white p-6 rounded-3xl border border-zinc-200 space-y-3">
+                <h3 className="font-black text-black uppercase text-lg">GRADE DE HORÁRIOS DA TV</h3>
+                <p className="text-xs text-zinc-600">Segunda a Sexta: 09:00 - Jornal Rodoviário de SP | 14:00 - Debate Sindical.</p>
+              </div>
+            )}
+          </div>
+        ) : activeTab === 'SITE' ? (
+          /* GESTÃO DO SITE */
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200 shadow-sm space-y-6">
             <div className="flex justify-between items-center border-b border-zinc-100 pb-4">
               <div>
@@ -844,21 +1109,36 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
             <form onSubmit={handleSaveForm} className="p-6 space-y-4 text-xs font-semibold">
               <div>
-                <label className="block text-black uppercase mb-1">Título / Manchete:</label>
+                <label className="block text-black uppercase mb-1">Título / Nome do Canal:</label>
                 <input 
                   type="text" 
                   required
-                  value={formData.title || ''}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  value={formData.title || formData.name || ''}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value, name: e.target.value })}
                   className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
-                  placeholder="Informe o título do documento ou publicação..."
+                  placeholder="Informe o nome do canal ou documento..."
                 />
               </div>
+
+              {activeTab === 'TVS' && (
+                <div className="flex items-center gap-3 bg-red-50 p-3 rounded-2xl border border-red-200">
+                  <input 
+                    type="checkbox" 
+                    id="showOnHomeToggle"
+                    checked={formData.showOnHome !== false}
+                    onChange={(e) => setFormData({ ...formData, showOnHome: e.target.checked })}
+                    className="w-5 h-5 accent-red-600 rounded cursor-pointer"
+                  />
+                  <label htmlFor="showOnHomeToggle" className="text-xs font-black text-black uppercase cursor-pointer">
+                    Transmitir este Canal na HomePage do Site? (Sim / Não)
+                  </label>
+                </div>
+              )}
 
               {/* SELETOR DUPLO: UPLOAD DE ARQUIVO OU LINK URL */}
               <div className="space-y-2 bg-zinc-50 p-4 rounded-2xl border border-zinc-200">
                 <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
-                  <span className="font-black text-black uppercase">Mídia / Documento Anexo:</span>
+                  <span className="font-black text-black uppercase">Mídia / Vídeo da Transmissão:</span>
                   
                   <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-200">
                     <button
@@ -885,11 +1165,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                 {uploadMode === 'file' ? (
                   <div className="space-y-2 pt-1">
                     <label className="block text-[11px] text-zinc-600">
-                      Selecione um arquivo de imagem (JPG, PNG, WEBP) ou documento PDF do seu computador:
+                      Selecione um arquivo de mídia (MP4, WEBM, JPG, PNG) do seu computador:
                     </label>
                     <input 
                       type="file" 
-                      accept="image/*,application/pdf"
+                      accept="video/*,image/*,application/pdf"
                       onChange={(e) => handleFileUpload(e, 'imageUrl')}
                       className="block w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-red-600 file:text-white cursor-pointer"
                     />
@@ -902,16 +1182,16 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                   </div>
                 ) : (
                   <div className="space-y-2 pt-1">
-                    <label className="block text-[11px] text-zinc-600">Informe a URL / Link externo do arquivo ou imagem:</label>
+                    <label className="block text-[11px] text-zinc-600">Informe a URL / Link externo do vídeo (YouTube/HLS/MP4):</label>
                     <input 
                       type="text" 
-                      value={formData.imageUrl || formData.fileUrl || ''}
+                      value={formData.defaultVideoUrl || formData.imageUrl || ''}
                       onChange={(e) => {
-                        setFormData({ ...formData, imageUrl: e.target.value, fileUrl: e.target.value });
+                        setFormData({ ...formData, defaultVideoUrl: e.target.value, imageUrl: e.target.value });
                         setUploadedUrl(e.target.value);
                       }}
                       className="w-full p-2.5 rounded-xl bg-white border border-zinc-200 text-black font-medium"
-                      placeholder="https://servidor.com/arquivo.pdf"
+                      placeholder="https://www.youtube.com/embed/..."
                     />
                   </div>
                 )}
@@ -919,36 +1199,26 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-black uppercase mb-1">Categoria / Rótulo:</label>
+                  <label className="block text-black uppercase mb-1">Categoria / Programa Atual:</label>
                   <input 
                     type="text" 
-                    value={formData.category || 'Institucional'}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    value={formData.currentShow || formData.category || 'Jornalismo'}
+                    onChange={(e) => setFormData({ ...formData, currentShow: e.target.value, category: e.target.value })}
                     className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
-                    placeholder="Ex: Informativo Oficial, Acordo Coletivo"
+                    placeholder="Ex: Jornal Rodoviário SP"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-black uppercase mb-1">Data:</label>
+                  <label className="block text-black uppercase mb-1">Badge de Destaque:</label>
                   <input 
-                    type="date" 
-                    value={formData.date || ''}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    type="text" 
+                    value={formData.badge || 'AO VIVO'}
+                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                     className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
+                    placeholder="Ex: AO VIVO, ESPECIAL"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-black uppercase mb-1">Descrição / Resumo:</label>
-                <textarea 
-                  rows="3"
-                  value={formData.summary || ''}
-                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
-                  placeholder="Resumo do conteúdo..."
-                ></textarea>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">

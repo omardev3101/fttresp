@@ -189,7 +189,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
       </section>
 
-      {/* 5. MÓDULO SINDFLIX / WEB TV TRANSMISSÃO AO VIVO */}
+      {/* 5. MÓDULO TV FTTRESP — TRANSMISSÃO AO VIVO */}
       <section className="container">
         <div className="bg-black text-white rounded-3xl p-6 sm:p-8 border border-red-600 shadow-2xl space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zinc-800 pb-4">
@@ -198,7 +198,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
                 <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
                 <span className="text-xs font-black text-red-500 uppercase tracking-wider">Plataforma Audiovisual FTTRESP</span>
               </div>
-              <h2 className="text-2xl font-black text-white">Sindflix FTTRESP — Web TV & Mídias</h2>
+              <h2 className="text-2xl font-black text-white">TV FTTRESP — Transmissão Ao Vivo & Canais</h2>
             </div>
             <button 
               onClick={() => setCurrentPage('webtv')}
@@ -249,9 +249,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             </div>
 
             <div className="lg:col-span-4 space-y-3">
-              <h3 className="font-extrabold text-white text-sm">Canais de TV Corporativa ({tvChannels.length})</h3>
+              <h3 className="font-extrabold text-white text-sm">Canais de TV na Home ({tvChannels.filter(ch => ch.showOnHome !== false).length})</h3>
               <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                {tvChannels.map((ch, idx) => (
+                {tvChannels.filter(ch => ch.showOnHome !== false).map((ch, idx) => (
                   <div 
                     key={ch.id || `ch-${idx}`}
                     onClick={() => setSelectedVideo(ch)}

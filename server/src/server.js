@@ -228,6 +228,13 @@ app.put('/api/tv/channels/:id', authMiddleware, (req, res) => {
   res.status(404).json({ error: 'Canal não encontrado.' });
 });
 
+app.delete('/api/tv/channels/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  db.tvChannels = (db.tvChannels || []).filter(c => c.id !== req.params.id);
+  store.save(db);
+  res.json({ message: 'Canal removido com sucesso!' });
+});
+
 // GET & CRUD Grade de Programação Semanal da TV
 app.get('/api/tv/schedules', (req, res) => {
   const db = store.get();
