@@ -4349,6 +4349,10 @@ function readDb() {
 
 function saveDb(data) {
   fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  if (process.env.USE_POSTGRES === 'true' || process.env.DATABASE_URL) {
+    const seedPg = require('./seed_pg');
+    seedPg().catch(err => console.error('Erro ao sincronizar store com PostgreSQL:', err.message));
+  }
 }
 
 module.exports = {
