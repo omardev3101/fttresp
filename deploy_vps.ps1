@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Configuração Nginx Dedicada para pessistemas.vps-kinghost.net
+# Script de Deploy e Varredura Universal Nginx HTTPS SSL - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_dedicated_domain"
+    [string]$NomeAlteracao = "deploy_nginx_universal_ssl"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -30,7 +30,7 @@ $commitMsg = "${NomeAlteracao}_${dateStr}_${timeStr}_v001"
 
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "   FTTRESP - Sincronização GitHub e Deploy VPS   " -ForegroundColor Cyan
-Write-Host "   Domínio: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Cyan
+Write-Host "   Domínio HTTPS: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "Commit Message: $commitMsg" -ForegroundColor Yellow
 Write-Host "VPS IP Target: $vpsIP ($vpsUser)" -ForegroundColor Yellow
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Dedicado para o domínio Kinghost)
+# 2. Comando Remoto para o VPS (Varredura Nginx Universal para Vhosts HTTP e HTTPS 443 SSL)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -71,7 +71,7 @@ JWT_SECRET=fttresp-super-secret-key-2026
 EOF
 node src/data/seed_pg.js && \
 cd ../client && npm install && npm run build && \
-mkdir -p /etc/nginx/snippets /etc/nginx/conf.d && \
+mkdir -p /etc/nginx/snippets && \
 cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
 location /fttresp/ {
     alias /var/www/fttresp/client/dist/;
@@ -96,16 +96,12 @@ location /fttresp/uploads/ {
     alias /var/www/fttresp/client/public/uploads/;
 }
 EOF
-cat << 'EOF' > /etc/nginx/conf.d/fttresp_domain.conf
-server {
-    listen 80;
-    server_name pessistemas.vps-kinghost.net 187.45.255.59;
-    include /etc/nginx/snippets/fttresp.conf;
-}
-EOF
-for f in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf /etc/nginx/sites-available/*; do
-  if [ -f "\$f" ] && [ "\$f" != "/etc/nginx/conf.d/fttresp_domain.conf" ] && ! grep -q "fttresp.conf" "\$f"; then
-    sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "\$f" || true
+find /etc/nginx/ -type f \( -name "*.conf" -o -name "default" -o -name "*vhost*" \) | while read file; do
+  if [ -f "\$file" ] && ! grep -q "fttresp.conf" "\$file"; then
+    if grep -q "server_name" "\$file" || grep -q "listen" "\$file"; then
+      sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "\$file" 2>/dev/null || true
+      sed -i '/listen 443/a \    include /etc/nginx/snippets/fttresp.conf;' "\$file" 2>/dev/null || true
+    fi
   fi
 done && \
 sudo nginx -t && sudo systemctl reload nginx && \
@@ -115,12 +111,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e aplicando host virtual Nginx dedicado ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando varredura universal Nginx HTTPS ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   HOST VIRTUAL NGINX APLICADO COM SUCESSO!       " -ForegroundColor Green
+    Write-Host "   DEPLOY E VARREDURA HTTPS SSL CONCLUÍDOS NO VPS! " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
