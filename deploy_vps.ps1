@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Injeção de Snippet Nginx por Server Name - FTTRESP
+# Script de Deploy Nginx Preferential Prefix (^~) - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
-# URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
+# URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp/
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_pure_snippet_ok"
+    [string]$NomeAlteracao = "deploy_nginx_preferential_prefix_fttresp"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Snippet Nginx Pura)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Preferential Prefix ^~)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -104,28 +104,28 @@ EOF
 find /etc/nginx/ -type f -exec sed -i '/fttresp/d' {} + 2>/dev/null || true && \
 mkdir -p /etc/nginx/snippets && \
 cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
-location /fttresp/ {
-    alias /var/www/fttresp/client/dist/;
-    index index.html;
-    try_files `$uri `$uri/ /fttresp/index.html;
-}
+    location ^~ /fttresp/ {
+        alias /var/www/fttresp/client/dist/;
+        index index.html;
+        try_files `$uri `$uri/ /fttresp/index.html;
+    }
 
-location = /fttresp {
-    return 301 /fttresp/;
-}
+    location = /fttresp {
+        return 301 /fttresp/;
+    }
 
-location /fttresp/api/ {
-    proxy_pass http://127.0.0.1:5000/api/;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade `$http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host `$host;
-    proxy_cache_bypass `$http_upgrade;
-}
+    location ^~ /fttresp/api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
 
-location /fttresp/uploads/ {
-    alias /var/www/fttresp/client/public/uploads/;
-}
+    location /fttresp/uploads/ {
+        alias /var/www/fttresp/client/public/uploads/;
+    }
 EOF
 cat << 'EOF' > /etc/nginx/sites-available/fttresp
 server {
@@ -147,13 +147,13 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando injeção de snippet por server_name ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando injeção com prefixo preferencial ^~ ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY E INJEÇÃO DE SNIPPET CONCLUÍDOS NO VPS! " -ForegroundColor Green
-    Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
+    Write-Host "   DEPLOY NGINX (^~) CONCLUÍDO COM SUCESSO!        " -ForegroundColor Green
+    Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp/ " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
     Write-Host "Plink não localizado em $plinkPath." -ForegroundColor Yellow
