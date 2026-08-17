@@ -204,7 +204,7 @@ export default function SiteSettingsTab({
             <div className="md:col-span-4 flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-zinc-200 space-y-3">
               <div className="w-32 h-32 rounded-2xl overflow-hidden border-2 border-red-600 shadow-md">
                 <img 
-                  src={siteSettings.presidentPhotoUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"} 
+                  src={siteSettings.presidentPhotoUrl || "/uploads/1786915668288-Gemini_Generated_Image_ny94j1ny94j1ny94.jpg"} 
                   alt="Foto Presidente" 
                   className="w-full h-full object-cover object-top"
                 />

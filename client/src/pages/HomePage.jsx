@@ -197,7 +197,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           <div className="lg:col-span-5 relative">
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-black">
               <img 
-                src={settings?.presidentPhotoUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"} 
+                src={settings?.presidentPhotoUrl || "/uploads/1786915668288-Gemini_Generated_Image_ny94j1ny94j1ny94.jpg"} 
                 alt={settings?.presidentName || "Presidente FTTRESP"}
                 className="w-full h-full object-cover object-top"
               />

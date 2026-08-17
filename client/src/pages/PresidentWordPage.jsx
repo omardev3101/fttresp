@@ -21,7 +21,7 @@ export default function PresidentWordPage({ settings, setCurrentPage }) {
         <div className="lg:col-span-5 bg-black text-white rounded-3xl overflow-hidden border border-red-600 shadow-2xl p-6 space-y-4">
           <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-zinc-800">
             <img 
-              src={settings?.presidentPhotoUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"} 
+              src={settings?.presidentPhotoUrl || "/uploads/1786915668288-Gemini_Generated_Image_ny94j1ny94j1ny94.jpg"} 
               alt={settings?.presidentName || "Presidente FTTRESP"} 
               className="w-full h-full object-cover object-top"
             />
