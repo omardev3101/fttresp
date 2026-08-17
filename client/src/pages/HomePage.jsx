@@ -22,9 +22,44 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
   const categories = ['Todas', 'Institucional', 'Campanha Salarial', 'Segurança e Saúde', 'Jurídico'];
   const jornalCategories = ['Todos', 'Informativo Oficial', 'Boletim Jurídico', 'Edição Especial'];
 
+  const defaultNews = [
+    {
+      id: "news-1",
+      title: "FTTRESP lança nova plataforma digital com Web TV, Rádio Web 24h e Central de Sindicatos",
+      slug: "fttresp-lanca-nova-plataforma-digital",
+      category: "Institucional",
+      summary: "Modernização completa da comunicação beneficia mais de 1,5 milhão de trabalhadores rodoviários e 97 sindicatos filiados no estado de SP.",
+      imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+      date: "2026-08-14",
+      author: "Redação FTTRESP"
+    },
+    {
+      id: "news-2",
+      title: "Campanha Salarial 2026/2027: FTTRESP mobiliza categoria pelo reajuste com ganho real",
+      slug: "campanha-salarial-2026-2027",
+      category: "Campanha Salarial",
+      summary: "Diretoria reuniu lideranças sindicais em plenária estadual para definir pauta unificada de reivindicações.",
+      imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80",
+      date: "2026-08-12",
+      author: "Imprensa FTTRESP"
+    },
+    {
+      id: "news-3",
+      title: "Segurança e Condições de Trabalho: FTTRESP fiscaliza terminais e garagens de ônibus",
+      slug: "fiscalizacao-terminais-garagens",
+      category: "Segurança e Saúde",
+      summary: "Equipes de fiscalização avaliam salas de descanso, pontos de apoio e instalações sanitárias para os motoristas.",
+      imageUrl: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80",
+      date: "2026-08-10",
+      author: "Departamento de Segurança"
+    }
+  ];
+
+  const displayNewsList = news && news.length > 0 ? news : defaultNews;
+
   const filteredNews = newsFilter === 'Todas' 
-    ? news 
-    : news.filter(n => n.category && n.category.toLowerCase() === newsFilter.toLowerCase());
+    ? displayNewsList 
+    : displayNewsList.filter(n => n.category && n.category.toLowerCase() === newsFilter.toLowerCase());
 
   const totalNewsPages = Math.max(1, Math.ceil(filteredNews.length / itemsPerPage));
   const currentNewsItems = filteredNews.slice((newsPage - 1) * itemsPerPage, newsPage * itemsPerPage);
@@ -173,7 +208,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
 
           <div className="lg:col-span-7 space-y-4">
-            <span className="text-xs text-red-600 font-extrabold uppercase tracking-wider">Mensagem da Liderança • {settings?.presidentName || "Valdevan Noventa"}</span>
+            <span className="text-xs text-red-600 font-extrabold uppercase tracking-wider">Mensagem da Liderança • {settings?.presidentName || "Valdir de Souza Pestana"}</span>
             <h2 className="text-2xl sm:text-3xl font-black text-black">Palavra do Presidente</h2>
             
             <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded-r-xl italic text-black font-bold text-sm sm:text-base">

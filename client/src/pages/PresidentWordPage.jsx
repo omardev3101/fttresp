@@ -27,7 +27,7 @@ export default function PresidentWordPage({ settings, setCurrentPage }) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
             <div className="absolute bottom-4 left-4 right-4">
-              <div className="text-xl font-black text-white">{settings?.presidentName || "Valdevan Noventa"}</div>
+              <div className="text-xl font-black text-white">{settings?.presidentName || "Valdir de Souza Pestana"}</div>
               <div className="text-xs text-red-500 font-bold">{settings?.presidentTitle || "Presidente da Federação Rodoviária de SP"}</div>
             </div>
           </div>
