@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Varredura Universal Nginx HTTPS SSL - FTTRESP
+# Script de Deploy e Injeção Direta Nginx VHost HTTPS SSL - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_clean_vhost_injection"
+    [string]$NomeAlteracao = "deploy_nginx_direct_vhost_injection"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Snippet VHost)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Injeção Direta VHost)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -71,35 +71,11 @@ JWT_SECRET=fttresp-super-secret-key-2026
 EOF
 node src/data/seed_pg.js && \
 cd ../client && npm install && npm run build && \
-mkdir -p /etc/nginx/snippets && \
-cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
-location /fttresp/ {
-    alias /var/www/fttresp/client/dist/;
-    index index.html;
-    try_files `$uri `$uri/ /fttresp/index.html;
-}
-
-location = /fttresp {
-    return 301 /fttresp/;
-}
-
-location /fttresp/api/ {
-    proxy_pass http://127.0.0.1:5000/api/;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade `$http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host `$host;
-    proxy_cache_bypass `$http_upgrade;
-}
-
-location /fttresp/uploads/ {
-    alias /var/www/fttresp/client/public/uploads/;
-}
-EOF
-find /etc/nginx/ -type f -exec sed -i '/include \/etc\/nginx\/snippets\/fttresp\.conf;/d' {} + 2>/dev/null || true && \
-for file in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf; do
-  if [ -f "`$file" ] && grep -q "server_name" "`$file"; then
-    sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "`$file" || true
+rm -f /etc/nginx/snippets/fttresp.conf && \
+grep -rl "fttresp" /etc/nginx/ | xargs -r sed -i '/fttresp/d' 2>/dev/null || true && \
+for file in /etc/nginx/sites-enabled/*; do
+  if [ -f "`$file" ] && ! grep -q "location /fttresp" "`$file"; then
+    sed -i '\$ i\    location /fttresp/ {\n        alias /var/www/fttresp/client/dist/;\n        index index.html;\n        try_files \$uri \$uri/ /fttresp/index.html;\n    }\n    location = /fttresp {\n        return 301 /fttresp/;\n    }\n    location /fttresp/api/ {\n        proxy_pass http://127.0.0.1:5000/api/;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \$http_upgrade;\n        proxy_set_header Connection "upgrade";\n        proxy_set_header Host \$host;\n        proxy_cache_bypass \$http_upgrade;\n    }\n    location /fttresp/uploads/ {\n        alias /var/www/fttresp/client/public/uploads/;\n    }' "`$file" || true
   fi
 done && \
 sudo nginx -t && sudo systemctl reload nginx && \
@@ -109,12 +85,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando varredura universal Nginx HTTPS ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e injetando rotas /fttresp diretamente nos VHosts ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY E VARREDURA HTTPS SSL CONCLUÍDOS NO VPS! " -ForegroundColor Green
+    Write-Host "   DEPLOY E ROTEAMENTO VHOST CONCLUÍDOS NO VPS!   " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
