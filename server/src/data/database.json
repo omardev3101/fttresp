@@ -205,7 +205,8 @@
       "currentShow": "Jornal Rodoviário Primeira Edição",
       "liveStreamUrl": "https://www.youtube.com/embed/live_stream?channel=UCfttresp",
       "defaultVideoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
-      "badge": "AO VIVO"
+      "badge": "AO VIVO",
+      "showOnHome": true
     },
     {
       "id": "tv-2",
@@ -215,7 +216,8 @@
       "isLive": false,
       "currentShow": "Voz do Sindicato: Baixada Santista e ABCD",
       "defaultVideoUrl": "https://www.youtube.com/embed/5qap5aO4i9A",
-      "badge": "EXCLUSIVO"
+      "badge": "EXCLUSIVO",
+      "showOnHome": false
     },
     {
       "id": "tv-3",
@@ -225,7 +227,8 @@
       "isLive": false,
       "currentShow": "Especial Campanha Salarial 2026",
       "defaultVideoUrl": "https://www.youtube.com/embed/2g811Eo7K8U",
-      "badge": "GRAVADO"
+      "badge": "GRAVADO",
+      "showOnHome": false
     },
     {
       "id": "tv-4",
@@ -235,7 +238,8 @@
       "isLive": false,
       "currentShow": "Curso Direção Defensiva em Rodovias",
       "defaultVideoUrl": "https://www.youtube.com/embed/LXb3EKWsInQ",
-      "badge": "EDUCATIVO"
+      "badge": "EDUCATIVO",
+      "showOnHome": false
     }
   ],
   "tvSchedules": [

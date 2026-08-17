@@ -235,6 +235,44 @@ app.delete('/api/tv/channels/:id', authMiddleware, (req, res) => {
   res.json({ message: 'Canal removido com sucesso!' });
 });
 
+// GET & CRUD Tickers / Letreiros da TV
+app.get('/api/tv/tickers', (req, res) => {
+  const db = store.get();
+  res.json(db.tvTickers || [
+    { id: 't-1', title: '01', message: 'FILIE-SE AO SINDICATO DOS TRABALHADORES EM TRANSPORTES RODOVIÁRIOS. UNIDOS SOMOS MAIS FORTES!', target: 'TODAS AS TELAS', hours: '08:00 - 22:00', status: 'ATIVO AGORA', speed: 'medium' }
+  ]);
+});
+
+app.post('/api/tv/tickers', authMiddleware, (req, res) => {
+  const db = store.get();
+  const item = { id: 't-' + Date.now(), speed: 'medium', ...req.body };
+  if (!db.tvTickers) db.tvTickers = [];
+  db.tvTickers.push(item);
+  store.save(db);
+  res.status(201).json(item);
+});
+
+// GET & CRUD Terminais / Monitores
+app.get('/api/tv/terminals', (req, res) => {
+  const db = store.get();
+  res.json(db.tvTerminals || [
+    { id: 'term-1', name: 'RECEPÇÃO', location: 'Sede Principal', count: '1 vídeo na sequência', status: 'Online' },
+    { id: 'term-2', name: 'PRESIDÊNCIA', location: 'Gabinete Presidencial', count: '2 vídeos na sequência', status: 'Online' },
+    { id: 'term-3', name: 'SUBSÊDE SANTOS', location: 'Baixada Santista', count: '1 vídeo na sequência', status: 'Online' },
+    { id: 'term-4', name: 'SUBSÊDE CAMPINAS', location: 'Região Campinas', count: '1 vídeo na sequência', status: 'Online' },
+    { id: 'term-5', name: 'TV FTTRESP', location: 'Terminal Central', count: '2 vídeos na sequência', status: 'Online' }
+  ]);
+});
+
+app.post('/api/tv/terminals', authMiddleware, (req, res) => {
+  const db = store.get();
+  const item = { id: 'term-' + Date.now(), status: 'Online', ...req.body };
+  if (!db.tvTerminals) db.tvTerminals = [];
+  db.tvTerminals.push(item);
+  store.save(db);
+  res.status(201).json(item);
+});
+
 // GET & CRUD Grade de Programação Semanal da TV
 app.get('/api/tv/schedules', (req, res) => {
   const db = store.get();
