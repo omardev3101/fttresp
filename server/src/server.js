@@ -179,7 +179,7 @@ const parseRssItems = (xml, defaultCategory, imageFallback) => {
         fileUrl: cleanLink,
         date: formattedDate,
         author: source,
-        status: 'PUBLICADO',
+        status: 'RASCUNHO',
         views: Math.floor(Math.random() * 800) + 200,
         waShares: Math.floor(Math.random() * 120) + 15,
         fbShares: Math.floor(Math.random() * 45) + 5,
@@ -250,7 +250,7 @@ app.post('/api/news/sync-web', authMiddleware, async (req, res) => {
 
     res.json({
       success: true,
-      message: `${addedCount} novas notícias do setor rodoviário foram capturadas e publicadas com sucesso!`,
+      message: `${addedCount} matérias foram capturadas e salvas em RASCUNHO para sua aprovação!`,
       addedCount,
       totalNews: db.news.length
     });

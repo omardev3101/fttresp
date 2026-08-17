@@ -528,12 +528,14 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                             />
                             <div className="space-y-0.5 overflow-hidden">
                               <div className="flex items-center gap-2">
-                                <span className={`text-[9px] font-black px-2 py-0.2 rounded uppercase ${
-                                  item.status === 'PAUSADO' 
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${
+                                  item.status === 'RASCUNHO'
+                                    ? 'bg-amber-500 text-white'
+                                    : item.status === 'PAUSADO' 
                                     ? 'bg-zinc-200 text-black' 
                                     : 'bg-red-600 text-white'
                                 }`}>
-                                  {item.status || 'PUBLICADO'}
+                                  {item.status === 'RASCUNHO' ? 'RASCUNHO / PENDENTE' : (item.status || 'PUBLICADO')}
                                 </span>
                                 <span className="text-[10px] text-zinc-400">{item.date || '2026-08-14'}</span>
                               </div>
@@ -556,14 +558,16 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button 
-                              onClick={() => handleToggleStatus(item)}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition uppercase ${
-                                item.status === 'PAUSADO' 
+                              onClick={() => handleToggleStatus(item.id, item.status)}
+                              className={`px-3 py-1.5 rounded-xl font-black text-xs transition uppercase ${
+                                item.status === 'RASCUNHO'
+                                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-md'
+                                  : item.status === 'PAUSADO' 
                                   ? 'bg-red-600 text-white' 
                                   : 'bg-zinc-200 text-black hover:bg-zinc-300'
                               }`}
                             >
-                              {item.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
+                              {item.status === 'RASCUNHO' ? 'Aprovar & Publicar' : item.status === 'PAUSADO' ? 'ATIVAR' : 'PAUSAR'}
                             </button>
                             <button 
                               onClick={() => handleOpenModal(item)}

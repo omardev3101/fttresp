@@ -55,7 +55,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
     }
   ];
 
-  const displayNewsList = news && news.length > 0 ? news : defaultNews;
+  const displayNewsList = (news && news.length > 0 ? news : defaultNews).filter(n => n.status !== 'RASCUNHO');
 
   const filteredNews = newsFilter === 'Todas' 
     ? displayNewsList 
