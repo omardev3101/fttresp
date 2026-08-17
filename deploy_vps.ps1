@@ -35,11 +35,11 @@ Write-Host "==================================================" -ForegroundColor
 Write-Host "Commit Message: $commitMsg" -ForegroundColor Yellow
 Write-Host "VPS IP Target: $vpsIP ($vpsUser)" -ForegroundColor Yellow
 
-# 1. Commit e Push Local para GitHub
+# 1. Commit e Push Local para GitHub (Branch master)
 Write-Host "`n--- Step 1: Sincronizando repositório local com o GitHub ---" -ForegroundColor Cyan
 git add .
 git commit -m "$commitMsg"
-git push origin main
+git push origin master
 
 # 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx)
 $remotePath = "/var/www/fttresp"
@@ -50,14 +50,13 @@ sudo apt-get install -y postgresql postgresql-contrib curl git nginx && \
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && \
 sudo apt-get install -y nodejs && \
 sudo npm install -g pm2 && \
-sudo -u postgres psql -c "CREATE USER fttresp_user WITH PASSWORD 'fttresp_pass_2026';" 2>/dev/null || true && \
-sudo -u postgres psql -c "CREATE DATABASE fttresp_db OWNER fttresp_user;" 2>/dev/null || true && \
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE fttresp_db TO fttresp_user;" 2>/dev/null || true && \
-if [ ! -d "$remotePath" ]; then
-    mkdir -p "$remotePath" && git clone https://github.com/omardev3101/fttresp.git "$remotePath"
+sudo -u postgres psql -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'fttresp_user') THEN CREATE ROLE fttresp_user WITH LOGIN PASSWORD 'fttresp_pass_2026'; END IF; END \$\$;" && \
+sudo -u postgres psql -c "SELECT 'CREATE DATABASE fttresp_db OWNER fttresp_user' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'fttresp_db')\gexec" && \
+if [ ! -d "$remotePath/.git" ]; then
+    rm -rf "$remotePath" && git clone https://github.com/omardev3101/fttresp.git "$remotePath"
 fi && \
 cd "$remotePath" && \
-git fetch origin && git reset --hard origin/main && \
+git fetch origin master && git checkout master && git reset --hard origin/master && \
 cd server && npm install && \
 cat << 'EOF' > .env
 PORT=5000
@@ -72,7 +71,7 @@ cd .. && \
 pm2 save
 "@
 
-# 3. Execução Remota via Plink ou SSH
+# 3. Execução Remota via Plink
 Write-Host "`n--- Step 2: Conectando ao VPS e executando configuração do PostgreSQL ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
