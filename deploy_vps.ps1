@@ -5,7 +5,7 @@
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_servername_snippet_injection"
+    [string]$NomeAlteracao = "deploy_nginx_pure_snippet_ok"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Snippet Nginx por Server Name)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Snippet Nginx Pura)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -108,7 +108,6 @@ location /fttresp/ {
     alias /var/www/fttresp/client/dist/;
     index index.html;
     try_files `$uri `$uri/ /fttresp/index.html;
-    add_header Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;" always;
 }
 
 location = /fttresp {
@@ -122,12 +121,10 @@ location /fttresp/api/ {
     proxy_set_header Connection "upgrade";
     proxy_set_header Host `$host;
     proxy_cache_bypass `$http_upgrade;
-    add_header Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;" always;
 }
 
 location /fttresp/uploads/ {
     alias /var/www/fttresp/client/public/uploads/;
-    add_header Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;" always;
 }
 EOF
 cat << 'EOF' > /etc/nginx/sites-available/fttresp
