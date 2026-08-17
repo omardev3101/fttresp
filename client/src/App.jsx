@@ -65,6 +65,15 @@ export default function App() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (settings?.logoUrl) {
+      const iconLinks = document.querySelectorAll("link[rel*='icon'], link[rel='apple-touch-icon']");
+      iconLinks.forEach(link => {
+        link.href = settings.logoUrl;
+      });
+    }
+  }, [settings?.logoUrl]);
+
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
