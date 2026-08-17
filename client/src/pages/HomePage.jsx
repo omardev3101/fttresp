@@ -121,6 +121,75 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
     }
   };
 
+  const renderCompactPagination = (currentPage, totalPages, setPage) => {
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    const delta = 1;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        pages.push(i);
+      } else if (
+        (i === currentPage - delta - 1 && i > 1) ||
+        (i === currentPage + delta + 1 && i < totalPages)
+      ) {
+        pages.push('...');
+      }
+    }
+
+    const filteredPages = pages.filter((item, index, array) => {
+      return item !== '...' || array[index - 1] !== '...';
+    });
+
+    return (
+      <div className="flex items-center gap-1.5 flex-wrap max-w-full overflow-x-auto py-1">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+          className="px-3 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm shrink-0"
+        >
+          ◄ Anterior
+        </button>
+
+        {filteredPages.map((pg, idx) => {
+          if (pg === '...') {
+            return (
+              <span key={`ellipsis-${idx}`} className="px-1 text-xs font-bold text-zinc-400 select-none shrink-0">
+                ...
+              </span>
+            );
+          }
+          return (
+            <button
+              key={`pg-num-${pg}`}
+              onClick={() => setPage(pg)}
+              className={`w-8 h-8 rounded-xl text-xs font-black transition shrink-0 ${
+                currentPage === pg
+                  ? 'bg-red-600 text-white shadow-md'
+                  : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
+              }`}
+            >
+              {pg}
+            </button>
+          );
+        })}
+
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+          className="px-3 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm shrink-0"
+        >
+          Próxima ►
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-10 pb-12 font-sans bg-white">
       
@@ -357,7 +426,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
       </section>
 
-      {/* 8. NOVA SEÇÃO DE JORNAIS & INFORMATIVOS OFICIAIS (CARDS PAGINADOS) */}
+      {/* 8. NOVA SEÇÃO DE JORNAIS & INFORMATIVOS OFICIAIS (CARDS PAGINADOS COM CALENDÁRIO) */}
       <section className="container space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
@@ -366,19 +435,34 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* BUSCADOR DE JORNAIS POR DATA / ANO */}
-            <div className="flex items-center gap-1.5 bg-zinc-100 p-1.5 rounded-xl border border-zinc-300 text-xs shadow-inner">
-              <Calendar size={14} className="text-red-600 ml-1" />
+            {/* BUSCADOR POR CALENDÁRIO VISUAL E TEXTO */}
+            <div className="flex items-center gap-2 bg-zinc-100 p-1.5 rounded-xl border border-zinc-300 text-xs shadow-inner">
+              <div className="flex items-center gap-1 bg-white px-2 py-1 rounded-lg border border-zinc-300 shadow-sm" title="Selecione a data no calendário">
+                <Calendar size={14} className="text-red-600 shrink-0" />
+                <input 
+                  type="date"
+                  value={jornalDateSearch}
+                  onChange={(e) => {
+                    setJornalDateSearch(e.target.value);
+                    setJornalPage(1);
+                  }}
+                  className="bg-transparent text-black text-[11px] font-bold outline-none cursor-pointer"
+                />
+              </div>
+
+              <span className="text-[10px] text-zinc-400 font-bold uppercase hidden sm:inline">ou ano</span>
+
               <input 
                 type="text"
-                placeholder="Filtrar por data / ano (ex: 2026)..."
+                placeholder="Ano (ex: 2026)..."
                 value={jornalDateSearch}
                 onChange={(e) => {
                   setJornalDateSearch(e.target.value);
                   setJornalPage(1);
                 }}
-                className="bg-transparent text-black text-[11px] font-bold outline-none placeholder:text-zinc-400 w-48"
+                className="bg-white px-2 py-1 rounded-lg border border-zinc-300 text-black text-[11px] font-bold outline-none placeholder:text-zinc-400 w-24 shadow-sm"
               />
+
               {jornalDateSearch && (
                 <button 
                   onClick={() => { setJornalDateSearch(''); setJornalPage(1); }}
@@ -457,44 +541,14 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           ))}
         </div>
 
-        {/* CONTROLES DE PAGINAÇÃO DE JORNAIS */}
+        {/* CONTROLES DE PAGINAÇÃO COMPACTA DE JORNAIS */}
         {filteredJornais.length > 0 ? (
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200 shadow-sm">
-            <span className="text-xs text-zinc-600 font-bold">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200 shadow-sm max-w-full overflow-hidden">
+            <span className="text-xs text-zinc-600 font-bold shrink-0">
               Exibindo edições {((jornalPage - 1) * jornaisPerPage) + 1}–{Math.min(jornalPage * jornaisPerPage, filteredJornais.length)} de {filteredJornais.length} jornais em PDF publicados
             </span>
 
-            <div className="flex items-center gap-2">
-              <button
-                disabled={jornalPage === 1}
-                onClick={() => setJornalPage(prev => Math.max(prev - 1, 1))}
-                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
-              >
-                ◄ Anterior
-              </button>
-
-              {Array.from({ length: totalJornalPages }, (_, i) => i + 1).map((pg) => (
-                <button
-                  key={`j-pg-${pg}`}
-                  onClick={() => setJornalPage(pg)}
-                  className={`w-8 h-8 rounded-xl text-xs font-black transition ${
-                    jornalPage === pg
-                      ? 'bg-red-600 text-white shadow-md'
-                      : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
-                  }`}
-                >
-                  {pg}
-                </button>
-              ))}
-
-              <button
-                disabled={jornalPage === totalJornalPages}
-                onClick={() => setJornalPage(prev => Math.min(prev + 1, totalJornalPages))}
-                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
-              >
-                Próxima ►
-              </button>
-            </div>
+            {renderCompactPagination(jornalPage, totalJornalPages, setJornalPage)}
           </div>
         ) : (
           <div className="bg-zinc-50 p-8 rounded-2xl border border-zinc-200 text-center text-xs font-bold text-zinc-500 uppercase">
@@ -503,7 +557,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         )}
       </section>
 
-      {/* 9. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS PAGINADO */}
+      {/* 9. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS PAGINADO COMPACTO */}
       <section className="container space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
           <div>
@@ -560,44 +614,14 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           ))}
         </div>
 
-        {/* CONTROLES DE PAGINAÇÃO DE NOTÍCIAS */}
+        {/* CONTROLES DE PAGINAÇÃO COMPACTA DE NOTÍCIAS */}
         {filteredNews.length > 0 && (
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200 shadow-sm">
-            <span className="text-xs text-zinc-600 font-bold">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200 shadow-sm max-w-full overflow-hidden">
+            <span className="text-xs text-zinc-600 font-bold shrink-0">
               Exibindo matérias {((newsPage - 1) * itemsPerPage) + 1}–{Math.min(newsPage * itemsPerPage, filteredNews.length)} de {filteredNews.length} notícias publicadas
             </span>
 
-            <div className="flex items-center gap-2">
-              <button
-                disabled={newsPage === 1}
-                onClick={() => setNewsPage(prev => Math.max(prev - 1, 1))}
-                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
-              >
-                ◄ Anterior
-              </button>
-
-              {Array.from({ length: totalNewsPages }, (_, i) => i + 1).map((pg) => (
-                <button
-                  key={`pg-${pg}`}
-                  onClick={() => setNewsPage(pg)}
-                  className={`w-8 h-8 rounded-xl text-xs font-black transition ${
-                    newsPage === pg
-                      ? 'bg-red-600 text-white shadow-md'
-                      : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
-                  }`}
-                >
-                  {pg}
-                </button>
-              ))}
-
-              <button
-                disabled={newsPage === totalNewsPages}
-                onClick={() => setNewsPage(prev => Math.min(prev + 1, totalNewsPages))}
-                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
-              >
-                Próxima ►
-              </button>
-            </div>
+            {renderCompactPagination(newsPage, totalNewsPages, setNewsPage)}
           </div>
         )}
       </section>
