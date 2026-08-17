@@ -2,7 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Search, Tv } from 'lucide-react';
 
 export default function BannerCarousel({ banners = [], setCurrentPage }) {
-  const activeBanners = banners.filter(b => b.active !== false);
+  const defaultBanners = [
+    {
+      id: "b-1",
+      title: "União, Força e Tecnologia em Defesa dos Rodoviários de SP",
+      subtitle: "Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo. Conectando 97 sindicatos, convenções coletivas digitais, Web TV e Rádio Web 24h.",
+      badge: "Plataforma Oficial FTTRESP 2026",
+      imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
+      btnText: "Central dos 97 Sindicatos Filiados",
+      linkUrl: "unions",
+      active: true
+    },
+    {
+      id: "b-2",
+      title: "Convenções Coletivas Digitais & Pisos Salariais 2026",
+      subtitle: "Consulte o piso salarial normativo e direitos atualizados do seu setor (Cargas, Urbano, Fretamento e Entregadores).",
+      badge: "Acordos Coletivos de Trabalho",
+      imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80",
+      btnText: "Ver Pisos & Convenções Coletivas",
+      linkUrl: "salary",
+      active: true
+    }
+  ];
+
+  const displayBanners = banners && banners.length > 0 ? banners : defaultBanners;
+  const activeBanners = displayBanners.filter(b => b.active !== false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 

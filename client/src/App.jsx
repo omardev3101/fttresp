@@ -36,26 +36,26 @@ export default function App() {
   const loadData = async () => {
     try {
       const [resSet, resBanners, resNews, resJor, resUnions, resAgr, resTv, resTvSch, resRadio] = await Promise.all([
-        api.get('/settings'),
-        api.get('/banners'),
-        api.get('/news'),
+        api.get('/settings').catch(() => ({ data: null })),
+        api.get('/banners').catch(() => ({ data: [] })),
+        api.get('/news').catch(() => ({ data: [] })),
         api.get('/jornais').catch(() => ({ data: [] })),
-        api.get('/unions'),
-        api.get('/agreements'),
-        api.get('/tv/channels'),
-        api.get('/tv/schedules'),
-        api.get('/radio/status')
+        api.get('/unions').catch(() => ({ data: [] })),
+        api.get('/agreements').catch(() => ({ data: [] })),
+        api.get('/tv/channels').catch(() => ({ data: [] })),
+        api.get('/tv/schedules').catch(() => ({ data: [] })),
+        api.get('/radio/status').catch(() => ({ data: null }))
       ]);
 
-      setSettings(resSet.data);
-      setBanners(resBanners.data || []);
-      setNews(resNews.data || []);
-      setJornais(resJor.data || []);
-      setUnions(resUnions.data || []);
-      setAgreements(resAgr.data || []);
-      setTvChannels(resTv.data || []);
-      setTvSchedules(resTvSch.data || []);
-      setRadioConfig(resRadio.data || null);
+      if (resSet.data) setSettings(resSet.data);
+      if (resBanners.data && resBanners.data.length > 0) setBanners(resBanners.data);
+      if (resNews.data && resNews.data.length > 0) setNews(resNews.data);
+      if (resJor.data && resJor.data.length > 0) setJornais(resJor.data);
+      if (resUnions.data && resUnions.data.length > 0) setUnions(resUnions.data);
+      if (resAgr.data && resAgr.data.length > 0) setAgreements(resAgr.data);
+      if (resTv.data && resTv.data.length > 0) setTvChannels(resTv.data);
+      if (resTvSch.data) setTvSchedules(resTvSch.data);
+      if (resRadio.data) setRadioConfig(resRadio.data);
     } catch (err) {
       console.error('Erro ao carregar dados da REST API:', err);
     }
