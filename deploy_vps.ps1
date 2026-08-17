@@ -51,20 +51,12 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && \
 sudo apt-get install -y nodejs && \
 sudo npm install -g pm2 && \
 cat << 'EOF' > /tmp/setup.sql
-DO \$\$ 
-BEGIN 
-  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'fttresp_user') THEN 
-    CREATE ROLE fttresp_user WITH LOGIN PASSWORD 'fttresp_pass_2026' SUPERUSER; 
-  ELSE
-    ALTER USER fttresp_user WITH PASSWORD 'fttresp_pass_2026';
-  END IF; 
-END \$\$;
-
-SELECT 'CREATE DATABASE fttresp_db OWNER fttresp_user'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'fttresp_db')\gexec
+CREATE USER fttresp_user WITH PASSWORD 'fttresp_pass_2026';
+ALTER USER fttresp_user WITH PASSWORD 'fttresp_pass_2026';
+CREATE DATABASE fttresp_db OWNER fttresp_user;
 GRANT ALL PRIVILEGES ON DATABASE fttresp_db TO fttresp_user;
 EOF
-sudo -u postgres psql -f /tmp/setup.sql && \
+sudo -u postgres psql -f /tmp/setup.sql || true && \
 if [ ! -d "$remotePath/.git" ]; then
     rm -rf "$remotePath" && git clone https://github.com/omardev3101/fttresp.git "$remotePath"
 fi && \
