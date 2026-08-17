@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Restauração Nginx Limpo com CSP Válido - FTTRESP
+# Script de Deploy e Injeção de Snippet Nginx por Server Name - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_csp_syntax_fix"
+    [string]$NomeAlteracao = "deploy_nginx_servername_snippet_injection"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Restauração Nginx Pristine e Configuração do Site)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Snippet Nginx por Server Name)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -101,44 +101,46 @@ http {
 	include /etc/nginx/sites-enabled/*;
 }
 EOF
-rm -f /etc/nginx/conf.d/fttresp* /etc/nginx/snippets/fttresp* && \
+find /etc/nginx/ -type f -exec sed -i '/fttresp/d' {} + 2>/dev/null || true && \
+mkdir -p /etc/nginx/snippets && \
+cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
+location /fttresp/ {
+    alias /var/www/fttresp/client/dist/;
+    index index.html;
+    try_files `$uri `$uri/ /fttresp/index.html;
+    add_header Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;" always;
+}
+
+location = /fttresp {
+    return 301 /fttresp/;
+}
+
+location /fttresp/api/ {
+    proxy_pass http://127.0.0.1:5000/api/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade `$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host `$host;
+    proxy_cache_bypass `$http_upgrade;
+    add_header Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;" always;
+}
+
+location /fttresp/uploads/ {
+    alias /var/www/fttresp/client/public/uploads/;
+    add_header Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;" always;
+}
+EOF
 cat << 'EOF' > /etc/nginx/sites-available/fttresp
 server {
     listen 80;
     server_name pessistemas.vps-kinghost.net 187.45.255.59;
-
-    location /fttresp/ {
-        alias /var/www/fttresp/client/dist/;
-        index index.html;
-        try_files `$uri `$uri/ /fttresp/index.html;
-    }
-
-    location = /fttresp {
-        return 301 /fttresp/;
-    }
-
-    location /fttresp/api/ {
-        proxy_pass http://127.0.0.1:5000/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade `$http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host `$host;
-        proxy_cache_bypass `$http_upgrade;
-    }
-
-    location /fttresp/uploads/ {
-        alias /var/www/fttresp/client/public/uploads/;
-    }
+    include /etc/nginx/snippets/fttresp.conf;
 }
 EOF
 ln -sf /etc/nginx/sites-available/fttresp /etc/nginx/sites-enabled/fttresp && \
-for file in /etc/nginx/sites-available/*; do
+for file in /etc/nginx/sites-available/* /etc/nginx/conf.d/*.conf; do
   if [ -f "`$file" ] && [ "`$file" != "/etc/nginx/sites-available/fttresp" ]; then
-    sed -i '/location.*fttresp/,/}/d' "`$file" 2>/dev/null || true
-    sed -i '/include.*fttresp/d' "`$file" 2>/dev/null || true
-    if grep -q "server_name" "`$file"; then
-      sed -i '\$ i\    location /fttresp/ {\n        alias /var/www/fttresp/client/dist/;\n        index index.html;\n        try_files \$uri \$uri/ /fttresp/index.html;\n    }\n    location = /fttresp {\n        return 301 /fttresp/;\n    }\n    location /fttresp/api/ {\n        proxy_pass http://127.0.0.1:5000/api/;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \$http_upgrade;\n        proxy_set_header Connection "upgrade";\n        proxy_set_header Host \$host;\n        proxy_cache_bypass \$http_upgrade;\n    }\n    location /fttresp/uploads/ {\n        alias /var/www/fttresp/client/public/uploads/;\n    }' "`$file" 2>/dev/null || true
-    fi
+    sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "`$file" 2>/dev/null || true
   fi
 done && \
 sudo nginx -t && sudo systemctl reload nginx && \
@@ -148,12 +150,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando restauração Nginx com sintaxe limpa ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando injeção de snippet por server_name ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY E ROTEAMENTO NGINX CONCLUÍDOS COM SUCESSO! " -ForegroundColor Green
+    Write-Host "   DEPLOY E INJEÇÃO DE SNIPPET CONCLUÍDOS NO VPS! " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
