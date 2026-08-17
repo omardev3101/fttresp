@@ -273,10 +273,32 @@ app.post('/api/tv/terminals', authMiddleware, (req, res) => {
   res.status(201).json(item);
 });
 
-// GET & CRUD Grade de Programação Semanal da TV
-app.get('/api/tv/schedules', (req, res) => {
+// GET & CRUD Rádio Web (Faixas, Vinhetas e Grade 24/7)
+app.get('/api/radio/tracks', (req, res) => {
   const db = store.get();
-  res.json(db.tvSchedules || []);
+  res.json(db.radioTracks || [
+    { id: 'tr-1', name: 'FORRÓ DO MUÍDO - CHAMA ESSA CERVEJA BY DJ DAVID STROMPA', path: '/uploads/radio/forro1.mp3', genre: 'Música', duration: '4:11', type: 'Música' },
+    { id: 'tr-2', name: 'FORRÓ DO MUÍDO - ANJO PINTADO', path: '/uploads/radio/forro2.mp3', genre: 'Música', duration: '3:45', type: 'Música' },
+    { id: 'tr-3', name: 'FORRÓ DO MUÍDO - CUIDADO', path: '/uploads/radio/forro3.mp3', genre: 'Música', duration: '4:27', type: 'Música' },
+    { id: 'tr-4', name: 'VINHETA FTTRESP - 24 HORAS COM VOCÊ', path: '/uploads/radio/vinheta1.mp3', genre: 'Vinheta', duration: '0:15', type: 'Vinheta' },
+    { id: 'tr-5', name: 'HORA CERTA FTTRESP', path: '/uploads/radio/horacerta.mp3', genre: 'Hora Certa', duration: '0:08', type: 'Hora Certa' }
+  ]);
+});
+
+app.post('/api/radio/tracks', authMiddleware, (req, res) => {
+  const db = store.get();
+  const track = { id: 'tr-' + Date.now(), duration: '3:30', ...req.body };
+  if (!db.radioTracks) db.radioTracks = [];
+  db.radioTracks.unshift(track);
+  store.save(db);
+  res.status(201).json(track);
+});
+
+app.delete('/api/radio/tracks/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  db.radioTracks = (db.radioTracks || []).filter(t => t.id !== req.params.id);
+  store.save(db);
+  res.json({ message: 'Faixa removida com sucesso!' });
 });
 
 app.post('/api/tv/schedules', authMiddleware, (req, res) => {

@@ -8,6 +8,7 @@ import {
 import api from '../../services/api';
 import TvManagementTab from './TvManagementTab';
 import SiteSettingsTab from './SiteSettingsTab';
+import RadioManagementTab from './RadioManagementTab';
 
 export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], tvChannels = [], tvSchedules = [], settings: initialSettings }) {
   const [activeTab, setActiveTab] = useState('NOTÍCIAS');
@@ -80,6 +81,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     { id: 'PISOS', label: 'PISOS SALARIAIS', icon: DollarSign },
     { id: 'JORNAIS', label: 'JORNAL & VEÍCULOS', icon: FileText },
     { id: 'TVS', label: 'GESTÃO DE TV', icon: Tv },
+    { id: 'RADIO', label: 'GESTÃO DE RÁDIO', icon: Radio },
     { id: 'CONVENÇÕES', label: 'CONVENÇÕES', icon: Layers },
     { id: 'CATEGORIAS', label: 'CATEGORIAS', icon: Tag },
     { id: 'SITE', label: 'GESTÃO DO SITE', icon: Globe }
@@ -358,6 +360,8 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
             handleToggleStatus={handleToggleStatus} 
             handleDelete={handleDelete} 
           />
+        ) : activeTab === 'RADIO' ? (
+          <RadioManagementTab tracksList={radioTracks} refreshTracks={refreshRadioTracks} />
         ) : activeTab === 'SITE' ? (
           <SiteSettingsTab 
             siteSettings={siteSettings}
