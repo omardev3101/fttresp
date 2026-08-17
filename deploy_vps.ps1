@@ -5,7 +5,7 @@
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_universal_ssl"
+    [string]$NomeAlteracao = "deploy_nginx_universal_ssl_fix"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Varredura Nginx Universal para Vhosts HTTP e HTTPS 443 SSL)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Snippet Escapado)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -76,7 +76,7 @@ cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
 location /fttresp/ {
     alias /var/www/fttresp/client/dist/;
     index index.html;
-    try_files \$uri \$uri/ /fttresp/index.html;
+    try_files `$uri `$uri/ /fttresp/index.html;
 }
 
 location = /fttresp {
@@ -86,21 +86,20 @@ location = /fttresp {
 location /fttresp/api/ {
     proxy_pass http://127.0.0.1:5000/api/;
     proxy_http_version 1.1;
-    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Upgrade `$http_upgrade;
     proxy_set_header Connection 'upgrade';
-    proxy_set_header Host \$host;
-    proxy_cache_bypass \$http_upgrade;
+    proxy_set_header Host `$host;
+    proxy_cache_bypass `$http_upgrade;
 }
 
 location /fttresp/uploads/ {
     alias /var/www/fttresp/client/public/uploads/;
 }
 EOF
-find /etc/nginx/ -type f \( -name "*.conf" -o -name "default" -o -name "*vhost*" \) | while read file; do
-  if [ -f "\$file" ] && ! grep -q "fttresp.conf" "\$file"; then
-    if grep -q "server_name" "\$file" || grep -q "listen" "\$file"; then
-      sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "\$file" 2>/dev/null || true
-      sed -i '/listen 443/a \    include /etc/nginx/snippets/fttresp.conf;' "\$file" 2>/dev/null || true
+for file in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf /etc/nginx/sites-available/*; do
+  if [ -f "`$file" ]; then
+    if ! grep -q "fttresp.conf" "`$file"; then
+      sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "`$file" 2>/dev/null || true
     fi
   fi
 done && \
