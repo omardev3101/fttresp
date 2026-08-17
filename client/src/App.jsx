@@ -66,13 +66,27 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (settings?.logoUrl) {
-      const iconLinks = document.querySelectorAll("link[rel*='icon'], link[rel='apple-touch-icon']");
-      iconLinks.forEach(link => {
-        link.href = settings.logoUrl;
-      });
+    if (settings) {
+      if (settings.logoUrl) {
+        const iconLinks = document.querySelectorAll("link[rel*='icon'], link[rel='apple-touch-icon']");
+        iconLinks.forEach(link => {
+          link.href = settings.logoUrl;
+        });
+      }
+      if (settings.primaryColor) {
+        document.documentElement.style.setProperty('--color-primary', settings.primaryColor);
+      }
+      if (settings.secondaryColor) {
+        document.documentElement.style.setProperty('--color-secondary', settings.secondaryColor);
+      }
+      if (settings.accentColor) {
+        document.documentElement.style.setProperty('--color-accent', settings.accentColor);
+      }
+      if (settings.highlightColor) {
+        document.documentElement.style.setProperty('--color-highlight', settings.highlightColor);
+      }
     }
-  }, [settings?.logoUrl]);
+  }, [settings]);
 
   const renderPage = () => {
     switch (currentPage) {
