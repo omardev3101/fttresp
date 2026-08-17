@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Configuração PostgreSQL no VPS - FTTRESP
+# Script de Deploy e Configuração PostgreSQL + Nginx no VPS - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # Repositório: https://github.com/omardev3101/fttresp.git
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_postgresql_vps"
+    [string]$NomeAlteracao = "deploy_postgresql_nginx_vps"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Reverse Proxy)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -67,21 +67,49 @@ JWT_SECRET=fttresp-super-secret-key-2026
 EOF
 node src/data/seed_pg.js && \
 cd ../client && npm install && npm run build && \
+cat << 'EOF' > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    root /var/www/fttresp/client/dist;
+    index index.html;
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    location /uploads/ {
+        alias /var/www/fttresp/client/public/uploads/;
+    }
+}
+EOF
+sudo nginx -t && sudo systemctl reload nginx && \
 cd .. && \
 (pm2 restart fttresp-app || pm2 start server/src/server.js --name fttresp-app) && \
 pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando configuração do PostgreSQL ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando configuração do PostgreSQL & Nginx ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY E MIGRAÇÃO POSTGRESQL CONCLUÍDOS NO VPS! " -ForegroundColor Green
-    Write-Host "   Acesse a API em: http://$vpsIP:5000/api        " -ForegroundColor Green
+    Write-Host "   DEPLOY POSTGRESQL E NGINX CONCLUÍDOS NO VPS!   " -ForegroundColor Green
+    Write-Host "   Acesse o Portal em: http://$vpsIP               " -ForegroundColor Green
+    Write-Host "   Acesse a API em: http://$vpsIP/api             " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
-    Write-Host "Plink não localizado em $plinkPath. Por favor, execute no bash/powershell:" -ForegroundColor Yellow
-    Write-Host "ssh $vpsUser@$vpsIP" -ForegroundColor Yellow
+    Write-Host "Plink não localizado em $plinkPath." -ForegroundColor Yellow
 }
