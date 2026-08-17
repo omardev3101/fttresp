@@ -310,7 +310,7 @@ EOF
 ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && \
 sudo nginx -t && sudo systemctl reload nginx && \
 cd .. && \
-(pm2 restart fttresp-app || pm2 start server/src/server.js --name fttresp-app) && \
+(pm2 delete fttresp-app || true) && pm2 start server/src/server.js --name fttresp-app --update-env && \
 pm2 save
 "@
 

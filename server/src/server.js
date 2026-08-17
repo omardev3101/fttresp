@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const store = require('./data/store');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5005;
 const JWT_SECRET = 'fttresp-super-secret-key-2026';
 
 app.use(cors());
