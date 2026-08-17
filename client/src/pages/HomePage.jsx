@@ -64,6 +64,10 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
   const totalNewsPages = Math.max(1, Math.ceil(filteredNews.length / itemsPerPage));
   const currentNewsItems = filteredNews.slice((newsPage - 1) * itemsPerPage, newsPage * itemsPerPage);
 
+  const [jornalPage, setJornalPage] = useState(1);
+  const [jornalDateSearch, setJornalDateSearch] = useState('');
+  const jornaisPerPage = 3;
+
   const displayJornais = jornais.length > 0 ? jornais : [
     {
       id: "j-1",
@@ -94,9 +98,14 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
     }
   ];
 
-  const filteredJornais = jornalFilter === 'Todos'
-    ? displayJornais
-    : displayJornais.filter(j => j.category && j.category.toLowerCase() === jornalFilter.toLowerCase());
+  const filteredJornais = displayJornais.filter(j => {
+    const matchCategory = jornalFilter === 'Todos' || (j.category && j.category.toLowerCase() === jornalFilter.toLowerCase());
+    const matchDate = !jornalDateSearch || (j.date && j.date.includes(jornalDateSearch)) || (j.title && j.title.toLowerCase().includes(jornalDateSearch.toLowerCase()));
+    return matchCategory && matchDate;
+  });
+
+  const totalJornalPages = Math.max(1, Math.ceil(filteredJornais.length / jornaisPerPage));
+  const currentJornalItems = filteredJornais.slice((jornalPage - 1) * jornaisPerPage, jornalPage * jornaisPerPage);
 
   const handleLike = () => {
     if (!hasLiked) {
@@ -348,33 +357,63 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
       </section>
 
-      {/* 8. NOVA SEÇÃO DE JORNAIS & INFORMATIVOS OFICIAIS (CARDS 3x3) */}
+      {/* 8. NOVA SEÇÃO DE JORNAIS & INFORMATIVOS OFICIAIS (CARDS PAGINADOS) */}
       <section className="container space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
             <span className="text-[11px] text-red-600 font-extrabold uppercase tracking-wider">Publicações em PDF</span>
             <h2 className="text-2xl font-black text-black">Jornais & Informativos Oficiais</h2>
           </div>
 
-          <div className="flex flex-wrap gap-1.5">
-            {jornalCategories.map((cat, idx) => (
-              <button
-                key={`cat-pill-${idx}`}
-                onClick={() => setJornalFilter(cat)}
-                className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
-                  jornalFilter === cat 
-                    ? 'bg-red-600 text-white font-black shadow-sm' 
-                    : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* BUSCADOR DE JORNAIS POR DATA / ANO */}
+            <div className="flex items-center gap-1.5 bg-zinc-100 p-1.5 rounded-xl border border-zinc-300 text-xs shadow-inner">
+              <Calendar size={14} className="text-red-600 ml-1" />
+              <input 
+                type="text"
+                placeholder="Filtrar por data / ano (ex: 2026)..."
+                value={jornalDateSearch}
+                onChange={(e) => {
+                  setJornalDateSearch(e.target.value);
+                  setJornalPage(1);
+                }}
+                className="bg-transparent text-black text-[11px] font-bold outline-none placeholder:text-zinc-400 w-48"
+              />
+              {jornalDateSearch && (
+                <button 
+                  onClick={() => { setJornalDateSearch(''); setJornalPage(1); }}
+                  className="text-zinc-400 hover:text-black font-black text-xs px-1"
+                  title="Limpar busca de data"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* PÍLULAS DE CATEGORIA */}
+            <div className="flex flex-wrap gap-1.5">
+              {jornalCategories.map((cat, idx) => (
+                <button
+                  key={`cat-pill-${idx}`}
+                  onClick={() => {
+                    setJornalFilter(cat);
+                    setJornalPage(1);
+                  }}
+                  className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
+                    jornalFilter === cat 
+                      ? 'bg-red-600 text-white font-black shadow-sm' 
+                      : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredJornais.map((jornal, idx) => (
+          {currentJornalItems.map((jornal, idx) => (
             <div key={jornal.id || `jornal-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-zinc-200 shadow-md hover-lift flex flex-col justify-between hover:border-red-600">
               <div>
                 <div className="relative aspect-[4/3] overflow-hidden bg-black">
@@ -417,6 +456,51 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             </div>
           ))}
         </div>
+
+        {/* CONTROLES DE PAGINAÇÃO DE JORNAIS */}
+        {filteredJornais.length > 0 ? (
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200 shadow-sm">
+            <span className="text-xs text-zinc-600 font-bold">
+              Exibindo edições {((jornalPage - 1) * jornaisPerPage) + 1}–{Math.min(jornalPage * jornaisPerPage, filteredJornais.length)} de {filteredJornais.length} jornais em PDF publicados
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                disabled={jornalPage === 1}
+                onClick={() => setJornalPage(prev => Math.max(prev - 1, 1))}
+                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
+              >
+                ◄ Anterior
+              </button>
+
+              {Array.from({ length: totalJornalPages }, (_, i) => i + 1).map((pg) => (
+                <button
+                  key={`j-pg-${pg}`}
+                  onClick={() => setJornalPage(pg)}
+                  className={`w-8 h-8 rounded-xl text-xs font-black transition ${
+                    jornalPage === pg
+                      ? 'bg-red-600 text-white shadow-md'
+                      : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
+                  }`}
+                >
+                  {pg}
+                </button>
+              ))}
+
+              <button
+                disabled={jornalPage === totalJornalPages}
+                onClick={() => setJornalPage(prev => Math.min(prev + 1, totalJornalPages))}
+                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
+              >
+                Próxima ►
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-zinc-50 p-8 rounded-2xl border border-zinc-200 text-center text-xs font-bold text-zinc-500 uppercase">
+            Nenhum jornal ou informativo encontrado para os filtros selecionados.
+          </div>
+        )}
       </section>
 
       {/* 9. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS PAGINADO */}
