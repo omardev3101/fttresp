@@ -5,7 +5,7 @@
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_universal_ssl_fix"
+    [string]$NomeAlteracao = "deploy_nginx_clean_vhost_injection"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Snippet Escapado)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Snippet VHost)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -96,11 +96,10 @@ location /fttresp/uploads/ {
     alias /var/www/fttresp/client/public/uploads/;
 }
 EOF
-for file in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf /etc/nginx/sites-available/*; do
-  if [ -f "`$file" ]; then
-    if ! grep -q "fttresp.conf" "`$file"; then
-      sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "`$file" 2>/dev/null || true
-    fi
+find /etc/nginx/ -type f -exec sed -i '/include \/etc\/nginx\/snippets\/fttresp\.conf;/d' {} + 2>/dev/null || true && \
+for file in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf; do
+  if [ -f "`$file" ] && grep -q "server_name" "`$file"; then
+    sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "`$file" || true
   fi
 done && \
 sudo nginx -t && sudo systemctl reload nginx && \
