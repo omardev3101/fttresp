@@ -301,6 +301,17 @@ app.delete('/api/radio/tracks/:id', authMiddleware, (req, res) => {
   res.json({ message: 'Faixa removida com sucesso!' });
 });
 
+app.get('/api/radio/status', (req, res) => {
+  const db = store.get();
+  res.json(db.radioConfig || {
+    isLive: true,
+    listeners: 1,
+    currentTrack: 'VEM ME AMAR - FORRÓ DO MUÍDO [MUSICA NOVA!]',
+    previousTrack: 'NENHUMA ANTERIOR',
+    nextTrack: 'FIM DA PLAYLIST'
+  });
+});
+
 app.post('/api/tv/schedules', authMiddleware, (req, res) => {
   const db = store.get();
   const newSched = { id: 'sched-' + Date.now(), ...req.body };

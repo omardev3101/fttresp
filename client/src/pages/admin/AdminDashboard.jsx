@@ -20,6 +20,20 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   const [salariosList, setSalariosList] = useState([]);
   const [channelsList, setChannelsList] = useState(tvChannels || []);
   const [schedulesList, setSchedulesList] = useState(tvSchedules || []);
+  const [radioTracks, setRadioTracks] = useState([]);
+
+  useEffect(() => {
+    refreshRadioTracks();
+  }, []);
+
+  const refreshRadioTracks = async () => {
+    try {
+      const res = await api.get('/radio/tracks');
+      setRadioTracks(res.data || []);
+    } catch (err) {
+      console.error('Erro ao carregar faixas da rádio:', err);
+    }
+  };
 
   // TV Management Sub-Tab
   const [tvSubTab, setTvSubTab] = useState('CONTEUDO'); // 'METRICAS' | 'CONTEUDO' | 'GRADE' | 'LETREIROS' | 'PATROCINIOS' | 'TERMINAIS'
