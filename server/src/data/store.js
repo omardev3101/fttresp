@@ -75,56 +75,7 @@ const initialData = {
       active: true
     }
   ],
-  news: [
-    {
-      id: "news-1",
-      title: "FTTRESP lança nova plataforma digital com Web TV, Rádio Web 24h e Central de Sindicatos",
-      slug: "fttresp-lanca-nova-plataforma-digital",
-      category: "Institucional",
-      summary: "Modernização completa da comunicação beneficia mais de 1,5 milhão de trabalhadores rodoviários e 97 sindicatos filiados no estado de SP.",
-      content: "<p>A Federação dos Trabalhadores em Transportes Rodoviários do Estado de São Paulo (FTTRESP) anuncia o lançamento oficial do seu novo portal web integrado.</p>",
-      imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
-      date: "2026-08-14",
-      author: "Redação FTTRESP",
-      status: "PUBLICADO",
-      views: 3427,
-      waShares: 120,
-      fbShares: 45,
-      linkCopies: 28
-    },
-    {
-      id: "news-2",
-      title: "Campanha Salarial 2026/2027: FTTRESP mobiliza categoria pelo reajuste com ganho real",
-      slug: "campanha-salarial-2026-2027",
-      category: "Campanha Salarial",
-      summary: "Diretoria reuniu lideranças sindicais em plenária estadual para definir pauta unificada de reivindicações.",
-      content: "<p>Em plenária realizada no auditório da sede em São Paulo, presidentes e diretores dos 97 sindicatos rodoviários filiados aprovaram a pauta unificada de reivindicações da Campanha Salarial 2026/2027.</p>",
-      imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1200&q=80",
-      date: "2026-08-12",
-      author: "Imprensa FTTRESP",
-      status: "PUBLICADO",
-      views: 2633,
-      waShares: 95,
-      fbShares: 32,
-      linkCopies: 18
-    },
-    {
-      id: "news-3",
-      title: "Segurança e Condições de Trabalho: FTTRESP fiscaliza terminais e garagens de ônibus",
-      slug: "fiscalizacao-terminais-garagens",
-      category: "Segurança e Saúde",
-      summary: "Equipes de fiscalização avaliam salas de descanso, pontos de apoio e instalações sanitárias para os motoristas.",
-      content: "<p>Com o objetivo de garantir a dignidade dos trabalhadores rodoviários no exercício da profissão, a FTTRESP intensificou as vistorias técnicas nos pontos finais.</p>",
-      imageUrl: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80",
-      date: "2026-08-10",
-      author: "Departamento de Segurança",
-      status: "PUBLICADO",
-      views: 1873,
-      waShares: 64,
-      fbShares: 19,
-      linkCopies: 12
-    }
-  ],
+  news: [],
   jornais: [
   {
     "id": "jornal-real-1",

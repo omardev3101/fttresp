@@ -55,7 +55,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
     }
   ];
 
-  const displayNewsList = (news && news.length > 0 ? news : defaultNews).filter(n => n.status !== 'RASCUNHO');
+  const displayNewsList = (news || []).filter(n => n.status !== 'RASCUNHO');
 
   const filteredNews = newsFilter === 'Todas' 
     ? displayNewsList 
@@ -585,34 +585,40 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {currentNewsItems.map((item, idx) => (
-            <div key={item.id || `news-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-zinc-200 shadow-md hover-lift flex flex-col justify-between hover:border-red-600">
-              <div>
-                <div className="relative aspect-video overflow-hidden">
-                  <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
-                  <span className="absolute top-2.5 left-2.5 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded uppercase shadow-md">
-                    {item.category}
-                  </span>
+        {currentNewsItems.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {currentNewsItems.map((item, idx) => (
+              <div key={item.id || `news-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-zinc-200 shadow-md hover-lift flex flex-col justify-between hover:border-red-600">
+                <div>
+                  <div className="relative aspect-video overflow-hidden">
+                    <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                    <span className="absolute top-2.5 left-2.5 bg-red-600 text-white text-[9px] font-black px-2.5 py-1 rounded uppercase shadow-md">
+                      {item.category}
+                    </span>
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <div className="text-[11px] text-zinc-500 font-medium">{item.date} • Por {item.author}</div>
+                    <h3 className="font-extrabold text-black text-base leading-snug hover:text-red-600 transition line-clamp-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-zinc-600 text-xs line-clamp-3 leading-relaxed">
+                      {item.summary}
+                    </p>
+                  </div>
                 </div>
-                <div className="p-5 space-y-2">
-                  <div className="text-[11px] text-zinc-500 font-medium">{item.date} • Por {item.author}</div>
-                  <h3 className="font-extrabold text-black text-base leading-snug hover:text-red-600 transition line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-zinc-600 text-xs line-clamp-3 leading-relaxed">
-                    {item.summary}
-                  </p>
+                <div className="p-5 pt-0">
+                  <button className="text-red-600 font-bold text-xs flex items-center gap-1 hover:gap-1.5 transition">
+                    Ler Matéria Completa <ArrowRight size={12} />
+                  </button>
                 </div>
               </div>
-              <div className="p-5 pt-0">
-                <button className="text-red-600 font-bold text-xs flex items-center gap-1 hover:gap-1.5 transition">
-                  Ler Matéria Completa <ArrowRight size={12} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-zinc-50 p-8 rounded-2xl border border-zinc-200 text-center text-xs font-bold text-zinc-500 uppercase">
+            Nenhuma notícia publicada no momento. Acesse o Painel Admin para cadastrar matérias ou sincronizar notícias da web.
+          </div>
+        )}
 
         {/* CONTROLES DE PAGINAÇÃO COMPACTA DE NOTÍCIAS */}
         {filteredNews.length > 0 && (
