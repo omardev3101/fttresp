@@ -138,12 +138,30 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     }
   };
 
-  const activeItems = getActiveItems();
+  const handleClearDrafts = async () => {
+    const draftCount = (news || []).filter(n => n.status === 'RASCUNHO').length;
+    if (draftCount === 0) {
+      alert('Não há nenhum rascunho pendente para ser descartado.');
+      return;
+    }
+    if (!window.confirm(`Confirma a exclusão de todos os ${draftCount} rascunhos pendentes de aprovação?`)) return;
+    try {
+      const res = await api.delete('/news/clear-drafts');
+      alert(res.data.message || 'Rascunhos descartados com sucesso!');
+      await refreshData();
+      await loadTabCollections();
+    } catch (err) {
+      alert('Erro ao limpar rascunhos: ' + (err.response?.data?.error || err.message));
+    }
+  };
 
-  const totalViews = activeItems.reduce((acc, curr) => acc + (curr.views || 1420), 0);
-  const totalWaShares = activeItems.reduce((acc, curr) => acc + (curr.waShares || 48), 0);
-  const totalFbShares = activeItems.reduce((acc, curr) => acc + (curr.fbShares || 18), 0);
-  const totalLinkCopies = activeItems.reduce((acc, curr) => acc + (curr.linkCopies || 12), 0);
+  const activeItems = getActiveItems();
+  const publishedItems = activeItems.filter(item => item.status === 'PUBLICADO' || !item.status);
+
+  const totalViews = publishedItems.reduce((acc, curr) => acc + (curr.views || 0), 0);
+  const totalWaShares = publishedItems.reduce((acc, curr) => acc + (curr.waShares || 0), 0);
+  const totalFbShares = publishedItems.reduce((acc, curr) => acc + (curr.fbShares || 0), 0);
+  const totalLinkCopies = publishedItems.reduce((acc, curr) => acc + (curr.linkCopies || 0), 0);
 
   // Open Add/Edit Modal
   const handleOpenModal = (item = null) => {
@@ -440,12 +458,15 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
               </div>
 
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => loadTabCollections()}
-                  className="bg-red-50 text-red-600 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
-                >
-                  <Trash2 size={14} /> Limpar Rascunhos
-                </button>
+                {activeTab === 'NOTÍCIAS' && (
+                  <button 
+                    onClick={handleClearDrafts}
+                    className="bg-red-50 text-red-600 hover:bg-red-100 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-red-200 transition flex items-center gap-1.5"
+                    title="Descartar todas as notícias pendentes capturadas da web"
+                  >
+                    <Trash2 size={14} /> Limpar Rascunhos Web
+                  </button>
+                )}
                 <button 
                   disabled={syncingWebNews}
                   onClick={handleSyncWebNews}

@@ -204,6 +204,15 @@ const parseRssItems = (xml, defaultCategory, imageFallback) => {
   return items;
 };
 
+app.delete('/api/news/clear-drafts', authMiddleware, (req, res) => {
+  const db = store.get();
+  const initialCount = (db.news || []).length;
+  db.news = (db.news || []).filter(n => n.status !== 'RASCUNHO');
+  const removedCount = initialCount - db.news.length;
+  store.save(db);
+  res.json({ success: true, message: `${removedCount} rascunhos pendentes foram descartados com sucesso!`, removedCount });
+});
+
 app.delete('/api/news/:id', authMiddleware, (req, res) => {
   const db = store.get();
   db.news = db.news.filter(n => n.id !== req.params.id);
