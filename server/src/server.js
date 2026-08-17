@@ -389,6 +389,11 @@ app.delete('/api/tv/channels/:id', authMiddleware, (req, res) => {
   res.json({ message: 'Canal removido com sucesso!' });
 });
 
+app.get('/api/tv/schedules', (req, res) => {
+  const db = store.get();
+  res.json(db.tvSchedules || []);
+});
+
 // GET & CRUD Tickers / Letreiros da TV
 app.get('/api/tv/tickers', (req, res) => {
   const db = store.get();

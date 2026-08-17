@@ -48,12 +48,12 @@ export default function App() {
       ]);
 
       if (resSet.data) setSettings(resSet.data);
-      if (resBanners.data && resBanners.data.length > 0) setBanners(resBanners.data);
-      if (resNews.data && resNews.data.length > 0) setNews(resNews.data);
-      if (resJor.data && resJor.data.length > 0) setJornais(resJor.data);
-      if (resUnions.data && resUnions.data.length > 0) setUnions(resUnions.data);
-      if (resAgr.data && resAgr.data.length > 0) setAgreements(resAgr.data);
-      if (resTv.data && resTv.data.length > 0) setTvChannels(resTv.data);
+      if (Array.isArray(resBanners.data)) setBanners(resBanners.data);
+      if (Array.isArray(resNews.data)) setNews(resNews.data);
+      if (Array.isArray(resJor.data)) setJornais(resJor.data);
+      if (Array.isArray(resUnions.data)) setUnions(resUnions.data);
+      if (Array.isArray(resAgr.data)) setAgreements(resAgr.data);
+      if (Array.isArray(resTv.data)) setTvChannels(resTv.data);
       if (resTvSch.data) setTvSchedules(resTvSch.data);
       if (resRadio.data) setRadioConfig(resRadio.data);
     } catch (err) {
