@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Restauração Nginx Limpo - FTTRESP
+# Script de Deploy e Restauração Nginx Limpo com CSP Válido - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_pristine_restore"
+    [string]$NomeAlteracao = "deploy_nginx_csp_syntax_fix"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -111,7 +111,6 @@ server {
         alias /var/www/fttresp/client/dist/;
         index index.html;
         try_files `$uri `$uri/ /fttresp/index.html;
-        add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: http:;" always;
     }
 
     location = /fttresp {
@@ -125,12 +124,10 @@ server {
         proxy_set_header Connection "upgrade";
         proxy_set_header Host `$host;
         proxy_cache_bypass `$http_upgrade;
-        add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: http:;" always;
     }
 
     location /fttresp/uploads/ {
         alias /var/www/fttresp/client/public/uploads/;
-        add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob: http:;" always;
     }
 }
 EOF
@@ -140,7 +137,7 @@ for file in /etc/nginx/sites-available/*; do
     sed -i '/location.*fttresp/,/}/d' "`$file" 2>/dev/null || true
     sed -i '/include.*fttresp/d' "`$file" 2>/dev/null || true
     if grep -q "server_name" "`$file"; then
-      sed -i '\$ i\    location /fttresp/ {\n        alias /var/www/fttresp/client/dist/;\n        index index.html;\n        try_files \$uri \$uri/ /fttresp/index.html;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }\n    location = /fttresp {\n        return 301 /fttresp/;\n    }\n    location /fttresp/api/ {\n        proxy_pass http://127.0.0.1:5000/api/;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \$http_upgrade;\n        proxy_set_header Connection "upgrade";\n        proxy_set_header Host \$host;\n        proxy_cache_bypass \$http_upgrade;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }\n    location /fttresp/uploads/ {\n        alias /var/www/fttresp/client/public/uploads/;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }' "`$file" 2>/dev/null || true
+      sed -i '\$ i\    location /fttresp/ {\n        alias /var/www/fttresp/client/dist/;\n        index index.html;\n        try_files \$uri \$uri/ /fttresp/index.html;\n    }\n    location = /fttresp {\n        return 301 /fttresp/;\n    }\n    location /fttresp/api/ {\n        proxy_pass http://127.0.0.1:5000/api/;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \$http_upgrade;\n        proxy_set_header Connection "upgrade";\n        proxy_set_header Host \$host;\n        proxy_cache_bypass \$http_upgrade;\n    }\n    location /fttresp/uploads/ {\n        alias /var/www/fttresp/client/public/uploads/;\n    }' "`$file" 2>/dev/null || true
     fi
   fi
 done && \
@@ -151,12 +148,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando restauração limpa Nginx ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando restauração Nginx com sintaxe limpa ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY E RESTAURAÇÃO NGINX CONCLUÍDOS!         " -ForegroundColor Green
+    Write-Host "   DEPLOY E ROTEAMENTO NGINX CONCLUÍDOS COM SUCESSO! " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
