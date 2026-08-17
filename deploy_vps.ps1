@@ -5,7 +5,7 @@
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_kinghost_official_port_5005"
+    [string]$NomeAlteracao = "deploy_nginx_purge_orphans_port_5005"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Configuração Oficial Nginx Kinghost na Porta 5005)
+# 2. Comando Remoto para o VPS (Remoção de Vhosts Órfãos e Configuração Oficial Nginx Kinghost)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -101,7 +101,7 @@ http {
 	include /etc/nginx/sites-enabled/*;
 }
 EOF
-rm -f /etc/nginx/conf.d/fttresp* /etc/nginx/snippets/fttresp* && \
+rm -f /etc/nginx/sites-enabled/fttresp /etc/nginx/sites-available/fttresp /etc/nginx/conf.d/fttresp* /etc/nginx/snippets/fttresp* && \
 cat << 'EOF' > /etc/nginx/sites-available/default
 server {
     server_name pessistemas.vps-kinghost.net 187.45.255.59;
