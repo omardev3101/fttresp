@@ -122,6 +122,22 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     );
   };
 
+  const [syncingWebNews, setSyncingWebNews] = useState(false);
+
+  const handleSyncWebNews = async () => {
+    setSyncingWebNews(true);
+    try {
+      const res = await api.post('/news/sync-web');
+      alert(res.data.message || 'Notícias sincronizadas da web com sucesso!');
+      await refreshData();
+      await loadTabCollections();
+    } catch (err) {
+      alert('Erro ao sincronizar notícias da web: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setSyncingWebNews(false);
+    }
+  };
+
   const activeItems = getActiveItems();
 
   const totalViews = activeItems.reduce((acc, curr) => acc + (curr.views || 1420), 0);
@@ -426,10 +442,12 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                   <Trash2 size={14} /> Limpar Rascunhos
                 </button>
                 <button 
-                  onClick={() => loadTabCollections()}
-                  className="bg-black hover:bg-zinc-800 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                  disabled={syncingWebNews}
+                  onClick={handleSyncWebNews}
+                  className="bg-black hover:bg-zinc-800 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50"
                 >
-                  <RefreshCw size={14} /> Sincronizar com Web
+                  <RefreshCw size={14} className={syncingWebNews ? 'animate-spin' : ''} />
+                  {syncingWebNews ? 'Sincronizando...' : 'Sincronizar com Web'}
                 </button>
                 <button 
                   onClick={() => handleOpenModal()}
