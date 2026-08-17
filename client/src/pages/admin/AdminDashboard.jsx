@@ -3,7 +3,7 @@ import {
   Search, Plus, RefreshCw, Trash2, Edit, Pause, Play, Eye, Share2, 
   MessageSquare, Copy, LogOut, CheckCircle2, AlertCircle, FileText, 
   Newspaper, DollarSign, Tag, Layers, TrendingUp, X, Filter, UserCheck, Shield, Upload, Link as LinkIcon, Settings, Globe, Phone, Mail, MapPin, Save,
-  Tv, Clock, Type, Megaphone, Monitor, Radio, Activity
+  Tv, Clock, Type, Megaphone, Monitor, Radio, Activity, Building2
 } from 'lucide-react';
 import api from '../../services/api';
 import TvManagementTab from './TvManagementTab';
@@ -735,105 +735,107 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                     />
                   </div>
 
-              {activeTab === 'TVS' && (
-                <div className="flex items-center gap-3 bg-red-50 p-3 rounded-2xl border border-red-200">
-                  <input 
-                    type="checkbox" 
-                    id="showOnHomeToggle"
-                    checked={formData.showOnHome !== false}
-                    onChange={(e) => setFormData({ ...formData, showOnHome: e.target.checked })}
-                    className="w-5 h-5 accent-red-600 rounded cursor-pointer"
-                  />
-                  <label htmlFor="showOnHomeToggle" className="text-xs font-black text-black uppercase cursor-pointer">
-                    Transmitir este Canal na HomePage do Site? (Sim / Não)
-                  </label>
-                </div>
-              )}
+                  {activeTab === 'TVS' && (
+                    <div className="flex items-center gap-3 bg-red-50 p-3 rounded-2xl border border-red-200">
+                      <input 
+                        type="checkbox" 
+                        id="showOnHomeToggle"
+                        checked={formData.showOnHome !== false}
+                        onChange={(e) => setFormData({ ...formData, showOnHome: e.target.checked })}
+                        className="w-5 h-5 accent-red-600 rounded cursor-pointer"
+                      />
+                      <label htmlFor="showOnHomeToggle" className="text-xs font-black text-black uppercase cursor-pointer">
+                        Transmitir este Canal na HomePage do Site? (Sim / Não)
+                      </label>
+                    </div>
+                  )}
 
-              {/* SELETOR DUPLO: UPLOAD DE ARQUIVO OU LINK URL */}
-              <div className="space-y-2 bg-zinc-50 p-4 rounded-2xl border border-zinc-200">
-                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
-                  <span className="font-black text-black uppercase">Mídia / Vídeo da Transmissão:</span>
-                  
-                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-200">
-                    <button
-                      type="button"
-                      onClick={() => setUploadMode('file')}
-                      className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
-                        uploadMode === 'file' ? 'bg-red-600 text-white shadow-sm' : 'text-black hover:bg-zinc-100'
-                      }`}
-                    >
-                      <Upload size={12} /> Subir Arquivo do PC
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setUploadMode('link')}
-                      className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
-                        uploadMode === 'link' ? 'bg-red-600 text-white shadow-sm' : 'text-black hover:bg-zinc-100'
-                      }`}
-                    >
-                      <LinkIcon size={12} /> Link / URL Externa
-                    </button>
-                  </div>
-                </div>
+                  {/* SELETOR DUPLO: UPLOAD DE ARQUIVO OU LINK URL */}
+                  <div className="space-y-2 bg-zinc-50 p-4 rounded-2xl border border-zinc-200">
+                    <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                      <span className="font-black text-black uppercase">Mídia / Vídeo da Transmissão:</span>
+                      
+                      <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-zinc-200">
+                        <button
+                          type="button"
+                          onClick={() => setUploadMode('file')}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
+                            uploadMode === 'file' ? 'bg-red-600 text-white shadow-sm' : 'text-black hover:bg-zinc-100'
+                          }`}
+                        >
+                          <Upload size={12} /> Subir Arquivo do PC
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUploadMode('link')}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-extrabold uppercase flex items-center gap-1 transition ${
+                            uploadMode === 'link' ? 'bg-red-600 text-white shadow-sm' : 'text-black hover:bg-zinc-100'
+                          }`}
+                        >
+                          <LinkIcon size={12} /> Link / URL Externa
+                        </button>
+                      </div>
+                    </div>
 
-                {uploadMode === 'file' ? (
-                  <div className="space-y-2 pt-1">
-                    <label className="block text-[11px] text-zinc-600">
-                      Selecione um arquivo de mídia (MP4, WEBM, JPG, PNG) do seu computador:
-                    </label>
-                    <input 
-                      type="file" 
-                      accept="video/*,image/*,application/pdf"
-                      onChange={(e) => handleFileUpload(e, 'imageUrl')}
-                      className="block w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-red-600 file:text-white cursor-pointer"
-                    />
-                    {uploadingFile && <div className="text-red-600 font-bold text-[10px]">Enviando arquivo ao servidor...</div>}
-                    {uploadedUrl && (
-                      <div className="flex items-center gap-1 text-black bg-zinc-100 p-2 rounded-xl border border-zinc-300 text-[11px]">
-                        <CheckCircle2 size={14} className="text-red-600" /> <strong>Arquivo Carregado:</strong> {uploadedUrl}
+                    {uploadMode === 'file' ? (
+                      <div className="space-y-2 pt-1">
+                        <label className="block text-[11px] text-zinc-600">
+                          Selecione um arquivo de mídia (MP4, WEBM, JPG, PNG) do seu computador:
+                        </label>
+                        <input 
+                          type="file" 
+                          accept="video/*,image/*,application/pdf"
+                          onChange={(e) => handleFileUpload(e, 'imageUrl')}
+                          className="block w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-red-600 file:text-white cursor-pointer"
+                        />
+                        {uploadingFile && <div className="text-red-600 font-bold text-[10px]">Enviando arquivo ao servidor...</div>}
+                        {uploadedUrl && (
+                          <div className="flex items-center gap-1 text-black bg-zinc-100 p-2 rounded-xl border border-zinc-300 text-[11px]">
+                            <CheckCircle2 size={14} className="text-red-600" /> <strong>Arquivo Carregado:</strong> {uploadedUrl}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2 pt-1">
+                        <label className="block text-[11px] text-zinc-600">Informe a URL / Link externo do vídeo (YouTube/HLS/MP4):</label>
+                        <input 
+                          type="text" 
+                          value={formData.defaultVideoUrl || formData.imageUrl || ''}
+                          onChange={(e) => {
+                            setFormData({ ...formData, defaultVideoUrl: e.target.value, imageUrl: e.target.value });
+                            setUploadedUrl(e.target.value);
+                          }}
+                          className="w-full p-2.5 rounded-xl bg-white border border-zinc-200 text-black font-medium"
+                          placeholder="https://www.youtube.com/embed/..."
+                        />
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="space-y-2 pt-1">
-                    <label className="block text-[11px] text-zinc-600">Informe a URL / Link externo do vídeo (YouTube/HLS/MP4):</label>
-                    <input 
-                      type="text" 
-                      value={formData.defaultVideoUrl || formData.imageUrl || ''}
-                      onChange={(e) => {
-                        setFormData({ ...formData, defaultVideoUrl: e.target.value, imageUrl: e.target.value });
-                        setUploadedUrl(e.target.value);
-                      }}
-                      className="w-full p-2.5 rounded-xl bg-white border border-zinc-200 text-black font-medium"
-                      placeholder="https://www.youtube.com/embed/..."
-                    />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-black uppercase mb-1">Categoria / Programa Atual:</label>
+                      <input 
+                        type="text" 
+                        value={formData.currentShow || formData.category || 'Jornalismo'}
+                        onChange={(e) => setFormData({ ...formData, currentShow: e.target.value, category: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
+                        placeholder="Ex: Jornal Rodoviário SP"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-black uppercase mb-1">Badge de Destaque:</label>
+                      <input 
+                        type="text" 
+                        value={formData.badge || 'AO VIVO'}
+                        onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
+                        placeholder="Ex: AO VIVO, ESPECIAL"
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-black uppercase mb-1">Categoria / Programa Atual:</label>
-                  <input 
-                    type="text" 
-                    value={formData.currentShow || formData.category || 'Jornalismo'}
-                    onChange={(e) => setFormData({ ...formData, currentShow: e.target.value, category: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
-                    placeholder="Ex: Jornal Rodoviário SP"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-black uppercase mb-1">Badge de Destaque:</label>
-                  <input 
-                    type="text" 
-                    value={formData.badge || 'AO VIVO'}
-                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black"
-                    placeholder="Ex: AO VIVO, ESPECIAL"
-                  />
-                </div>
+                </>
               )}
 
               <div className="flex justify-end gap-2 pt-2">
