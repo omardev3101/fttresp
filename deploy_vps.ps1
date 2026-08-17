@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Limpeza Total Nginx - FTTRESP
+# Script de Deploy e Restauração Nginx Limpo - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_purge_and_fix"
+    [string]$NomeAlteracao = "deploy_nginx_pristine_restore"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Limpeza Nginx e Configuração Definitiva)
+# 2. Comando Remoto para o VPS (Restauração Nginx Pristine e Configuração do Site)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -71,7 +71,36 @@ JWT_SECRET=fttresp-super-secret-key-2026
 EOF
 node src/data/seed_pg.js && \
 cd ../client && npm install && npm run build && \
-grep -v "fttresp" /etc/nginx/nginx.conf > /tmp/nginx.conf.clean && mv /tmp/nginx.conf.clean /etc/nginx/nginx.conf && \
+cat << 'EOF' > /etc/nginx/nginx.conf
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+	worker_connections 768;
+}
+
+http {
+	sendfile on;
+	tcp_nopush on;
+	types_hash_max_size 2048;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_prefer_server_ciphers on;
+
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log;
+
+	gzip on;
+
+	include /etc/nginx/conf.d/*.conf;
+	include /etc/nginx/sites-enabled/*;
+}
+EOF
 rm -f /etc/nginx/conf.d/fttresp* /etc/nginx/snippets/fttresp* && \
 cat << 'EOF' > /etc/nginx/sites-available/fttresp
 server {
@@ -108,9 +137,10 @@ EOF
 ln -sf /etc/nginx/sites-available/fttresp /etc/nginx/sites-enabled/fttresp && \
 for file in /etc/nginx/sites-available/*; do
   if [ -f "`$file" ] && [ "`$file" != "/etc/nginx/sites-available/fttresp" ]; then
-    grep -v "fttresp" "`$file" > /tmp/site.clean && mv /tmp/site.clean "`$file"
+    sed -i '/location.*fttresp/,/}/d' "`$file" 2>/dev/null || true
+    sed -i '/include.*fttresp/d' "`$file" 2>/dev/null || true
     if grep -q "server_name" "`$file"; then
-      sed -i '/server_name/a \    location /fttresp/ {\n        alias /var/www/fttresp/client/dist/;\n        index index.html;\n        try_files \$uri \$uri/ /fttresp/index.html;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }\n    location = /fttresp {\n        return 301 /fttresp/;\n    }\n    location /fttresp/api/ {\n        proxy_pass http://127.0.0.1:5000/api/;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \$http_upgrade;\n        proxy_set_header Connection "upgrade";\n        proxy_set_header Host \$host;\n        proxy_cache_bypass \$http_upgrade;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }\n    location /fttresp/uploads/ {\n        alias /var/www/fttresp/client/public/uploads/;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }' "`$file"
+      sed -i '\$ i\    location /fttresp/ {\n        alias /var/www/fttresp/client/dist/;\n        index index.html;\n        try_files \$uri \$uri/ /fttresp/index.html;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }\n    location = /fttresp {\n        return 301 /fttresp/;\n    }\n    location /fttresp/api/ {\n        proxy_pass http://127.0.0.1:5000/api/;\n        proxy_http_version 1.1;\n        proxy_set_header Upgrade \$http_upgrade;\n        proxy_set_header Connection "upgrade";\n        proxy_set_header Host \$host;\n        proxy_cache_bypass \$http_upgrade;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }\n    location /fttresp/uploads/ {\n        alias /var/www/fttresp/client/public/uploads/;\n        add_header Content-Security-Policy "default-src '\''self'\'' '\''unsafe-inline'\'' '\''unsafe-eval'\'' https: data: blob: http:;" always;\n    }' "`$file" 2>/dev/null || true
     fi
   fi
 done && \
@@ -121,12 +151,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando limpeza Nginx total ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando restauração limpa Nginx ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY E PURGA NGINX CONCLUÍDOS COM SUCESSO!   " -ForegroundColor Green
+    Write-Host "   DEPLOY E RESTAURAÇÃO NGINX CONCLUÍDOS!         " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
