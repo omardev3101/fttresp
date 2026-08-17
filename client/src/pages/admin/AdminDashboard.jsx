@@ -349,7 +349,8 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
           })}
         </div>
 
-        {/* 3. CONTEÚDO EXCLUS        {activeTab === 'TVS' ? (
+        {/* 3. CONTEÚDO EXCLUSIVO DA ABA SELECIONADA */}
+        {activeTab === 'TVS' ? (
           <TvManagementTab 
             channelsList={channelsList} 
             handleOpenModal={handleOpenModal} 
@@ -357,13 +358,6 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
             handleToggleStatus={handleToggleStatus} 
             handleDelete={handleDelete} 
           />
-        ) : activeTab === 'SITE' ? (                 </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
         ) : activeTab === 'SITE' ? (
           <SiteSettingsTab 
             siteSettings={siteSettings}
