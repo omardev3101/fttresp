@@ -25,18 +25,24 @@ export default function Header({ currentPage, setCurrentPage, settings }) {
       ]
     },
     { title: '97 Sindicatos', path: 'unions', badge: 'SP' },
-    { title: 'Pisos Salariais', path: 'salary', badge: '2026' },
-    { title: 'Convenções', path: 'agreements' },
+    {
+      title: 'Direitos & Acordos',
+      isMega: true,
+      subItems: [
+        { label: 'Pisos Salariais 2026', path: 'salary', icon: Award, badge: '2026' },
+        { label: 'Convenções Coletivas', path: 'agreements', icon: FileText },
+        { label: 'Simulador de Direitos', path: 'calculator', icon: Calculator }
+      ]
+    },
     {
       title: 'Mídia & Streaming',
       isMega: true,
       subItems: [
-        { label: 'Web TV Multi-Canais', path: 'webtv', icon: Tv, badge: 'Ao Vivo' },
-        { label: 'Sindflix (Vídeos)', path: 'webtv', icon: PlaySquare },
-        { label: 'Rádio Web 24h & AutoDJ', path: 'radioweb', icon: Radio, badge: 'Continuous' }
+        { label: 'Web TV Ao Vivo', path: 'webtv', icon: Tv, badge: 'Ao Vivo' },
+        { label: 'Rádio Web 24h & AutoDJ', path: 'radioweb', icon: Radio, badge: 'Continuous' },
+        { label: 'Sindflix (Vídeos & Acervo)', path: 'webtv', icon: PlaySquare }
       ]
     },
-    { title: 'Simulador de Direitos', path: 'calculator' },
     { title: 'Notícias', path: 'home' },
     { title: 'Contato', path: 'contact' }
   ];
