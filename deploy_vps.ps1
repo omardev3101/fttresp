@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Configuração PostgreSQL + Nginx no VPS - FTTRESP
+# Script de Deploy e Configuração PostgreSQL + Nginx (Subcaminho /fttresp) - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
-# Repositório: https://github.com/omardev3101/fttresp.git
+# URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_postgresql_nginx_vps"
+    [string]$NomeAlteracao = "deploy_fttresp_subpath"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -30,7 +30,7 @@ $commitMsg = "${NomeAlteracao}_${dateStr}_${timeStr}_v001"
 
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "   FTTRESP - Sincronização GitHub e Deploy VPS   " -ForegroundColor Cyan
-Write-Host "   Banco de Dados: PostgreSQL (fttresp_db)       " -ForegroundColor Cyan
+Write-Host "   Domínio: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "Commit Message: $commitMsg" -ForegroundColor Yellow
 Write-Host "VPS IP Target: $vpsIP ($vpsUser)" -ForegroundColor Yellow
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Reverse Proxy)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Reverse Proxy com subcaminho /fttresp)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -96,6 +96,25 @@ server {
     location /uploads/ {
         alias /var/www/fttresp/client/public/uploads/;
     }
+
+    location /fttresp {
+        alias /var/www/fttresp/client/dist;
+        index index.html;
+        try_files \$uri \$uri/ /fttresp/index.html;
+    }
+
+    location /fttresp/api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    location /fttresp/uploads/ {
+        alias /var/www/fttresp/client/public/uploads/;
+    }
 }
 EOF
 sudo nginx -t && sudo systemctl reload nginx && \
@@ -105,14 +124,13 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando configuração do PostgreSQL & Nginx ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e executando configuração do Nginx para /fttresp ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY POSTGRESQL E NGINX CONCLUÍDOS NO VPS!   " -ForegroundColor Green
-    Write-Host "   Acesse o Portal em: http://$vpsIP               " -ForegroundColor Green
-    Write-Host "   Acesse a API em: http://$vpsIP/api             " -ForegroundColor Green
+    Write-Host "   DEPLOY HTTPS /fttresp CONCLUÍDO COM SUCESSO!   " -ForegroundColor Green
+    Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
     Write-Host "Plink não localizado em $plinkPath." -ForegroundColor Yellow

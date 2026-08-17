@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const isSubpath = typeof window !== 'undefined' && window.location.pathname.startsWith('/fttresp');
+
 const api = axios.create({
-  baseURL: '/api'
+  baseURL: isSubpath ? '/fttresp/api' : '/api'
 });
 
 // Adiciona token JWT em requisições autenticadas se disponível
