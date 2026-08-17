@@ -118,7 +118,8 @@ app.post('/api/auth/login', (req, res) => {
 // GET & CRUD Notícias
 app.get('/api/news', (req, res) => {
   const db = store.get();
-  res.json(db.news || []);
+  const list = [...(db.news || [])].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  res.json(list);
 });
 
 app.post('/api/news', authMiddleware, (req, res) => {
@@ -130,8 +131,21 @@ app.post('/api/news', authMiddleware, (req, res) => {
     ...req.body
   };
   db.news.unshift(newItem);
+  db.news.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   store.save(db);
   res.status(201).json(newItem);
+});
+
+app.put('/api/news/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  const idx = (db.news || []).findIndex(n => n.id === req.params.id);
+  if (idx !== -1) {
+    db.news[idx] = { ...db.news[idx], ...req.body };
+    db.news.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    store.save(db);
+    return res.json(db.news[idx]);
+  }
+  res.status(404).json({ error: 'Notícia não encontrada.' });
 });
 
 const https = require('https');
@@ -245,6 +259,7 @@ app.post('/api/news/sync-web', authMiddleware, async (req, res) => {
     }
 
     if (addedCount > 0) {
+      db.news.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       store.save(db);
     }
 

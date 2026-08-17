@@ -308,19 +308,24 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     }
   };
 
-  const handleToggleStatus = async (item) => {
-    const newStatus = item.status === 'PAUSADO' ? 'PUBLICADO' : 'PAUSADO';
+  const handleToggleStatus = async (target, currentStatus) => {
+    const item = typeof target === 'object' ? target : { id: target, status: currentStatus };
+    if (!item || !item.id) {
+      console.error('Erro: ID inválido em handleToggleStatus', target);
+      return;
+    }
+    const newStatus = item.status === 'PUBLICADO' ? 'RASCUNHO' : 'PUBLICADO';
     try {
-      if (activeTab === 'NOTÍCIAS') await api.put(`/news/${item.id}`, { ...item, status: newStatus });
-      else if (activeTab === 'JORNAIS') await api.put(`/jornais/${item.id}`, { ...item, status: newStatus });
-      else if (activeTab === 'TVS') await api.put(`/tv/channels/${item.id}`, { ...item, status: newStatus });
-      else if (activeTab === 'CATEGORIAS') await api.put(`/categorias/${item.id}`, { ...item, status: newStatus });
+      if (activeTab === 'NOTÍCIAS') await api.put(`/news/${item.id}`, { status: newStatus });
+      else if (activeTab === 'JORNAIS') await api.put(`/jornais/${item.id}`, { status: newStatus });
+      else if (activeTab === 'TVS') await api.put(`/tv/channels/${item.id}`, { status: newStatus });
+      else if (activeTab === 'CATEGORIAS') await api.put(`/categorias/${item.id}`, { status: newStatus });
       else if (activeTab === 'PISOS') setSalariosList(salariosList.map(s => s.id === item.id ? { ...s, status: newStatus } : s));
 
       await refreshData();
       await loadTabCollections();
     } catch (err) {
-      alert('Erro ao alterar status.');
+      alert('Erro ao alterar status: ' + (err.response?.data?.error || err.message));
     }
   };
 
