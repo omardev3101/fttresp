@@ -9,12 +9,14 @@ import api from '../../services/api';
 import TvManagementTab from './TvManagementTab';
 import SiteSettingsTab from './SiteSettingsTab';
 import RadioManagementTab from './RadioManagementTab';
+import UnionsManagementTab from './UnionsManagementTab';
 
-export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], tvChannels = [], tvSchedules = [], settings: initialSettings }) {
+export default function AdminDashboard({ user, onLogout, refreshData, news = [], agreements = [], tvChannels = [], tvSchedules = [], settings: initialSettings, unions = [] }) {
   const [activeTab, setActiveTab] = useState('NOTÍCIAS');
   const [searchTerm, setSearchTerm] = useState('');
   
   // Custom Data States
+  const [unionsList, setUnionsList] = useState(unions || []);
   const [jornaisList, setJornaisList] = useState([]);
   const [categoriasList, setCategoriasList] = useState([]);
   const [salariosList, setSalariosList] = useState([]);
@@ -65,16 +67,18 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   // Load custom collections
   const loadTabCollections = async () => {
     try {
-      const [resJornais, resCat, resSet, resTv] = await Promise.all([
+      const [resJornais, resCat, resSet, resTv, resUnions] = await Promise.all([
         api.get('/jornais').catch(() => ({ data: [] })),
         api.get('/categorias').catch(() => ({ data: [] })),
         api.get('/settings').catch(() => ({ data: {} })),
-        api.get('/tv/channels').catch(() => ({ data: [] }))
+        api.get('/tv/channels').catch(() => ({ data: [] })),
+        api.get('/unions').catch(() => ({ data: [] }))
       ]);
       setJornaisList(resJornais.data || []);
       setCategoriasList(resCat.data || []);
       if (resSet.data) setSiteSettings(resSet.data);
       if (resTv.data) setChannelsList(resTv.data);
+      if (resUnions.data) setUnionsList(resUnions.data);
       
       setSalariosList([
         { id: 's-1', title: 'Motorista de Transporte Urbano SP', category: 'Urbano', value: 'R$ 3.850,00', date: '2026-01-01', status: 'PUBLICADO', views: 4120, waShares: 230, fbShares: 85, linkCopies: 52 },
@@ -92,6 +96,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
 
   const tabOptions = [
     { id: 'NOTÍCIAS', label: 'NOTÍCIAS', icon: Newspaper },
+    { id: 'SINDICATOS', label: '97 SINDICATOS', icon: Building2 },
     { id: 'PISOS', label: 'PISOS SALARIAIS', icon: DollarSign },
     { id: 'JORNAIS', label: 'JORNAL & VEÍCULOS', icon: FileText },
     { id: 'TVS', label: 'GESTÃO DE TV', icon: Tv },
@@ -220,10 +225,11 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
   };
 
   // Toggle Transmit on Home for TV Channel
-  const handleToggleHomeTransmit = async (channel) => {
-    const newShowOnHome = channel.showOnHome === false ? true : false;
+  const handleToggleHomeTransmit = async (channelId) => {
     try {
-      await api.put(`/tv/channels/${channel.id}`, { ...channel, showOnHome: newShowOnHome });
+      const channel = channelsList.find(c => c.id === channelId);
+      if (!channel) return;
+      await api.put(`/tv/channels/${channelId}`, { showOnHome: !channel.showOnHome });
       await refreshData();
       await loadTabCollections();
     } catch (err) {
@@ -239,6 +245,9 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
       if (activeTab === 'NOTÍCIAS') {
         if (editingItem) await api.put(`/news/${editingItem.id}`, formData);
         else await api.post('/news', formData);
+      } else if (activeTab === 'SINDICATOS') {
+        if (editingItem) await api.put(`/unions/${editingItem.id}`, formData);
+        else await api.post('/unions', formData);
       } else if (activeTab === 'JORNAIS') {
         if (editingItem) await api.put(`/jornais/${editingItem.id}`, formData);
         else await api.post('/jornais', formData);
@@ -270,6 +279,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
     if (!window.confirm('Confirma a exclusão deste registro?')) return;
     try {
       if (activeTab === 'NOTÍCIAS') await api.delete(`/news/${id}`);
+      else if (activeTab === 'SINDICATOS') await api.delete(`/unions/${id}`);
       else if (activeTab === 'JORNAIS') await api.delete(`/jornais/${id}`);
       else if (activeTab === 'TVS') await api.delete(`/tv/channels/${id}`);
       else if (activeTab === 'CATEGORIAS') await api.delete(`/categorias/${id}`);
@@ -366,7 +376,13 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
         </div>
 
         {/* 3. CONTEÚDO EXCLUSIVO DA ABA SELECIONADA */}
-        {activeTab === 'TVS' ? (
+        {activeTab === 'SINDICATOS' ? (
+          <UnionsManagementTab 
+            unionsList={unionsList} 
+            handleOpenModal={handleOpenModal} 
+            handleDelete={handleDelete} 
+          />
+        ) : activeTab === 'TVS' ? (
           <TvManagementTab 
             channelsList={channelsList} 
             handleOpenModal={handleOpenModal} 
@@ -574,17 +590,150 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
             </div>
 
             <form onSubmit={handleSaveForm} className="p-6 space-y-4 text-xs font-semibold">
-              <div>
-                <label className="block text-black uppercase mb-1">Título / Nome do Canal:</label>
-                <input 
-                  type="text" 
-                  required
-                  value={formData.title || formData.name || ''}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value, name: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
-                  placeholder="Informe o nome do canal ou documento..."
-                />
-              </div>
+              {activeTab === 'SINDICATOS' ? (
+                <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
+                  <div>
+                    <label className="block text-black uppercase mb-1">Nome Completo do Sindicato Filiado:</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={formData.name || ''}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                      placeholder="Ex: Sindicato dos Trabalhadores em Transportes Rodoviários de..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-black uppercase mb-1">Número de Ordem (ex: 1 a 97):</label>
+                      <input 
+                        type="number" 
+                        value={formData.number || ''}
+                        onChange={(e) => setFormData({ ...formData, number: Number(e.target.value) })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                        placeholder="Ex: 98"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-black uppercase mb-1">CNPJ:</label>
+                      <input 
+                        type="text" 
+                        value={formData.cnpj || ''}
+                        onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                        placeholder="00.000.000/0001-00"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-black uppercase mb-1">Cidade / Município Sede:</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.city || ''}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                        placeholder="Ex: Campinas"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-black uppercase mb-1">Região de Atuação:</label>
+                      <input 
+                        type="text" 
+                        value={formData.region || ''}
+                        onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                        placeholder="Ex: Região Metropolitana de Campinas"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-black uppercase mb-1">Nome do Presidente Oficial:</label>
+                    <input 
+                      type="text" 
+                      value={formData.president || ''}
+                      onChange={(e) => setFormData({ ...formData, president: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                      placeholder="Ex: João da Silva"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black uppercase mb-1">Categoria Representada:</label>
+                    <input 
+                      type="text" 
+                      value={formData.category || ''}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                      placeholder="Ex: Rodoviários, Cargas e Urbano"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-black uppercase mb-1">Telefone(s) de Contato:</label>
+                      <input 
+                        type="text" 
+                        value={formData.phone || ''}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                        placeholder="(19) 3456-7890"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-black uppercase mb-1">E-mail de Atendimento:</label>
+                      <input 
+                        type="email" 
+                        value={formData.email || ''}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                        placeholder="contato@sindicato.com.br"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-black uppercase mb-1">Endereço Completo da Sede / Sub-sede:</label>
+                    <input 
+                      type="text" 
+                      value={formData.address || ''}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                      placeholder="Rua / Av., número, Bairro - Cidade/SP - CEP 00000-000"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-black uppercase mb-1">Site Oficial do Sindicato (URL):</label>
+                    <input 
+                      type="url" 
+                      value={formData.website || ''}
+                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                      placeholder="https://www.sindicato.com.br"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-black uppercase mb-1">Título / Nome do Canal:</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={formData.title || formData.name || ''}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value, name: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-black font-bold"
+                      placeholder="Informe o nome do canal ou documento..."
+                    />
+                  </div>
 
               {activeTab === 'TVS' && (
                 <div className="flex items-center gap-3 bg-red-50 p-3 rounded-2xl border border-red-200">
@@ -685,7 +834,7 @@ export default function AdminDashboard({ user, onLogout, refreshData, news = [],
                     placeholder="Ex: AO VIVO, ESPECIAL"
                   />
                 </div>
-              </div>
+              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button 

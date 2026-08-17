@@ -174,6 +174,17 @@ app.post('/api/unions', authMiddleware, (req, res) => {
   res.status(201).json(newItem);
 });
 
+app.put('/api/unions/:id', authMiddleware, (req, res) => {
+  const db = store.get();
+  const idx = (db.unions || []).findIndex(u => u.id === req.params.id);
+  if (idx !== -1) {
+    db.unions[idx] = { ...db.unions[idx], ...req.body };
+    store.save(db);
+    return res.json(db.unions[idx]);
+  }
+  res.status(404).json({ error: 'Sindicato não encontrado.' });
+});
+
 app.delete('/api/unions/:id', authMiddleware, (req, res) => {
   const db = store.get();
   db.unions = db.unions.filter(u => u.id !== req.params.id);
