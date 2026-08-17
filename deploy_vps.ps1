@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy Nginx Preferential Prefix (^~) - FTTRESP
+# Script de Deploy Nginx Oficial Kinghost (Porta 5005 + SSL) - FTTRESP
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp/
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_preferential_prefix_fttresp"
+    [string]$NomeAlteracao = "deploy_nginx_kinghost_official_port_5005"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Preferential Prefix ^~)
+# 2. Comando Remoto para o VPS (Configuração Oficial Nginx Kinghost na Porta 5005)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -64,7 +64,7 @@ cd "$remotePath" && \
 git fetch origin master && git checkout master && git reset --hard origin/master && \
 cd server && npm install && \
 cat << 'EOF' > .env
-PORT=5000
+PORT=5005
 USE_POSTGRES=true
 DATABASE_URL=postgres://fttresp_user:fttresp_pass_2026@localhost:5432/fttresp_db
 JWT_SECRET=fttresp-super-secret-key-2026
@@ -101,21 +101,21 @@ http {
 	include /etc/nginx/sites-enabled/*;
 }
 EOF
-find /etc/nginx/ -type f -exec sed -i '/fttresp/d' {} + 2>/dev/null || true && \
-mkdir -p /etc/nginx/snippets && \
-cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
+rm -f /etc/nginx/conf.d/fttresp* /etc/nginx/snippets/fttresp* && \
+cat << 'EOF' > /etc/nginx/sites-available/default
+server {
+    server_name pessistemas.vps-kinghost.net 187.45.255.59;
+
+    # FTTRESP FRONTEND
     location ^~ /fttresp/ {
         alias /var/www/fttresp/client/dist/;
         index index.html;
         try_files `$uri `$uri/ /fttresp/index.html;
     }
 
-    location = /fttresp {
-        return 301 /fttresp/;
-    }
-
+    # FTTRESP API PRODUCAO (Node 5005 + PostgreSQL)
     location ^~ /fttresp/api/ {
-        proxy_pass http://127.0.0.1:5000/api/;
+        proxy_pass http://127.0.0.1:5005/api/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade `$http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -123,23 +123,191 @@ cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
         proxy_cache_bypass `$http_upgrade;
     }
 
-    location /fttresp/uploads/ {
+    # FTTRESP UPLOADS
+    location ^~ /fttresp/uploads/ {
         alias /var/www/fttresp/client/public/uploads/;
     }
-EOF
-cat << 'EOF' > /etc/nginx/sites-available/fttresp
+
+    location ^~ /sindmotoristas/ {
+        alias /var/www/sindmotoristas/frontend/dist/;
+        index index.html;
+        error_page 404 =200 /sindmotoristas/index.html;
+    }
+
+    # API PRODUCAO
+    location ^~ /sindmotoristas/api/ {
+        proxy_pass http://127.0.0.1:3000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    # WEBSOCKET PRODUCAO
+    location ^~ /sindmotoristas/ws {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_set_header X-Real-IP `$remote_addr;
+        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_read_timeout 86400;
+    }
+
+    location ^~ /sindtv {
+        alias /var/www/sindtv/frontend/;
+        index index.html;
+        try_files `$uri `$uri/ /sindtv/index.html;
+    }
+
+    location ^~ /farmabus/ {
+        alias /var/www/farmabus/frontend/dist/;
+        index index.html;
+        try_files `$uri `$uri/ /farmabus/index.html;
+    }
+
+    location ^~ /farmabus/api/ {
+        proxy_pass http://127.0.0.1:3001/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    # FRONTEND DEV
+    location ^~ /testesindimotoristas/ {
+        alias /var/www/testesindimotoristas/frontend/dist/;
+        index index.html;
+        error_page 404 =200 /testesindimotoristas/index.html;
+    }
+
+    # API DEV
+    location ^~ /testesindimotoristas/api/ {
+        proxy_pass http://127.0.0.1:3002/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    # WEBSOCKET DEV
+    location ^~ /testesindimotoristas/ws {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_set_header X-Real-IP `$remote_addr;
+        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_read_timeout 86400;
+    }
+
+    # UPLOADS DEV
+    location /testesindimotoristas/uploads/ {
+        alias /var/www/testesindimotoristas/backend/uploads/;
+    }
+
+    # FRONTEND TESTE
+    location ^~ /sindmotoristas_teste/ {
+        alias /var/www/sindmotoristas_teste/frontend/dist/;
+        index index.html;
+        error_page 404 =200 /sindmotoristas_teste/index.html;
+    }
+
+    # API TESTE
+    location ^~ /sindmotoristas_teste/api/ {
+        proxy_pass http://127.0.0.1:3003/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    # WEBSOCKET TESTE
+    location ^~ /sindmotoristas_teste/ws {
+        proxy_pass http://127.0.0.1:3003;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_set_header X-Real-IP `$remote_addr;
+        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_read_timeout 86400;
+    }
+
+    # UPLOADS TESTE
+    location /sindmotoristas_teste/uploads/ {
+        alias /var/www/sindmotoristas_teste/backend/uploads/;
+    }
+
+    # ATALHO PARA AS TVS
+    location /tv/ {
+        rewrite ^/tv/(.*)$ /sindtv/tv/$1 permanent;
+    }
+
+    location ^~ /sindtv/api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+    }
+
+    location /uploads/ {
+        if (`$http_referer ~* /sindmotoristas_teste) {
+            rewrite ^/uploads/(.*)$ /sindmotoristas_teste/uploads/`$1 last;
+        }
+        if (`$http_referer ~* /testesindimotoristas) {
+            rewrite ^/uploads/(.*)$ /testesindimotoristas/uploads/`$1 last;
+        }
+        root /var/www/sindmotoristas/backend;
+        try_files `$uri @sindtv_uploads;
+    }
+
+    location /api/ {
+        if (`$http_referer ~* /sindmotoristas_teste) {
+            rewrite ^/api/(.*)$ /sindmotoristas_teste/api/`$1 last;
+        }
+        if (`$http_referer ~* /testesindimotoristas) {
+            rewrite ^/api/(.*)$ /testesindimotoristas/api/`$1 last;
+        }
+        proxy_pass http://127.0.0.1:3000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    location @sindtv_uploads {
+        root /var/www/sindtv/backend;
+        try_files `$uri =404;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host `$host;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/pessistemas.vps-kinghost.net/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pessistemas.vps-kinghost.net/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
 server {
     listen 80;
     server_name pessistemas.vps-kinghost.net 187.45.255.59;
-    include /etc/nginx/snippets/fttresp.conf;
+    return 301 https://`$host`$request_uri;
 }
 EOF
-ln -sf /etc/nginx/sites-available/fttresp /etc/nginx/sites-enabled/fttresp && \
-for file in /etc/nginx/sites-available/* /etc/nginx/conf.d/*.conf; do
-  if [ -f "`$file" ] && [ "`$file" != "/etc/nginx/sites-available/fttresp" ]; then
-    sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "`$file" 2>/dev/null || true
-  fi
-done && \
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && \
 sudo nginx -t && sudo systemctl reload nginx && \
 cd .. && \
 (pm2 restart fttresp-app || pm2 start server/src/server.js --name fttresp-app) && \
@@ -147,12 +315,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e executando injeção com prefixo preferencial ^~ ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e atualizando arquivo Nginx oficial na porta 5005 ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   DEPLOY NGINX (^~) CONCLUÍDO COM SUCESSO!        " -ForegroundColor Green
+    Write-Host "   DEPLOY E ROTEAMENTO OFICIAL APLICADOS NA PORTA 5005! " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp/ " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
