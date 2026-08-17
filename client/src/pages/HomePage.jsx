@@ -10,6 +10,8 @@ import StatCounter from '../components/StatCounter';
 export default function HomePage({ news = [], unions = [], tvChannels = [], banners = [], jornais = [], settings, setCurrentPage }) {
   const [newsFilter, setNewsFilter] = useState('Todas');
   const [jornalFilter, setJornalFilter] = useState('Todos');
+  const [newsPage, setNewsPage] = useState(1);
+  const itemsPerPage = 6;
 
   const [selectedVideo, setSelectedVideo] = useState(tvChannels[0] || null);
   const [likes, setLikes] = useState(142);
@@ -23,6 +25,9 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
   const filteredNews = newsFilter === 'Todas' 
     ? news 
     : news.filter(n => n.category && n.category.toLowerCase() === newsFilter.toLowerCase());
+
+  const totalNewsPages = Math.max(1, Math.ceil(filteredNews.length / itemsPerPage));
+  const currentNewsItems = filteredNews.slice((newsPage - 1) * itemsPerPage, newsPage * itemsPerPage);
 
   const displayJornais = jornais.length > 0 ? jornais : [
     {
@@ -379,7 +384,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
       </section>
 
-      {/* 9. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS */}
+      {/* 9. IMPRENSA E NOTÍCIAS EM GRID DE 3 EM 3 CARDS PAGINADO */}
       <section className="container space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
           <div>
@@ -391,7 +396,10 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             {categories.map((cat, idx) => (
               <button
                 key={`news-cat-${idx}`}
-                onClick={() => setNewsFilter(cat)}
+                onClick={() => {
+                  setNewsFilter(cat);
+                  setNewsPage(1);
+                }}
                 className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition ${
                   newsFilter === cat 
                     ? 'bg-red-600 text-white font-black shadow-sm' 
@@ -405,7 +413,7 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredNews.map((item, idx) => (
+          {currentNewsItems.map((item, idx) => (
             <div key={item.id || `news-card-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-zinc-200 shadow-md hover-lift flex flex-col justify-between hover:border-red-600">
               <div>
                 <div className="relative aspect-video overflow-hidden">
@@ -432,6 +440,47 @@ export default function HomePage({ news = [], unions = [], tvChannels = [], bann
             </div>
           ))}
         </div>
+
+        {/* CONTROLES DE PAGINAÇÃO DE NOTÍCIAS */}
+        {filteredNews.length > 0 && (
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200 shadow-sm">
+            <span className="text-xs text-zinc-600 font-bold">
+              Exibindo matérias {((newsPage - 1) * itemsPerPage) + 1}–{Math.min(newsPage * itemsPerPage, filteredNews.length)} de {filteredNews.length} notícias publicadas
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                disabled={newsPage === 1}
+                onClick={() => setNewsPage(prev => Math.max(prev - 1, 1))}
+                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
+              >
+                ◄ Anterior
+              </button>
+
+              {Array.from({ length: totalNewsPages }, (_, i) => i + 1).map((pg) => (
+                <button
+                  key={`pg-${pg}`}
+                  onClick={() => setNewsPage(pg)}
+                  className={`w-8 h-8 rounded-xl text-xs font-black transition ${
+                    newsPage === pg
+                      ? 'bg-red-600 text-white shadow-md'
+                      : 'bg-white text-black border border-zinc-300 hover:bg-zinc-100'
+                  }`}
+                >
+                  {pg}
+                </button>
+              ))}
+
+              <button
+                disabled={newsPage === totalNewsPages}
+                onClick={() => setNewsPage(prev => Math.min(prev + 1, totalNewsPages))}
+                className="px-3.5 py-1.5 rounded-xl bg-white border border-zinc-300 text-xs font-black uppercase text-black disabled:opacity-30 hover:bg-zinc-100 transition shadow-sm"
+              >
+                Próxima ►
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
     </div>
