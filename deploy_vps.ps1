@@ -1,11 +1,11 @@
 # ==============================================================================
-# Script de Deploy e Configuração Nginx Snippet para HTTPS /fttresp
+# Script de Deploy e Configuração Nginx Dedicada para pessistemas.vps-kinghost.net
 # Servidor: Ubuntu 22.04 LTS (IP: 187.45.255.59)
 # URL HTTPS: https://pessistemas.vps-kinghost.net/fttresp
 # ==============================================================================
 
 param (
-    [string]$NomeAlteracao = "deploy_nginx_snippet_fttresp"
+    [string]$NomeAlteracao = "deploy_nginx_dedicated_domain"
 )
 
 $plinkPath = "C:\Program Files\PuTTY\plink.exe"
@@ -41,7 +41,7 @@ git add .
 git commit -m "$commitMsg"
 git push origin master
 
-# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Snippet para o domínio HTTPS)
+# 2. Comando Remoto para o VPS (Instalação PostgreSQL, Node, PM2 e Nginx Dedicado para o domínio Kinghost)
 $remotePath = "/var/www/fttresp"
 
 $vpsCommand = @"
@@ -71,7 +71,7 @@ JWT_SECRET=fttresp-super-secret-key-2026
 EOF
 node src/data/seed_pg.js && \
 cd ../client && npm install && npm run build && \
-mkdir -p /etc/nginx/snippets && \
+mkdir -p /etc/nginx/snippets /etc/nginx/conf.d && \
 cat << 'EOF' > /etc/nginx/snippets/fttresp.conf
 location /fttresp/ {
     alias /var/www/fttresp/client/dist/;
@@ -96,8 +96,15 @@ location /fttresp/uploads/ {
     alias /var/www/fttresp/client/public/uploads/;
 }
 EOF
-for f in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf; do
-  if [ -f "\$f" ] && ! grep -q "fttresp.conf" "\$f"; then
+cat << 'EOF' > /etc/nginx/conf.d/fttresp_domain.conf
+server {
+    listen 80;
+    server_name pessistemas.vps-kinghost.net 187.45.255.59;
+    include /etc/nginx/snippets/fttresp.conf;
+}
+EOF
+for f in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf /etc/nginx/sites-available/*; do
+  if [ -f "\$f" ] && [ "\$f" != "/etc/nginx/conf.d/fttresp_domain.conf" ] && ! grep -q "fttresp.conf" "\$f"; then
     sed -i '/server_name/a \    include /etc/nginx/snippets/fttresp.conf;' "\$f" || true
   fi
 done && \
@@ -108,12 +115,12 @@ pm2 save
 "@
 
 # 3. Execução Remota via Plink
-Write-Host "`n--- Step 2: Conectando ao VPS e injetando snippet Nginx no domínio HTTPS ---" -ForegroundColor Cyan
+Write-Host "`n--- Step 2: Conectando ao VPS e aplicando host virtual Nginx dedicado ---" -ForegroundColor Cyan
 
 if (Test-Path $plinkPath) {
     & $plinkPath -pw $vpsPass "$vpsUser@$vpsIP" $vpsCommand
     Write-Host "`n==================================================" -ForegroundColor Green
-    Write-Host "   SNIPPET NGINX INJETADO COM SUCESSO NO DOMÍNIO! " -ForegroundColor Green
+    Write-Host "   HOST VIRTUAL NGINX APLICADO COM SUCESSO!       " -ForegroundColor Green
     Write-Host "   Acesse em: https://pessistemas.vps-kinghost.net/fttresp " -ForegroundColor Green
     Write-Host "==================================================" -ForegroundColor Green
 } else {
